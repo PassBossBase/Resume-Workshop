@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 简历工坊
 
-## Getting Started
+一款使用 Next.js 构建的纯本地简历编辑器。应用界面采用活力彩色动漫风，导出的简历保持专业、克制。
 
-First, run the development server:
+## 功能
+
+- 我的简历、模板库、通用设置和响应式编辑工作台
+- 基本信息、专业技能、工作经历、项目经历、教育经历
+- 模块显隐与排序、经历条目增删与排序、主题和排版设置
+- 桌面 Chrome 本地目录同步，IndexedDB 缓存恢复
+- 移动端完整编辑并独立保存在浏览器缓存
+- A4 多页实时预览和 PDF 直接下载
+- 无账号、无云服务、无 AI
+
+## 开发
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+访问 `http://localhost:3000`。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 验证
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm test
+npm run typecheck
+npm run lint
+npm run build
+```
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+目录同步依赖 File System Access API，仅承诺支持最新版桌面 Chrome，并要求 HTTPS 或 localhost。
