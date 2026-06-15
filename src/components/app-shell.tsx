@@ -104,9 +104,11 @@ function MobileNavigation({ pathname }: { pathname: string }) {
                 >
                   <span
                     className={`grid h-9 w-9 place-items-center rounded-xl border-2 border-black ${
-                      ["bg-[var(--blue)]", "bg-[var(--pink)]", "bg-[var(--mint)]"][
-                        index
-                      ]
+                      [
+                        "bg-[var(--blue)]",
+                        "bg-[var(--pink)]",
+                        "bg-[var(--mint)]",
+                      ][index]
                     }`}
                   >
                     <Icon
@@ -141,24 +143,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 
   const toggleSidebar = () => {
-    window.localStorage.setItem(
-      sidebarStorageKey,
-      String(!sidebarCollapsed),
-    );
+    window.localStorage.setItem(sidebarStorageKey, String(!sidebarCollapsed));
     window.dispatchEvent(new Event(sidebarChangeEvent));
   };
 
   return (
-    <div
-      className={`min-h-screen transition-[grid-template-columns] duration-200 lg:grid ${
-        sidebarCollapsed
-          ? "lg:grid-cols-[88px_1fr]"
-          : "lg:grid-cols-[260px_1fr]"
-      }`}
-    >
+    <div className="min-h-screen">
       <aside
-        className={`no-print hidden border-r-2 border-black bg-[#fff8e8] transition-[padding] duration-200 lg:flex lg:flex-col ${
-          sidebarCollapsed ? "p-4" : "p-6"
+        className={`no-print fixed top-0 left-0 z-40 hidden h-screen border-r-2 border-black bg-[#fff8e8] transition-[padding,width] duration-200 lg:flex lg:flex-col ${
+          sidebarCollapsed ? "w-[88px] p-4" : "w-[260px] p-6"
         }`}
         data-collapsed={sidebarCollapsed}
         data-testid="desktop-sidebar"
@@ -169,22 +162,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           }`}
         >
           <BrandMark compact={sidebarCollapsed} />
-          <button
-            type="button"
-            aria-label={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
-            aria-expanded={!sidebarCollapsed}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border-2 border-black bg-white transition hover:-translate-y-0.5 hover:bg-[var(--yellow)] hover:shadow-[3px_3px_0_black] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue)]"
-            onClick={toggleSidebar}
-            title={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
-          >
-            {sidebarCollapsed ? (
-              <PanelLeftOpen aria-hidden="true" size={20} />
-            ) : (
-              <PanelLeftClose aria-hidden="true" size={20} />
-            )}
-          </button>
         </div>
-        <nav className={sidebarCollapsed ? "mt-8 space-y-3" : "mt-14 space-y-3"}>
+        <nav
+          className={
+            sidebarCollapsed
+              ? "relative h-full mt-8 space-y-3"
+              : "relative h-full mt-14 space-y-3"
+          }
+        >
           {links.map(({ href, label, icon: Icon }, index) => {
             const active = pathname === href;
             return (
@@ -203,12 +188,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               >
                 <span
                   className={`grid h-9 w-9 place-items-center rounded-xl border-2 border-black ${
-                    ["bg-[var(--blue)]", "bg-[var(--pink)]", "bg-[var(--mint)]"][
-                      index
-                    ]
+                    [
+                      "bg-[var(--blue)]",
+                      "bg-[var(--pink)]",
+                      "bg-[var(--mint)]",
+                    ][index]
                   }`}
                 >
-                    <Icon size={18} color="white" strokeWidth={2.6} />
+                  <Icon size={18} color="white" strokeWidth={2.6} />
                 </span>
                 <span className={sidebarCollapsed ? "sr-only" : undefined}>
                   {label}
@@ -216,27 +203,27 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
+          <button
+            type="button"
+            aria-label={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
+            aria-expanded={!sidebarCollapsed}
+            className="absolute left-0 bottom-2 grid h-10 w-full shrink-0 place-items-center border-2 border-black bg-white transition hover:-translate-y-0.5 hover:bg-[var(--yellow)] hover:shadow-[3px_3px_0_black] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue)]"
+            onClick={toggleSidebar}
+            title={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
+          >
+            {sidebarCollapsed ? (
+              <PanelLeftOpen aria-hidden="true" size={20} />
+            ) : (
+              <PanelLeftClose aria-hidden="true" size={20} />
+            )}
+          </button>
         </nav>
-        <div
-          className={`comic-dots mt-auto rounded-3xl border-2 border-black bg-[var(--yellow)] ${
-            sidebarCollapsed
-              ? "grid min-h-14 place-items-center p-3"
-              : "p-5"
-          }`}
-          title={sidebarCollapsed ? "数据只留在你的设备" : undefined}
-        >
-          <Sparkles className={sidebarCollapsed ? undefined : "mb-2"} />
-          {sidebarCollapsed ? null : (
-            <>
-              <p className="font-black">数据只留在你的设备</p>
-              <p className="mt-1 text-sm leading-6">
-                没有账号，没有云端，也没有 AI。
-              </p>
-            </>
-          )}
-        </div>
       </aside>
-      <div className="min-w-0">
+      <div
+        className={`min-w-0 transition-[padding] duration-200 ${
+          sidebarCollapsed ? "lg:pl-[88px]" : "lg:pl-[260px]"
+        }`}
+      >
         <header className="no-print relative z-40 flex h-20 items-center justify-between border-b-2 border-black bg-[var(--paper)] px-5 lg:hidden">
           <BrandMark />
           <MobileNavigation pathname={pathname} />
