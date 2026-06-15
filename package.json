@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@tiptap/core": "^3.26.1",
     "@tiptap/extension-color": "^3.26.1",
     "@tiptap/extension-link": "^3.26.1",
     "@tiptap/extension-text-align": "^3.26.1",
