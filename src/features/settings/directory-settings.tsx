@@ -1,15 +1,18 @@
 "use client";
 
 import {
+  AlertTriangle,
   CheckCircle2,
   FolderOpen,
   HardDrive,
   RefreshCcw,
   ShieldCheck,
   Unplug,
+  X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { InkButton, StickerCard } from "@/components/anime-ui/ui";
+import { useEffect, useRef, useState } from "react";
+import { InkButton, Modal, PageContainer, PageHeading, StickerCard } from "@/components/anime-ui/ui";
+import { useOverlay } from "@/hooks/use-overlay";
 import {
   resumeFileName,
   writeResumeFile,
@@ -26,6 +29,22 @@ export function DirectorySettings() {
   const [handle, setHandle] = useState<FileSystemDirectoryHandle>();
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("尚未连接同步目录");
+  const [showDisconnect, setShowDisconnect] = useState(false);
+  const closeDisconnectRef = useRef<HTMLButtonElement>(null);
+  const [syncResult, setSyncResult] = useState<{
+    directoryName: string;
+    resumeCount: number;
+  } | null>(null);
+  const closeSyncResultRef = useRef<HTMLButtonElement>(null);
+
+  useOverlay(showDisconnect, {
+    focusRef: closeDisconnectRef,
+    onClose: () => setShowDisconnect(false),
+  });
+  useOverlay(Boolean(syncResult), {
+    focusRef: closeSyncResultRef,
+    onClose: () => setSyncResult(null),
+  });
 
   useEffect(() => {
     const restore = async () => {
@@ -81,13 +100,20 @@ export function DirectorySettings() {
     await writer.close();
     setStatus("granted");
     setMessage(`已连接：${directory.name}，迁移 ${resumes.length} 份简历`);
+    return resumes.length;
   };
 
   const choose = async () => {
-    const directory = await window.showDirectoryPicker({
-      id: "resume-workshop",
-      mode: "readwrite",
-    });
+    let directory: FileSystemDirectoryHandle;
+    try {
+      directory = await window.showDirectoryPicker({
+        id: "resume-workshop",
+        mode: "readwrite",
+      });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      throw error;
+    }
     const permission = await directory.requestPermission({ mode: "readwrite" });
     if (permission !== "granted") {
       setStatus("denied");
@@ -96,13 +122,17 @@ export function DirectorySettings() {
     }
     await saveSetting("directory-handle", directory);
     setHandle(directory);
-    await syncCachedResumes(directory);
+    const count = await syncCachedResumes(directory);
+    setSyncResult({ directoryName: directory.name, resumeCount: count });
   };
 
   const reconnect = async () => {
     if (!handle) return choose();
     const permission = await handle.requestPermission({ mode: "readwrite" });
-    if (permission === "granted") await syncCachedResumes(handle);
+    if (permission === "granted") {
+      const count = await syncCachedResumes(handle);
+      setSyncResult({ directoryName: handle.name, resumeCount: count });
+    }
   };
 
   const disconnect = async () => {
@@ -113,14 +143,14 @@ export function DirectorySettings() {
   };
 
   return (
-    <div className="mx-auto max-w-375 px-5 py-8 md:px-10 lg:py-10">
-      <span className="inline-block rotate-1 rounded-full border-2 border-black bg-[var(--mint)] px-4 py-1 text-sm font-black">
-        PRIVATE BY DEFAULT
-      </span>
-      <h1 className="mt-4 text-4xl font-black md:text-6xl">通用设置</h1>
-      <p className="mt-3 text-black/55">
-        桌面 Chrome 可以把本地目录作为权威数据源；手机始终使用浏览器缓存。
-      </p>
+    <PageContainer>
+      <PageHeading
+        badge="PRIVATE BY DEFAULT"
+        badgeColor="bg-[var(--mint)]"
+        badgeRotation="rotate-1"
+        title="通用设置"
+        subtitle="桌面 Chrome 可以把本地目录作为权威数据源；手机始终使用浏览器缓存。"
+      />
 
       <StickerCard className="mt-9 overflow-hidden">
         <div className="flex flex-wrap items-center gap-4 border-b-2 border-black bg-[#fff0e6] p-6">
@@ -165,7 +195,7 @@ export function DirectorySettings() {
                 {status === "denied" ? "重新授权" : "选择文件夹"}
               </InkButton>
               {handle && (
-                <InkButton onClick={disconnect} variant="paper">
+                <InkButton onClick={() => setShowDisconnect(true)} variant="paper">
                   <Unplug size={17} />
                   断开
                 </InkButton>
@@ -174,6 +204,129 @@ export function DirectorySettings() {
           </div>
         </div>
       </StickerCard>
+
+      <Modal
+        ariaLabelledby="disconnect-dir-title"
+        onClose={() => setShowDisconnect(false)}
+        open={showDisconnect}
+        size="sm"
+      >
+        <div className="comic-dots border-b-2 border-black bg-[#fff0e6] px-6 py-5">
+          <div className="flex items-start gap-4">
+            <span className="grid h-14 w-14 shrink-0 rotate-[-4deg] place-items-center rounded-2xl border-2 border-black bg-(--orange) text-white shadow-[3px_3px_0_black]">
+              <AlertTriangle size={28} strokeWidth={2.5} />
+            </span>
+            <div className="min-w-0 pt-1">
+              <span className="text-xs font-black tracking-[0.18em] text-orange-700">
+                同步设置
+              </span>
+              <h2
+                className="mt-1 text-2xl font-black"
+                id="disconnect-dir-title"
+              >
+                确认断开目录同步？
+              </h2>
+            </div>
+          </div>
+          <button
+            aria-label="关闭断开确认"
+            className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-xl border-2 border-black bg-white transition hover:bg-(--yellow)"
+            onClick={() => setShowDisconnect(false)}
+            ref={closeDisconnectRef}
+            type="button"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="p-6">
+          <p className="leading-7 text-black/60">
+            你正在断开目录
+            <strong className="mx-1 text-black">
+              &ldquo;{handle?.name}&rdquo;
+            </strong>
+            。断开后简历将继续保存到浏览器缓存，不会删除本地文件夹中已有的文件。
+          </p>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <InkButton
+              onClick={() => setShowDisconnect(false)}
+              variant="paper"
+            >
+              取消
+            </InkButton>
+            <InkButton
+              aria-label="确认断开"
+              className="bg-orange-500 text-white"
+              onClick={() => {
+                disconnect();
+                setShowDisconnect(false);
+              }}
+              variant="pink"
+            >
+              <Unplug size={17} />
+              确认断开
+            </InkButton>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        ariaLabelledby="sync-result-title"
+        onClose={() => setSyncResult(null)}
+        open={Boolean(syncResult)}
+        size="sm"
+      >
+        <div className="comic-dots border-b-2 border-black bg-[#f0faf0] px-6 py-5">
+          <div className="flex items-start gap-4">
+            <span className="grid h-14 w-14 shrink-0 rotate-[-4deg] place-items-center rounded-2xl border-2 border-black bg-emerald-500 text-white shadow-[3px_3px_0_black]">
+              <CheckCircle2 size={28} strokeWidth={2.5} />
+            </span>
+            <div className="min-w-0 pt-1">
+              <span className="text-xs font-black tracking-[0.18em] text-emerald-700">
+                同步完成
+              </span>
+              <h2
+                className="mt-1 text-2xl font-black"
+                id="sync-result-title"
+              >
+                目录连接成功
+              </h2>
+            </div>
+          </div>
+          <button
+            aria-label="关闭同步结果"
+            className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-xl border-2 border-black bg-white transition hover:bg-(--yellow)"
+            onClick={() => setSyncResult(null)}
+            ref={closeSyncResultRef}
+            type="button"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="p-6">
+          <p className="leading-7 text-black/60">
+            已成功连接目录
+            <strong className="mx-1 text-black">
+              &ldquo;{syncResult?.directoryName}&rdquo;
+            </strong>
+            ，共同步
+            <strong className="mx-1 text-black">
+              {syncResult?.resumeCount}
+            </strong>
+            份简历。之后所有修改都会自动写入该目录。
+          </p>
+          <div className="mt-6">
+            <InkButton
+              className="w-full"
+              onClick={() => setSyncResult(null)}
+              variant="yellow"
+            >
+              知道了
+            </InkButton>
+          </div>
+        </div>
+      </Modal>
 
       <div className="mt-8 grid gap-5 md:grid-cols-2">
         <StickerCard className="p-6">
@@ -191,6 +344,6 @@ export function DirectorySettings() {
           </p>
         </StickerCard>
       </div>
-    </div>
+    </PageContainer>
   );
 }

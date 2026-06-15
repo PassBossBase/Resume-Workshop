@@ -7,18 +7,17 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
-  Sparkles,
   X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  useEffect,
   useState,
   useSyncExternalStore,
   type ReactNode,
 } from "react";
 import { BrandMark } from "./anime-ui/ui";
+import { useOverlay } from "@/hooks/use-overlay";
 
 const sidebarStorageKey = "resume-workshop:sidebar-collapsed";
 const sidebarChangeEvent = "resume-workshop:sidebar-change";
@@ -49,16 +48,7 @@ const links = [
 function MobileNavigation({ pathname }: { pathname: string }) {
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    if (!open) return;
-
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [open]);
+  useOverlay(open, { lockScroll: false, onClose: () => setOpen(false) });
 
   return (
     <div className="relative z-50">
@@ -207,7 +197,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             type="button"
             aria-label={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
             aria-expanded={!sidebarCollapsed}
-            className="absolute left-0 bottom-2 grid h-10 w-full shrink-0 place-items-center border-2 border-black bg-white transition hover:-translate-y-0.5 hover:bg-[var(--yellow)] hover:shadow-[3px_3px_0_black] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue)]"
+            className="absolute cursor-pointer left-0 bottom-2 grid h-10 w-full shrink-0 place-items-center border-2 border-black bg-white transition hover:-translate-y-0.5 hover:bg-[var(--yellow)] hover:shadow-[3px_3px_0_black] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue)]"
             onClick={toggleSidebar}
             title={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
           >

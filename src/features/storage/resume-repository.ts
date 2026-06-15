@@ -1,4 +1,5 @@
 import { openDB, type DBSchema } from "idb";
+import type { z } from "zod";
 import {
   resumeDocumentSchema,
   type ResumeDocument,
@@ -29,6 +30,7 @@ const dbPromise = () =>
     },
   });
 
+/** 保存简历到 IndexedDB，写入前通过 Zod schema 校验 */
 export async function saveResume(resume: ResumeDocument): Promise<void> {
   const validResume = resumeDocumentSchema.parse(resume);
   const db = await dbPromise();
@@ -59,9 +61,19 @@ export async function saveSetting<T>(key: string, value: T): Promise<void> {
   await db.put("settings", value, key);
 }
 
-export async function loadSetting<T>(key: string): Promise<T | undefined> {
+/**
+ * 从 IndexedDB 读取一条设置。提供 Zod schema 时会在返回前做运行时校验，
+ * 与 loadResume / saveResume 保持一致。
+ */
+export async function loadSetting<T>(
+  key: string,
+  schema?: z.Schema<T>,
+): Promise<T | undefined> {
   const db = await dbPromise();
-  return (await db.get("settings", key)) as T | undefined;
+  const raw = await db.get("settings", key);
+  if (raw === undefined) return undefined;
+  if (schema) return schema.parse(raw);
+  return raw as T;
 }
 
 export async function clearResumeDatabase(): Promise<void> {

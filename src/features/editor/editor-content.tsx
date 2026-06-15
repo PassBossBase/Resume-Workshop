@@ -12,10 +12,14 @@ import type {
   ResumeEntry,
 } from "@/features/resume-model/resume-model";
 import { RichTextEditor } from "@/features/rich-text/rich-text-editor";
+import { SectionCard } from "@/components/anime-ui/ui";
 import { DateInput } from "./date-input";
 import { moduleMeta } from "./module-meta";
-import { useResumeStore } from "./resume-store";
+import { useResumeStore } from "@/stores/resume-store";
 
+/**
+ * 编辑器中间面板：基本信息表单、模块条目列表、富文本编辑与日期输入。
+ */
 const basicFields = [
   ["name", "姓名"],
   ["role", "职位"],
@@ -43,7 +47,7 @@ export function EditorContent() {
 
   return (
     <div className="min-h-full bg-[var(--paper)] p-5 md:p-7 xl:p-9">
-      <div className="mb-8 flex items-center gap-3 rounded-[24px] border-2 border-black bg-white px-5 py-4 shadow-[4px_4px_0_black]">
+      <SectionCard className="mb-8 flex items-center gap-3 px-5 py-4" variant="white">
         <span
           className="grid h-11 w-11 place-items-center rounded-2xl border-2 border-black"
           style={{ background: meta.color }}
@@ -56,7 +60,7 @@ export function EditorContent() {
           </p>
           <h2 className="text-2xl font-black">{meta.label}</h2>
         </div>
-      </div>
+      </SectionCard>
 
       {activeModule === "basics" && activeSection.basics ? (
         <div className="space-y-7">
@@ -108,9 +112,10 @@ export function EditorContent() {
                   />
                 </label>
               ))}
-              <div className="md:grid md:grid-cols-[110px_1fr] md:items-start">
-                <span className="pt-3 font-bold">出生日期</span>
+              <div className="grid gap-2 md:grid-cols-[110px_1fr] md:items-center">
+                <span className="font-bold">出生日期</span>
                 <DateInput
+                  hideLabel
                   label="出生日期"
                   value={activeSection.basics.birthday}
                   onChange={(value) => updateBasic("birthday", value)}
@@ -120,7 +125,7 @@ export function EditorContent() {
           </section>
         </div>
       ) : activeModule === "skills" ? (
-        <section className="rounded-[24px] border-2 border-black bg-white p-5 shadow-[4px_4px_0_#dcd5c7]">
+        <SectionCard variant="beige" className="p-5">
           <div className="mb-4">
             <h3 className="text-lg font-black">专业技能内容</h3>
             <p className="mt-1 text-sm text-black/50">
@@ -139,7 +144,7 @@ export function EditorContent() {
               }
             }}
           />
-        </section>
+        </SectionCard>
       ) : (
         <div className="space-y-5">
           {activeSection.items.map((item, index) => (
@@ -200,7 +205,7 @@ function EntryEditor({
   onRemove: () => void;
 }) {
   return (
-    <section className="rounded-[24px] border-2 border-black bg-white p-5 shadow-[4px_4px_0_#dcd5c7]">
+    <SectionCard variant="beige" className="p-5">
       <div className="mb-5 flex items-center justify-between">
         <span className="rounded-full border-2 border-black bg-[var(--yellow)] px-3 py-1 text-xs font-black">
           条目 {index + 1}
@@ -226,7 +231,6 @@ function EntryEditor({
           onChange={(startDate) => onChange({ startDate })}
         />
         <DateInput
-          allowOngoing
           label="结束时间"
           value={item.endDate}
           onChange={(endDate) => onChange({ endDate })}
@@ -240,7 +244,7 @@ function EntryEditor({
           onChange={(description) => onChange({ description })}
         />
       </div>
-    </section>
+    </SectionCard>
   );
 }
 

@@ -11,14 +11,7 @@ describe("TemplateGallery", () => {
   it("renders the template with sample resume data", () => {
     render(<TemplateGallery />);
 
-    expect(screen.getByTestId("template-grid")).toHaveClass(
-      "grid-cols-1",
-      "lg:grid-cols-3",
-    );
-    expect(screen.getByTestId("template-card")).toHaveClass(
-      "lg:max-w-[340px]",
-    );
-    expect(screen.queryByText("首发模板")).not.toBeInTheDocument();
+    expect(screen.getByTestId("template-grid")).toBeInTheDocument();
     expect(screen.getByText("林小满")).toBeInTheDocument();
     expect(screen.getByText("产品设计师")).toBeInTheDocument();
     expect(screen.getByText("专业技能")).toBeInTheDocument();

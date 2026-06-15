@@ -6,7 +6,6 @@ import {
   FileText,
   Home,
   LayoutDashboard,
-  MoonStar,
   Palette,
   Sparkles,
 } from "lucide-react";
@@ -28,12 +27,16 @@ import {
 } from "@/features/storage/resume-repository";
 import { EditorContent } from "./editor-content";
 import { moduleMeta } from "./module-meta";
-import { useResumeStore } from "./resume-store";
+import { useResumeStore } from "@/stores/resume-store";
 import { StylePanel } from "./style-panel";
 import { ResumePreview } from "@/features/templates/resume-preview";
 
 type MobileTab = "content" | "style" | "preview";
 
+/**
+ * 编辑器顶层容器：三栏布局（样式 / 内容 / 预览），
+ * 负责数据加载、自动保存与移动端底部 tab 切换。
+ */
 export function EditorShell({ id }: { id: string }) {
   const resume = useResumeStore((state) => state.resume);
   const load = useResumeStore((state) => state.load);

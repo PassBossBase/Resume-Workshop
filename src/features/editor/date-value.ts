@@ -1,3 +1,6 @@
+/**
+ * 日期格式化工具 —— 在 YYYY / MM 展示格式与 YYYY-MM（HTML month input）之间转换。
+ */
 export function formatMonthValue(value: string): string {
   const match = /^(\d{4})-(\d{2})$/.exec(value);
   return match ? `${match[1]} / ${match[2]}` : value;

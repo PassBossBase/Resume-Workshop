@@ -10,8 +10,9 @@ import {
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { InkButton, StickerCard } from "@/components/anime-ui/ui";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { InkButton, Modal, PageContainer, PageHeading, StickerCard } from "@/components/anime-ui/ui";
+import { useOverlay } from "@/hooks/use-overlay";
 import {
   createDefaultResume,
   type ResumeDocument,
@@ -21,9 +22,10 @@ import {
   listResumes,
   saveResume,
 } from "@/features/storage/resume-repository";
-import { ClassicTemplatePage } from "@/features/templates/classic-template";
 import { buildResumePages } from "@/features/templates/resume-pages";
+import { TemplateThumbnail } from "@/features/templates/template-thumbnail";
 
+/** 简历列表页：新建 / 复制 / 删除，加载骨架屏与卡片缩略图 */
 export function ResumeDashboard({
   initialResumes,
 }: {
@@ -34,6 +36,13 @@ export function ResumeDashboard({
   const [isLoading, setIsLoading] = useState(initialResumes.length === 0);
   const [pendingDelete, setPendingDelete] = useState<ResumeDocument>();
   const [isDeleting, setIsDeleting] = useState(false);
+  const closeDeleteRef = useRef<HTMLButtonElement>(null);
+
+  useOverlay(Boolean(pendingDelete), {
+    disabled: isDeleting,
+    focusRef: closeDeleteRef,
+    onClose: () => setPendingDelete(undefined),
+  });
 
   useEffect(() => {
     listResumes()
@@ -41,22 +50,6 @@ export function ResumeDashboard({
       .catch(() => undefined)
       .finally(() => setIsLoading(false));
   }, []);
-
-  useEffect(() => {
-    if (!pendingDelete) return;
-
-    const previousOverflow = document.body.style.overflow;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !isDeleting) setPendingDelete(undefined);
-    };
-
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [isDeleting, pendingDelete]);
 
   const createResume = async () => {
     const id = crypto.randomUUID();
@@ -91,19 +84,22 @@ export function ResumeDashboard({
     }
   };
 
+  const resumePageMap = useMemo(
+    () => new Map(resumes.map((r) => [r.id, buildResumePages(r)[0]])),
+    [resumes],
+  );
+
   return (
-    <section className="mx-auto max-w-375 px-5 py-8 md:px-10 lg:py-10">
+    <PageContainer>
       <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
         <div>
-          <span className="inline-block rotate-[-2deg] rounded-full border-2 border-black bg-[var(--yellow)] px-4 py-1 text-sm font-black">
-            LOCAL RESUME STUDIO
-          </span>
-          <h1 className="mt-4 text-4xl font-black tracking-tight md:text-6xl">
-            我的简历
-          </h1>
-          <p className="mt-3 max-w-xl text-base font-medium text-black/60">
-            把经历整理成一份清晰、专业又属于你的简历。
-          </p>
+          <PageHeading
+            badge="LOCAL RESUME STUDIO"
+            badgeColor="bg-[var(--yellow)]"
+            badgeRotation="rotate-[-2deg]"
+            title="我的简历"
+            subtitle="把经历整理成一份清晰、专业又属于你的简历。"
+          />
         </div>
         <InkButton onClick={createResume} variant="pink">
           <Plus size={19} />
@@ -163,22 +159,11 @@ export function ResumeDashboard({
               className="animate-pop overflow-hidden"
               style={{ animationDelay: `${index * 60}ms` }}
             >
-              <div
-                aria-label={`${resume.title}简历内容预览`}
-                className="relative h-64 overflow-hidden border-b-2 border-black bg-[#e7ebf1]"
-              >
-                <div className="template-thumbnail-page absolute left-1/2 top-4 -translate-x-1/2 shadow-[0_16px_35px_rgb(30_40_60/24%)]">
-                  <div>
-                    <ClassicTemplatePage
-                      page={buildResumePages(resume)[0]}
-                      resume={resume}
-                    />
-                  </div>
-                </div>
-                <div className="absolute right-4 top-4 rounded-full border-2 border-black bg-(--yellow) px-3 py-1 text-xs font-black shadow-[2px_2px_0_black]">
-                  经典单栏
-                </div>
-              </div>
+              <TemplateThumbnail
+                ariaLabel={`${resume.title}简历内容预览`}
+                page={resumePageMap.get(resume.id)!}
+                resume={resume}
+              />
               <div className="p-5">
                 <h2 className="truncate text-xl font-black">{resume.title}</h2>
                 <p className="mt-1 text-sm text-black/50">
@@ -228,80 +213,71 @@ export function ResumeDashboard({
         </div>
       )}
 
-      {pendingDelete ? (
-        <div
-          className="fixed inset-0 z-100 grid place-items-center bg-black/70 p-4 backdrop-blur-[2px]"
-          onMouseDown={(event) => {
-            if (event.currentTarget === event.target && !isDeleting) {
-              setPendingDelete(undefined);
-            }
-          }}
-        >
-          <section
-            aria-labelledby="delete-resume-title"
-            aria-modal="true"
-            className="animate-pop relative w-full max-w-lg overflow-hidden rounded-[28px] border-2 border-black bg-(--paper) shadow-[8px_8px_0_black]"
-            role="dialog"
-          >
-            <div className="comic-dots border-b-2 border-black bg-[#fff0e6] px-6 py-5">
-              <div className="flex items-start gap-4">
-                <span className="grid h-14 w-14 shrink-0 rotate-[-4deg] place-items-center rounded-2xl border-2 border-black bg-(--pink) text-white shadow-[3px_3px_0_black]">
-                  <AlertTriangle size={28} strokeWidth={2.5} />
-                </span>
-                <div className="min-w-0 pt-1">
-                  <span className="text-xs font-black tracking-[0.18em] text-red-600">
-                    DANGER ZONE
-                  </span>
-                  <h2
-                    className="mt-1 text-2xl font-black"
-                    id="delete-resume-title"
-                  >
-                    确认删除简历？
-                  </h2>
-                </div>
-              </div>
-              <button
-                aria-label="关闭删除确认"
-                className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-xl border-2 border-black bg-white transition hover:bg-(--yellow)"
-                disabled={isDeleting}
-                onClick={() => setPendingDelete(undefined)}
-                type="button"
+      <Modal
+        ariaLabelledby="delete-resume-title"
+        disabled={isDeleting}
+        onClose={() => setPendingDelete(undefined)}
+        open={Boolean(pendingDelete)}
+        size="sm"
+      >
+        <div className="comic-dots border-b-2 border-black bg-[#fff0e6] px-6 py-5">
+          <div className="flex items-start gap-4">
+            <span className="grid h-14 w-14 shrink-0 rotate-[-4deg] place-items-center rounded-2xl border-2 border-black bg-(--pink) text-white shadow-[3px_3px_0_black]">
+              <AlertTriangle size={28} strokeWidth={2.5} />
+            </span>
+            <div className="min-w-0 pt-1">
+              <span className="text-xs font-black tracking-[0.18em] text-red-600">
+                DANGER ZONE
+              </span>
+              <h2
+                className="mt-1 text-2xl font-black"
+                id="delete-resume-title"
               >
-                <X size={20} />
-              </button>
+                确认删除简历？
+              </h2>
             </div>
-
-            <div className="p-6">
-              <p className="leading-7 text-black/60">
-                你正在删除
-                <strong className="mx-1 text-black">
-                  “{pendingDelete.title}”
-                </strong>
-                。此操作无法撤销，保存在当前设备中的数据也会一并移除。
-              </p>
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                <InkButton
-                  disabled={isDeleting}
-                  onClick={() => setPendingDelete(undefined)}
-                  variant="paper"
-                >
-                  取消
-                </InkButton>
-                <InkButton
-                  aria-label="确认删除"
-                  className="bg-red-500 text-white"
-                  disabled={isDeleting}
-                  onClick={confirmRemove}
-                  variant="pink"
-                >
-                  <Trash2 size={17} />
-                  {isDeleting ? "正在删除..." : "确认删除"}
-                </InkButton>
-              </div>
-            </div>
-          </section>
+          </div>
+          <button
+            aria-label="关闭删除确认"
+            className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-xl border-2 border-black bg-white transition hover:bg-(--yellow)"
+            disabled={isDeleting}
+            onClick={() => setPendingDelete(undefined)}
+            ref={closeDeleteRef}
+            type="button"
+          >
+            <X size={20} />
+          </button>
         </div>
-      ) : null}
-    </section>
+
+        <div className="p-6">
+          <p className="leading-7 text-black/60">
+            你正在删除
+            <strong className="mx-1 text-black">
+              &ldquo;{pendingDelete?.title}&rdquo;
+            </strong>
+            。此操作无法撤销，保存在当前设备中的数据也会一并移除。
+          </p>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <InkButton
+              disabled={isDeleting}
+              onClick={() => setPendingDelete(undefined)}
+              variant="paper"
+            >
+              取消
+            </InkButton>
+            <InkButton
+              aria-label="确认删除"
+              className="bg-red-500 text-white"
+              disabled={isDeleting}
+              onClick={confirmRemove}
+              variant="pink"
+            >
+              <Trash2 size={17} />
+              {isDeleting ? "正在删除..." : "确认删除"}
+            </InkButton>
+          </div>
+        </div>
+      </Modal>
+    </PageContainer>
   );
 }

@@ -19,6 +19,7 @@ const allowedStyleProperties = new Set([
   "text-indent",
 ]);
 
+/** 转义 HTML 特殊字符 */
 export function escapeHtml(value: string): string {
   return value
     .replaceAll("&", "&amp;")
@@ -28,6 +29,7 @@ export function escapeHtml(value: string): string {
     .replaceAll("'", "&#039;");
 }
 
+/** 清洗 HTML：白名单标签、样式、链接，规范化后存入数据库 */
 export function normalizeRichText(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) return "<p></p>";
@@ -38,6 +40,7 @@ export function normalizeRichText(value: string): string {
     .join("");
 }
 
+/** 渲染前再次消毒富文本，移除未授权标签 */
 export function sanitizeRichText(value: string): string {
   if (typeof DOMParser === "undefined") {
     return value
@@ -119,6 +122,7 @@ function sanitizeChildren(parent: ParentNode): void {
   });
 }
 
+/** 富文本转纯文本，用于分页高度估算 */
 export function richTextToPlainText(value: string): string {
   const normalized = normalizeRichText(value);
   if (typeof DOMParser === "undefined") {

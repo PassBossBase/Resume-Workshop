@@ -1,17 +1,19 @@
 "use client";
 
-import { useResumeStore } from "@/features/editor/resume-store";
+import { memo, useMemo } from "react";
+import { useResumeStore } from "@/stores/resume-store";
 import { ClassicTemplatePage } from "./classic-template";
 import { buildResumePages } from "./resume-pages";
 
-export function ResumePreview({
+/** 实时预览面板，将分页后的简历按不同断点缩放渲染 */
+export const ResumePreview = memo(function ResumePreview({
   registerPage,
 }: {
   registerPage?: (index: number, node: HTMLDivElement | null) => void;
 }) {
   const resume = useResumeStore((state) => state.resume);
+  const pages = useMemo(() => (resume ? buildResumePages(resume) : []), [resume]);
   if (!resume) return null;
-  const pages = buildResumePages(resume);
   return (
     <div className="min-h-full overflow-auto bg-[#dfe5ec] p-3 sm:p-5 md:p-10">
       <div className="flex min-w-fit flex-col items-center gap-6">
@@ -32,4 +34,4 @@ export function ResumePreview({
       </div>
     </div>
   );
-}
+});

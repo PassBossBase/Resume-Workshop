@@ -1,3 +1,7 @@
+/**
+ * 简历数据模型与 Zod schema —— 应用唯一的数据源。
+ * 定义了 ResumeDocument 结构、5 个固定模块及所有校验规则。
+ */
 import { z } from "zod";
 import { normalizeRichText } from "@/features/rich-text/rich-text";
 
@@ -114,7 +118,7 @@ export function createDefaultResume(
           name: "林小满",
           role: "产品设计师",
           status: "求职中",
-          birthday: "1998 / 06",
+          birthday: "1998/06",
           email: "hello@example.com",
           phone: "138 0013 8000",
           location: "杭州市",
@@ -149,7 +153,7 @@ export function createDefaultResume(
             "work-1",
             "星河科技",
             "高级产品设计师",
-            "2022 / 07",
+            "2022/07",
             "至今",
             "负责核心产品体验设计，推动跨团队协作与设计落地\n建立组件规范，将设计交付效率提升 35%\n主导新版工作台改版，关键任务完成率提升 18%",
           ),
@@ -165,8 +169,8 @@ export function createDefaultResume(
             "project-1",
             "创作者工作台",
             "产品负责人",
-            "2023 / 03",
-            "2023 / 12",
+            "2023/03",
+            "2023/12",
             "梳理复杂创作流程并完成信息架构重构\n联合研发完成灰度发布与数据复盘\n项目获得年度最佳体验改进奖",
           ),
         ],
@@ -181,8 +185,8 @@ export function createDefaultResume(
             "education-1",
             "江南大学",
             "工业设计 · 本科",
-            "2016 / 09",
-            "2020 / 06",
+            "2016/09",
+            "2020/06",
             "主修产品设计、视觉传达与人机交互\n校级优秀毕业设计",
           ),
         ],
@@ -201,6 +205,25 @@ export function moveModule(
   const nextIndex = index + direction;
   if (index <= 0 || nextIndex <= 0 || nextIndex >= modules.length) return resume;
   [modules[index], modules[nextIndex]] = [modules[nextIndex], modules[index]];
+  return touch({ ...resume, modules });
+}
+
+export function reorderModule(
+  resume: ResumeDocument,
+  fromIndex: number,
+  toIndex: number,
+): ResumeDocument {
+  const modules = [...resume.modules];
+  if (
+    fromIndex <= 0 ||
+    toIndex <= 0 ||
+    fromIndex >= modules.length ||
+    toIndex >= modules.length ||
+    fromIndex === toIndex
+  )
+    return resume;
+  const [moved] = modules.splice(fromIndex, 1);
+  modules.splice(toIndex, 0, moved);
   return touch({ ...resume, modules });
 }
 

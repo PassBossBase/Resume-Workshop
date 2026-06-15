@@ -1,6 +1,7 @@
 import { toPng } from "html-to-image";
 import { jsPDF } from "jspdf";
 
+/** 将简历页面 DOM 节点截图拼接为 A4 PDF 并触发下载 */
 export async function exportResumePdf(
   pages: HTMLElement[],
   fileName: string,

@@ -1,16 +1,16 @@
 "use client";
 
+import { memo, useState } from "react";
 import {
-  ArrowDown,
-  ArrowUp,
   Eye,
   EyeOff,
   GripVertical,
   Palette,
   SlidersHorizontal,
 } from "lucide-react";
+import { SectionCard } from "@/components/anime-ui/ui";
 import { moduleMeta } from "./module-meta";
-import { useResumeStore } from "./resume-store";
+import { useResumeStore } from "@/stores/resume-store";
 
 const colors = [
   "#171717",
@@ -22,31 +22,72 @@ const colors = [
   "#b41f3f",
 ];
 
+/** 左侧样式面板：模块排序与显隐、主题色、字号行高页边距等排版设置 */
 export function StylePanel() {
   const resume = useResumeStore((state) => state.resume);
   const activeModule = useResumeStore((state) => state.activeModule);
   const setActiveModule = useResumeStore((state) => state.setActiveModule);
   const toggleModule = useResumeStore((state) => state.toggleModule);
-  const moveModule = useResumeStore((state) => state.moveModule);
+  const reorderModule = useResumeStore((state) => state.reorderModule);
   const updateStyle = useResumeStore((state) => state.updateStyle);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dropTarget, setDropTarget] = useState<number | null>(null);
   if (!resume) return null;
+
+  const handleDragStart = (index: number) => {
+    setDragIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    setDropTarget(index);
+  };
+
+  const handleDragLeave = () => {
+    setDropTarget(null);
+  };
+
+  const handleDrop = (index: number) => {
+    if (dragIndex !== null && dragIndex !== index) {
+      reorderModule(dragIndex, index);
+    }
+    setDragIndex(null);
+    setDropTarget(null);
+  };
+
+  const handleDragEnd = () => {
+    setDragIndex(null);
+    setDropTarget(null);
+  };
 
   return (
     <div className="space-y-5 p-5">
       <Panel title="布局" icon={<GripVertical size={18} />}>
         <div className="space-y-3">
-          {resume.modules.map((module) => {
+          {resume.modules.map((module, index) => {
             const meta = moduleMeta[module.type];
             const Icon = meta.icon;
             const active = module.type === activeModule;
+            const isDragging = dragIndex === index;
+            const isDropTarget = dropTarget === index && dragIndex !== index;
             return (
               <div
                 key={module.id}
-                className={`flex items-center gap-2 rounded-2xl border-2 p-2 ${
-                  active
-                    ? "border-black bg-[var(--yellow)] shadow-[3px_3px_0_black]"
-                    : "border-black/15 bg-white"
+                draggable={module.type !== "basics"}
+                className={`group flex items-center gap-2 rounded-2xl border-2 p-2 transition ${
+                  isDragging
+                    ? "opacity-50"
+                    : isDropTarget
+                      ? "border-black border-dashed bg-[var(--yellow)]/30"
+                      : active
+                        ? "border-black bg-[var(--yellow)] shadow-[3px_3px_0_black]"
+                        : "border-black/15 bg-white"
                 }`}
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragLeave={handleDragLeave}
+                onDrop={() => handleDrop(index)}
+                onDragEnd={handleDragEnd}
               >
                 <button
                   className="flex min-w-0 flex-1 items-center gap-3 text-left font-bold"
@@ -58,20 +99,20 @@ export function StylePanel() {
                   >
                     <Icon size={16} color="white" />
                   </span>
-                  <span className="truncate">{module.title}</span>
+                  <span className="whitespace-nowrap">{module.title}</span>
                 </button>
                 {module.type !== "basics" && (
-                  <>
-                    <button aria-label={`上移${module.title}`} onClick={() => moveModule(module.type, -1)}>
-                      <ArrowUp size={15} />
-                    </button>
-                    <button aria-label={`下移${module.title}`} onClick={() => moveModule(module.type, 1)}>
-                      <ArrowDown size={15} />
-                    </button>
+                  <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    <span
+                      className="grid h-7 w-7 cursor-grab place-items-center rounded-lg hover:bg-black/10 active:cursor-grabbing"
+                      aria-label={`拖拽移动${module.title}`}
+                    >
+                      <GripVertical size={16} />
+                    </span>
                     <button aria-label={`切换${module.title}`} onClick={() => toggleModule(module.type)}>
                       {module.visible ? <Eye size={17} /> : <EyeOff size={17} />}
                     </button>
-                  </>
+                  </div>
                 )}
               </div>
             );
@@ -148,7 +189,7 @@ export function StylePanel() {
   );
 }
 
-function Panel({
+const Panel = memo(function Panel({
   title,
   icon,
   children,
@@ -158,17 +199,17 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[24px] border-2 border-black bg-[var(--paper)] p-4 shadow-[4px_4px_0_#d9d1c3]">
+    <SectionCard className="p-4">
       <h3 className="mb-4 flex items-center gap-2 text-lg font-black">
         {icon}
         {title}
       </h3>
       {children}
-    </section>
+    </SectionCard>
   );
-}
+});
 
-function Control({
+const Control = memo(function Control({
   label,
   value,
   children,
@@ -186,4 +227,4 @@ function Control({
       <span className="block [&_input]:w-full [&_input]:accent-black">{children}</span>
     </label>
   );
-}
+});

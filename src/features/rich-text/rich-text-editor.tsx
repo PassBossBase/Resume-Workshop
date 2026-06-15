@@ -27,6 +27,9 @@ import { normalizeRichText, sanitizeRichText } from "./rich-text";
 
 export function RichTextEditor({
   label,
+/**
+ * 基于 Tiptap 的富文本编辑器封装，对外输入/输出 HTML 字符串。
+ */
   value,
   onChange,
 }: {

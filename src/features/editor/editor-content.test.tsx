@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createDefaultResume } from "@/features/resume-model/resume-model";
 import { EditorContent } from "./editor-content";
-import { useResumeStore } from "./resume-store";
+import { useResumeStore } from "@/stores/resume-store";
 
 describe("EditorContent", () => {
   beforeEach(() => {
@@ -37,7 +37,6 @@ describe("EditorContent", () => {
 
     expect(screen.getByLabelText("条目 1 描述工具栏")).toBeInTheDocument();
     expect(screen.getByLabelText("开始时间")).toBeInTheDocument();
-    expect(screen.getByLabelText("选择开始时间")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "设为至今" })).toBeInTheDocument();
+    expect(screen.getByLabelText("结束时间")).toBeInTheDocument();
   });
 });

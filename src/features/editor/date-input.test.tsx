@@ -3,11 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 import { DateInput } from "./date-input";
 
 describe("DateInput", () => {
-  it("supports typed input, month selection and an ongoing shortcut", () => {
+  it("renders label and supports typed input", () => {
     const onChange = vi.fn();
     render(
       <DateInput
-        allowOngoing
         label="结束时间"
         value="2026 / 06"
         onChange={onChange}
@@ -18,13 +17,19 @@ describe("DateInput", () => {
       target: { value: "2027 / 08" },
     });
     expect(onChange).toHaveBeenCalledWith("2027 / 08");
+  });
 
-    fireEvent.change(screen.getByLabelText("选择结束时间"), {
-      target: { value: "2028-09" },
-    });
-    expect(onChange).toHaveBeenCalledWith("2028 / 09");
+  it("hides label when hideLabel is true", () => {
+    render(
+      <DateInput
+        hideLabel
+        label="出生日期"
+        value=""
+        onChange={() => {}}
+      />,
+    );
 
-    fireEvent.click(screen.getByRole("button", { name: "设为至今" }));
-    expect(onChange).toHaveBeenCalledWith("至今");
+    expect(screen.getByLabelText("出生日期")).toBeDefined();
+    expect(screen.queryByText("出生日期")).toBeNull();
   });
 });

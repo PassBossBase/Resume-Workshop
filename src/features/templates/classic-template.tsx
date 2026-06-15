@@ -6,6 +6,7 @@ import {
   Phone,
   UserRound,
 } from "lucide-react";
+import { memo } from "react";
 import type {
   ResumeDocument,
   ResumeModule,
@@ -24,7 +25,8 @@ export const templateRegistry = {
   },
 } as const;
 
-export function ClassicTemplatePage({
+/** 「经典单栏」模板的 A4 页面渲染，包含头像、基本信息、各模块条目 */
+export const ClassicTemplatePage = memo(function ClassicTemplatePage({
   resume,
   page,
   pageRef,
@@ -109,7 +111,7 @@ export function ClassicTemplatePage({
       </main>
     </div>
   );
-}
+});
 
 function ResumeSection({
   module,
@@ -139,7 +141,7 @@ function ResumeSection({
                 )}
               </div>
               {(item.startDate || item.endDate) && (
-                <span className="shrink-0 rounded bg-[#f1f4f8] px-2 py-1 text-[10px] font-bold text-[#7b8799]">
+                <span className="shrink-0 px-2 py-1 text-[10px] font-bold text-black">
                   {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
                 </span>
               )}

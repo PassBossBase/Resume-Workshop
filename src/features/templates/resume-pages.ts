@@ -21,6 +21,7 @@ function estimateEntryHeight(entry: ResumeEntry): number {
   return 58 + Math.max(lines, 1) * 21;
 }
 
+/** 按高度估算将简历模块分配到多个 A4 页面，返回分页数据 */
 export function buildResumePages(resume: ResumeDocument): ResumePageData[] {
   const source = resume.modules.filter(
     (module) =>
