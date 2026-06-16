@@ -33,7 +33,7 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
   return (
     <div
       ref={pageRef}
-      className="resume-page relative min-h-[1123px] w-[794px] overflow-hidden bg-white"
+      className="resume-page relative min-h-[1123px] w-[794px] overflow-visible bg-white"
       style={{
         fontFamily: fontFamilies[resume.styles.fontFamily],
         fontSize: resume.styles.fontSize,
@@ -43,25 +43,27 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
       }}
     >
       {/* ======== 顶部标题横条 ======== */}
-      <header className="mb-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-[28px] font-black tracking-wide" style={{ color: cfg.titleColor }}>
-              个人简历
-            </h1>
+      {page.showHeader && (
+        <header className="mb-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-[28px] font-black tracking-wide" style={{ color: cfg.titleColor }}>
+                个人简历
+              </h1>
+            </div>
+            <div className="flex gap-3">
+              <span className="grid h-10 w-10 place-items-center rounded-full border-2 border-black">
+                <GraduationCap size={18} />
+              </span>
+              <span className="grid h-10 w-10 place-items-center rounded-full border-2 border-black">
+                <BriefcaseBusiness size={18} />
+              </span>
+            </div>
           </div>
-          <div className="flex gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-full border-2 border-black">
-              <GraduationCap size={18} />
-            </span>
-            <span className="grid h-10 w-10 place-items-center rounded-full border-2 border-black">
-              <BriefcaseBusiness size={18} />
-            </span>
-          </div>
-        </div>
-        {/* 分割线 */}
-        <div className="mt-4" style={{ height: 3, background: cfg.headerLineColor }} />
-      </header>
+          {/* 分割线 */}
+          <div className="mt-4" style={{ height: 3, background: cfg.headerLineColor }} />
+        </header>
+      )}
 
       {/* ======== 基础信息网格 + 头像 ======== */}
       {page.showHeader && basics && (

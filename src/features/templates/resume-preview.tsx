@@ -1,10 +1,10 @@
 "use client";
 
-import { memo, useMemo } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useResumeStore } from "@/stores/resume-store";
 import { ClassicTemplatePage } from "./classic-template";
 import { getTemplate } from "./template-registry";
-import { buildResumePages } from "./resume-pages";
+import { buildContinuousResumePage } from "./resume-pages";
 
 // 确保所有渲染器模块被加载并注册（硬刷新时也有效）
 import "./header-full-width-template";
@@ -19,29 +19,88 @@ export const ResumePreview = memo(function ResumePreview({
   registerPage?: (index: number, node: HTMLDivElement | null) => void;
 }) {
   const resume = useResumeStore((state) => state.resume);
-  const pages = useMemo(() => (resume ? buildResumePages(resume) : []), [resume]);
-  if (!resume) return null;
+  const page = useMemo(() => (resume ? buildContinuousResumePage(resume) : null), [resume]);
+  const documentRef = useRef<HTMLDivElement | null>(null);
+  const [documentHeight, setDocumentHeight] = useState(1123);
+  const [scale, setScale] = useState(0.58);
+
+  useEffect(() => {
+    const updateScale = () => {
+      const width = window.innerWidth;
+      if (width <= 560) setScale(0.46);
+      else if (width <= 1023) setScale(0.78);
+      else if (width >= 1750) setScale(1);
+      else if (width >= 1536) setScale(0.78);
+      else setScale(0.58);
+    };
+
+    updateScale();
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
+  }, []);
+
+  useEffect(() => {
+    const node = documentRef.current;
+    if (!node) return;
+
+    const updateHeight = () => {
+      setDocumentHeight(Math.max(1123, Math.ceil(node.scrollHeight)));
+    };
+    updateHeight();
+
+    if (typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [page, resume?.templateId]);
+
+  if (!resume || !page) return null;
 
   const entry = getTemplate(resume.templateId);
   const Renderer = entry?.component ?? ClassicTemplatePage;
+  const pageCount = Math.max(1, Math.ceil(documentHeight / 1123));
 
   return (
     <div className="min-h-full overflow-auto bg-[#dfe5ec] p-3 sm:p-5 md:p-10">
-      <div className="flex min-w-fit flex-col items-center gap-6">
-      {pages.map((page, index) => (
+      <div className="flex min-w-fit justify-center">
         <div
-          className="relative h-[1123px] w-[794px] shrink-0 max-[560px]:h-[517px] max-[560px]:w-[365px] min-[561px]:max-[1023px]:h-[876px] min-[561px]:max-[1023px]:w-[619px] lg:h-[651px] lg:w-[461px] 2xl:h-[876px] 2xl:w-[619px] min-[1750px]:h-[1123px] min-[1750px]:w-[794px]"
-          key={`${resume.id}-page-${index}`}
+          className="relative shrink-0"
+          style={{
+            width: 794 * scale,
+            height: documentHeight * scale,
+          }}
         >
-          <div className="absolute left-0 top-0 origin-top-left shadow-[0_20px_60px_rgb(30_40_60/20%)] max-[560px]:scale-[0.46] min-[561px]:max-[1023px]:scale-[0.78] lg:scale-[0.58] 2xl:scale-[0.78] min-[1750px]:scale-100">
+          <div
+            className="absolute left-0 top-0 origin-top-left shadow-[0_20px_60px_rgb(30_40_60/20%)]"
+            style={{ transform: `scale(${scale})` }}
+          >
             <Renderer
               page={page}
-              pageRef={(node) => registerPage?.(index, node)}
+              pageRef={(node) => {
+                documentRef.current = node;
+                registerPage?.(0, node);
+              }}
               resume={resume}
             />
+            {Array.from({ length: pageCount - 1 }, (_, index) => {
+              const pageNumber = index + 2;
+              return (
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-0 w-full border-t-2 border-dashed border-red-500"
+                  data-pdf-exclude="true"
+                  key={`page-marker-${pageNumber}`}
+                  style={{ top: (pageNumber - 1) * 1123 }}
+                >
+                  <span className="absolute left-3 top-[-11px] bg-red-500 px-2 py-0.5 text-[11px] font-black leading-none text-white">
+                    第{pageNumber}页
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
-      ))}
       </div>
     </div>
   );

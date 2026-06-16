@@ -199,10 +199,11 @@ export function EditorShell({ id }: { id: string }) {
         <section className="scrollbar-thin overflow-y-auto">
           <EditorContent />
         </section>
-        <section className="min-w-0 overflow-hidden">
+        <section className="min-w-0 overflow-auto">
           <ResumePreview
             registerPage={(index, node) => {
               pageRefs.current[index] = node;
+              pageRefs.current.length = 1;
             }}
           />
         </section>
@@ -229,6 +230,7 @@ export function EditorShell({ id }: { id: string }) {
             <ResumePreview
               registerPage={(index, node) => {
                 pageRefs.current[index] = node;
+                pageRefs.current.length = 1;
               }}
             />
           </div>

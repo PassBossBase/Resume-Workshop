@@ -50,7 +50,7 @@ export const ClassicTemplatePage = memo(function ClassicTemplatePage({
   return (
     <div
       ref={pageRef}
-      className="resume-page relative min-h-[1123px] w-[794px] overflow-hidden bg-white text-[#182235]"
+      className="resume-page relative min-h-[1123px] w-[794px] overflow-visible bg-white text-[#182235]"
       style={{
         padding: resume.styles.pageMargin,
         fontFamily: fontFamilies[resume.styles.fontFamily],

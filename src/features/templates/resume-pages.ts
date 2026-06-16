@@ -37,14 +37,29 @@ function isEntryVisible(entry: ResumeEntry | CustomResumeEntry): boolean {
   return !("visible" in entry) || entry.visible;
 }
 
+function buildVisibleModules(resume: ResumeDocument): ResumeModule[] {
+  return resume.modules
+    .filter((module) => {
+      if (module.type === "basics" || !module.visible) return false;
+      return module.items.some(isEntryVisible);
+    })
+    .map((module) => ({
+      ...module,
+      items: module.items.filter(isEntryVisible),
+    }) as ResumeModule);
+}
+
+/** 构建连续预览数据：只渲染一次页头，内容按真实高度自然向下流动 */
+export function buildContinuousResumePage(resume: ResumeDocument): ResumePageData {
+  return {
+    showHeader: true,
+    modules: buildVisibleModules(resume),
+  };
+}
+
 /** 按高度估算将简历模块分配到多个 A4 页面，返回分页数据 */
 export function buildResumePages(resume: ResumeDocument): ResumePageData[] {
-  const source = resume.modules.filter((module) => {
-    if (module.type === "basics" || !module.visible) return false;
-    // 自定义模块需要至少一个可见条目
-    const visibleItems = module.items.filter(isEntryVisible);
-    return visibleItems.length > 0;
-  });
+  const source = buildVisibleModules(resume);
 
   const pages: ResumePageData[] = [];
   let page: ResumePageData = { showHeader: true, modules: [] };
@@ -57,8 +72,7 @@ export function buildResumePages(resume: ResumeDocument): ResumePageData[] {
   };
 
   for (const section of source) {
-    // 仅处理可见条目
-    const visibleItems = section.items.filter(isEntryVisible);
+    const visibleItems = section.items;
     let cursor = 0;
 
     while (cursor < visibleItems.length) {

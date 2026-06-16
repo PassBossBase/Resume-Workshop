@@ -30,13 +30,13 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
   };
 
   const colors = cfg.blockColorList;
-  const workModule = resume.modules.find((m) => m.type === "work");
+  const workModule = page.modules.find((m) => m.type === "work");
   const leftModules = page.modules.filter((m) => m.type !== "work" && m.type !== "basics");
 
   return (
     <div
       ref={pageRef}
-      className="resume-page relative min-h-[1123px] w-[794px] overflow-hidden bg-white"
+      className="resume-page relative min-h-[1123px] w-[794px] overflow-visible bg-white"
       style={{
         fontFamily: fontFamilies[resume.styles.fontFamily],
         fontSize: resume.styles.fontSize,
@@ -45,27 +45,29 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
       }}
     >
       {/* ======== 顶部标题区 ======== */}
-      <header className="relative px-10 pt-8 pb-4" style={{ background: "#ffffff" }}>
-        <div className="flex items-start justify-between">
-          <div style={{ maxWidth: 620 }}>
-            <h1 className="text-[26px] font-black" style={{ color: cfg.titleColor }}>
-              个人简历
-            </h1>
+      {page.showHeader && (
+        <header className="relative px-10 pt-8 pb-4" style={{ background: "#ffffff" }}>
+          <div className="flex items-start justify-between">
+            <div style={{ maxWidth: 620 }}>
+              <h1 className="text-[26px] font-black" style={{ color: cfg.titleColor }}>
+                个人简历
+              </h1>
+            </div>
+            {basics?.avatar && basics?.avatarPosition && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                alt=""
+                className="shrink-0 object-cover"
+                src={basics.avatar}
+                style={{
+                  width: basics.avatarPosition.width,
+                  height: basics.avatarPosition.height,
+                }}
+              />
+            )}
           </div>
-          {basics?.avatar && basics?.avatarPosition && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              alt=""
-              className="shrink-0 object-cover"
-              src={basics.avatar}
-              style={{
-                width: basics.avatarPosition.width,
-                height: basics.avatarPosition.height,
-              }}
-            />
-          )}
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* ======== 双栏主体 ======== */}
       <div className="flex px-10">

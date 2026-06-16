@@ -72,7 +72,7 @@ export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
   return (
     <div
       ref={pageRef}
-      className="resume-page relative min-h-[1123px] w-[794px] overflow-hidden bg-white text-[#2d3748]"
+      className="resume-page relative min-h-[1123px] w-[794px] overflow-visible bg-white text-[#2d3748]"
       style={{
         fontFamily: fontFamilies[resume.styles.fontFamily],
         fontSize: resume.styles.fontSize,
@@ -80,38 +80,40 @@ export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
       }}
     >
       {/* ========== 蓝色全宽头部 ========== */}
-      <header
-        className="relative px-10 pb-8 pt-8"
-        style={{ background: headerBg, color: "#ffffff" }}
-      >
-        {/* 头像（右上角） */}
-        {basics?.avatar && basics?.avatarPosition && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            alt=""
-            className="absolute object-cover"
-            src={basics.avatar}
-            style={{
-              top: basics.avatarPosition.top,
-              right: basics.avatarPosition.right,
-              width: basics.avatarPosition.width,
-              height: basics.avatarPosition.height,
-            }}
-          />
-        )}
+      {page.showHeader && (
+        <header
+          className="relative px-10 pb-8 pt-8"
+          style={{ background: headerBg, color: "#ffffff" }}
+        >
+          {/* 头像（右上角） */}
+          {basics?.avatar && basics?.avatarPosition && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              alt=""
+              className="absolute object-cover"
+              src={basics.avatar}
+              style={{
+                top: basics.avatarPosition.top,
+                right: basics.avatarPosition.right,
+                width: basics.avatarPosition.width,
+                height: basics.avatarPosition.height,
+              }}
+            />
+          )}
 
-        <h1 className="text-[28px] font-black" style={{ color: "#ffffff" }}>
-          个人简历
-        </h1>
+          <h1 className="text-[28px] font-black" style={{ color: "#ffffff" }}>
+            个人简历
+          </h1>
 
-        <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-1.5 text-[12px] opacity-90">
-          {basicDisplayItems.map((item) => (
-            <span key={item.key}>
-              {item.label}：{item.value}
-            </span>
-          ))}
-        </div>
-      </header>
+          <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-1.5 text-[12px] opacity-90">
+            {basicDisplayItems.map((item) => (
+              <span key={item.key}>
+                {item.label}：{item.value}
+              </span>
+            ))}
+          </div>
+        </header>
+      )}
 
       {/* ========== 模块内容区 ========== */}
       <main
@@ -120,7 +122,7 @@ export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
           background: cfg.contentBgColor,
           display: "grid",
           gap: resume.styles.sectionGap,
-          paddingTop: resume.styles.sectionGap,
+          paddingTop: page.showHeader ? resume.styles.sectionGap : 40,
           paddingBottom: resume.styles.sectionGap,
         }}
       >

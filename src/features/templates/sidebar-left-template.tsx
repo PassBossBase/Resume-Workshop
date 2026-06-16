@@ -38,7 +38,7 @@ export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
   return (
     <div
       ref={pageRef}
-      className="resume-page relative flex min-h-[1123px] w-[794px] overflow-hidden"
+      className="resume-page relative flex min-h-[1123px] w-[794px] overflow-visible"
       style={{
         fontFamily: fontFamilies[resume.styles.fontFamily],
         fontSize: resume.styles.fontSize,
