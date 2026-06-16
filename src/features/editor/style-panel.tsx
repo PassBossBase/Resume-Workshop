@@ -6,11 +6,14 @@ import {
   EyeOff,
   GripVertical,
   Palette,
+  Plus,
   SlidersHorizontal,
+  Trash2,
 } from "lucide-react";
 import { SectionCard } from "@/components/anime-ui/ui";
-import { moduleMeta } from "./module-meta";
+import { getModuleMeta } from "./module-meta";
 import { useResumeStore } from "@/stores/resume-store";
+import type { ResumeModule } from "@/features/resume-model/resume-model";
 
 const colors = [
   "#171717",
@@ -25,13 +28,18 @@ const colors = [
 /** 左侧样式面板：模块排序与显隐、主题色、字号行高页边距等排版设置 */
 export function StylePanel() {
   const resume = useResumeStore((state) => state.resume);
-  const activeModule = useResumeStore((state) => state.activeModule);
+  const activeModuleId = useResumeStore((state) => state.activeModuleId);
   const setActiveModule = useResumeStore((state) => state.setActiveModule);
   const toggleModule = useResumeStore((state) => state.toggleModule);
   const reorderModule = useResumeStore((state) => state.reorderModule);
+  const addCustomModule = useResumeStore((state) => state.addCustomModule);
+  const removeCustomModule = useResumeStore((state) => state.removeCustomModule);
   const updateStyle = useResumeStore((state) => state.updateStyle);
+
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dropTarget, setDropTarget] = useState<number | null>(null);
+  const [deletingModuleId, setDeletingModuleId] = useState<string | null>(null);
+
   if (!resume) return null;
 
   const handleDragStart = (index: number) => {
@@ -60,63 +68,106 @@ export function StylePanel() {
     setDropTarget(null);
   };
 
+  const handleDeleteClick = (moduleId: string) => {
+    setDeletingModuleId(moduleId);
+  };
+
+  const confirmDelete = () => {
+    if (deletingModuleId) {
+      removeCustomModule(deletingModuleId);
+      setDeletingModuleId(null);
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeletingModuleId(null);
+  };
+
+  const renderModuleCard = (module: ResumeModule, index: number) => {
+    const meta = getModuleMeta(module);
+    const Icon = meta.icon;
+    const active = module.id === activeModuleId;
+    const isDragging = dragIndex === index;
+    const isDropTarget = dropTarget === index && dragIndex !== index;
+    const isBasics = module.type === "basics";
+    const isCustom = module.type === "custom";
+
+    return (
+      <div
+        key={module.id}
+        draggable={!isBasics}
+        className={`group flex items-center gap-2 rounded-2xl border-2 p-2 transition ${
+          isDragging
+            ? "opacity-50"
+            : isDropTarget
+              ? "border-black border-dashed bg-[var(--yellow)]/30"
+              : active
+                ? "border-black bg-[var(--yellow)] shadow-[3px_3px_0_black]"
+                : "border-black/15 bg-white"
+        }`}
+        onDragStart={() => handleDragStart(index)}
+        onDragOver={(e) => handleDragOver(e, index)}
+        onDragLeave={handleDragLeave}
+        onDrop={() => handleDrop(index)}
+        onDragEnd={handleDragEnd}
+      >
+        <button
+          className="flex flex-1 items-center gap-3 text-left font-bold"
+          onClick={() => setActiveModule(module.id)}
+          aria-label={`编辑${meta.displayTitle}`}
+        >
+          <span
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border-2 border-black"
+            style={{ background: meta.color }}
+          >
+            <Icon size={16} color="white" />
+          </span>
+          <span className="whitespace-nowrap">{meta.displayTitle}</span>
+        </button>
+        {!isBasics && (
+          <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+            <span
+              className="grid h-7 w-7 cursor-grab place-items-center rounded-lg hover:bg-black/10 active:cursor-grabbing"
+              aria-label={`拖拽移动${meta.displayTitle}`}
+            >
+              <GripVertical size={16} />
+            </span>
+            <button
+              aria-label={module.visible ? `隐藏${meta.displayTitle}` : `显示${meta.displayTitle}`}
+              onClick={() => toggleModule(module.id)}
+              className="grid h-7 w-7 place-items-center rounded-lg hover:bg-black/10"
+            >
+              {module.visible ? <Eye size={17} /> : <EyeOff size={17} />}
+            </button>
+            {isCustom && (
+              <button
+                aria-label={`删除${meta.displayTitle}`}
+                onClick={() => handleDeleteClick(module.id)}
+                className="grid h-7 w-7 place-items-center rounded-lg hover:bg-red-100"
+              >
+                <Trash2 size={16} className="text-red-500" />
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-5 p-5">
       <Panel title="布局" icon={<GripVertical size={18} />}>
         <div className="space-y-3">
-          {resume.modules.map((module, index) => {
-            const meta = moduleMeta[module.type];
-            const Icon = meta.icon;
-            const active = module.type === activeModule;
-            const isDragging = dragIndex === index;
-            const isDropTarget = dropTarget === index && dragIndex !== index;
-            return (
-              <div
-                key={module.id}
-                draggable={module.type !== "basics"}
-                className={`group flex items-center gap-2 rounded-2xl border-2 p-2 transition ${
-                  isDragging
-                    ? "opacity-50"
-                    : isDropTarget
-                      ? "border-black border-dashed bg-[var(--yellow)]/30"
-                      : active
-                        ? "border-black bg-[var(--yellow)] shadow-[3px_3px_0_black]"
-                        : "border-black/15 bg-white"
-                }`}
-                onDragStart={() => handleDragStart(index)}
-                onDragOver={(e) => handleDragOver(e, index)}
-                onDragLeave={handleDragLeave}
-                onDrop={() => handleDrop(index)}
-                onDragEnd={handleDragEnd}
-              >
-                <button
-                  className="flex min-w-0 flex-1 items-center gap-3 text-left font-bold"
-                  onClick={() => setActiveModule(module.type)}
-                >
-                  <span
-                    className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border-2 border-black"
-                    style={{ background: meta.color }}
-                  >
-                    <Icon size={16} color="white" />
-                  </span>
-                  <span className="whitespace-nowrap">{module.title}</span>
-                </button>
-                {module.type !== "basics" && (
-                  <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                    <span
-                      className="grid h-7 w-7 cursor-grab place-items-center rounded-lg hover:bg-black/10 active:cursor-grabbing"
-                      aria-label={`拖拽移动${module.title}`}
-                    >
-                      <GripVertical size={16} />
-                    </span>
-                    <button aria-label={`切换${module.title}`} onClick={() => toggleModule(module.type)}>
-                      {module.visible ? <Eye size={17} /> : <EyeOff size={17} />}
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          {resume.modules.map((module, index) => renderModuleCard(module, index))}
+
+          {/* 添加自定义模块按钮 */}
+          <button
+            onClick={addCustomModule}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black/25 bg-white/50 py-3 text-sm font-bold text-black/50 transition hover:border-black hover:text-black hover:bg-[var(--yellow)]/10"
+          >
+            <Plus size={16} />
+            添加模块
+          </button>
         </div>
       </Panel>
 
@@ -185,6 +236,53 @@ export function StylePanel() {
           </select>
         </label>
       </Panel>
+
+      {/* 删除确认弹窗 */}
+      {deletingModuleId && (
+        <DeleteConfirmDialog
+          moduleTitle={
+            resume.modules.find((m) => m.id === deletingModuleId)?.title ?? "自定义"
+          }
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+        />
+      )}
+    </div>
+  );
+}
+
+/** 删除自定义模块的二次确认弹窗 */
+function DeleteConfirmDialog({
+  moduleTitle,
+  onConfirm,
+  onCancel,
+}: {
+  moduleTitle: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+      <div className="w-80 rounded-2xl border-2 border-black bg-white p-6 shadow-[5px_5px_0_black]">
+        <h3 className="mb-3 text-lg font-black">确认删除</h3>
+        <p className="mb-5 text-sm text-black/70">
+          将删除模块「{moduleTitle}」及其所有项目，此操作不可撤销。
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            className="flex-1 rounded-xl border-2 border-black px-4 py-2 font-bold transition hover:bg-gray-100"
+          >
+            取消
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 rounded-xl border-2 border-black bg-red-500 px-4 py-2 font-bold text-white transition hover:bg-red-600"
+          >
+            删除
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

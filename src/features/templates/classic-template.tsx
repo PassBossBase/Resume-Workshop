@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { memo } from "react";
 import type {
+  CustomResumeEntry,
   ResumeDocument,
   ResumeModule,
 } from "@/features/resume-model/resume-model";
@@ -35,7 +36,9 @@ export const ClassicTemplatePage = memo(function ClassicTemplatePage({
   page: ResumePageData;
   pageRef?: (node: HTMLDivElement | null) => void;
 }) {
-  const basics = resume.modules.find((module) => module.type === "basics")?.basics;
+  const firstModule = resume.modules[0];
+  const basics = firstModule?.type === "basics" ? firstModule.basics : undefined;
+
   const fontFamilies = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
     serif: '"Songti SC", SimSun, serif',
@@ -127,35 +130,39 @@ function ResumeSection({
         <h2 className="text-[17px] font-black">{module.title}</h2>
       </div>
       <div className="space-y-5">
-        {module.items.map((item) => (
-          <article className="break-inside-avoid" key={item.id}>
-            <div className="flex items-start justify-between gap-5">
-              <div className="flex flex-wrap items-baseline gap-x-3">
-                {module.type !== "skills" && (
-                  <h3 className="font-black">{item.title}</h3>
-                )}
-                {item.subtitle && (
-                  <span className="text-[12px] font-semibold text-[#7b8799]">
-                    {item.subtitle}
+        {module.items.map((item) => {
+          // 跳过隐藏的自定义条目
+          if ("visible" in item && !(item as CustomResumeEntry).visible) return null;
+          return (
+            <article className="break-inside-avoid" key={item.id}>
+              <div className="flex items-start justify-between gap-5">
+                <div className="flex flex-wrap items-baseline gap-x-3">
+                  {module.type !== "skills" && (
+                    <h3 className="font-black">{item.title}</h3>
+                  )}
+                  {item.subtitle && (
+                    <span className="text-[12px] font-semibold text-[#7b8799]">
+                      {item.subtitle}
+                    </span>
+                  )}
+                </div>
+                {(item.startDate || item.endDate) && (
+                  <span className="shrink-0 px-2 py-1 text-[10px] font-bold text-black">
+                    {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
                   </span>
                 )}
               </div>
-              {(item.startDate || item.endDate) && (
-                <span className="shrink-0 px-2 py-1 text-[10px] font-bold text-black">
-                  {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
-                </span>
+              {item.description && (
+                <div
+                  className="rich-text-content resume-rich-text mt-2 text-[12px] text-[#526079]"
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeRichText(normalizeRichText(item.description)),
+                  }}
+                />
               )}
-            </div>
-            {item.description && (
-              <div
-                className="rich-text-content resume-rich-text mt-2 text-[12px] text-[#526079]"
-                dangerouslySetInnerHTML={{
-                  __html: sanitizeRichText(normalizeRichText(item.description)),
-                }}
-              />
-            )}
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
     </section>
   );

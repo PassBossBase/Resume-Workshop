@@ -1,9 +1,18 @@
 /**
  * 简历数据模型与 Zod schema —— 应用唯一的数据源。
- * 定义了 ResumeDocument 结构、5 个固定模块及所有校验规则。
+ *
+ * v2 变更：
+ * - 模块类型新增 "custom"，支持用户自定义模块。
+ * - 模块字段从固定 5 个改为固定模块 + 任意数量自定义模块的联合类型。
+ * - 新增 CustomResumeEntry，相比固定条目增加 visible 字段，移除 location 字段。
+ * - 所有外部数据通过 parseAndMigrateResume() 统一入口，兼容 v1 旧数据。
  */
 import { z } from "zod";
 import { normalizeRichText } from "@/features/rich-text/rich-text";
+
+// ──────────────────────────────────────
+// 模块类型枚举
+// ──────────────────────────────────────
 
 export const moduleTypeSchema = z.enum([
   "basics",
@@ -11,9 +20,14 @@ export const moduleTypeSchema = z.enum([
   "work",
   "projects",
   "education",
+  "custom",
 ]);
 
 export type ModuleType = z.infer<typeof moduleTypeSchema>;
+
+// ──────────────────────────────────────
+// 基本信息（仅 basics 模块使用）
+// ──────────────────────────────────────
 
 const basicsSchema = z.object({
   name: z.string(),
@@ -27,6 +41,10 @@ const basicsSchema = z.object({
   avatar: z.string(),
 });
 
+// ──────────────────────────────────────
+// 固定模块条目（5 个固定模块使用）
+// ──────────────────────────────────────
+
 const entrySchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -39,54 +57,165 @@ const entrySchema = z.object({
 
 export type ResumeEntry = z.infer<typeof entrySchema>;
 
-const resumeModuleSchema = z.object({
+// ──────────────────────────────────────
+// 自定义模块条目（custom 模块使用）
+// ──────────────────────────────────────
+
+const customEntrySchema = z.object({
   id: z.string(),
-  type: moduleTypeSchema,
+  title: z.string(),
+  subtitle: z.string(),
+  startDate: z.string(),
+  endDate: z.string(),
+  description: z.string(),
+  visible: z.boolean(),
+});
+
+export type CustomResumeEntry = z.infer<typeof customEntrySchema>;
+
+// ──────────────────────────────────────
+// 模块 Schema（可辨识联合类型）
+// ──────────────────────────────────────
+
+const fixedModuleSchema = z.object({
+  id: z.string(),
+  type: z.enum(["basics", "skills", "work", "projects", "education"]),
   title: z.string(),
   visible: z.boolean(),
   basics: basicsSchema.optional(),
   items: z.array(entrySchema),
 });
 
+const customModuleSchema = z.object({
+  id: z.string(),
+  type: z.literal("custom"),
+  title: z.string(),
+  visible: z.boolean(),
+  items: z.array(customEntrySchema),
+});
+
+const resumeModuleSchema = z.discriminatedUnion("type", [
+  fixedModuleSchema,
+  customModuleSchema,
+]);
+
+export type FixedResumeModule = z.infer<typeof fixedModuleSchema>;
+export type CustomResumeModule = z.infer<typeof customModuleSchema>;
 export type ResumeModule = z.infer<typeof resumeModuleSchema>;
 
-export const resumeDocumentSchema = z.object({
+// ──────────────────────────────────────
+// 文档 Schema
+// ──────────────────────────────────────
+
+const stylesSchema = z.object({
+  accent: z.string(),
+  fontFamily: z.enum(["sans", "serif", "rounded"]),
+  fontSize: z.number().min(12).max(20),
+  lineHeight: z.number().min(1.2).max(2),
+  pageMargin: z.number().min(24).max(64),
+  sectionGap: z.number().min(16).max(52),
+});
+
+/** v1 文档 Schema，仅用于迁移旧数据。 */
+const resumeDocumentV1Schema = z.object({
   version: z.literal(1),
   id: z.string(),
   title: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
   templateId: z.literal("classic"),
-  styles: z.object({
-    accent: z.string(),
-    fontFamily: z.enum(["sans", "serif", "rounded"]),
-    fontSize: z.number().min(12).max(20),
-    lineHeight: z.number().min(1.2).max(2),
-    pageMargin: z.number().min(24).max(64),
-    sectionGap: z.number().min(16).max(52),
+  styles: stylesSchema,
+  modules: z.array(fixedModuleSchema).length(5),
+});
+
+/** v2 文档 Schema —— 当前版本。 */
+export const resumeDocumentSchema = z.object({
+  version: z.literal(2),
+  id: z.string(),
+  title: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  templateId: z.literal("classic"),
+  styles: stylesSchema,
+  modules: z.array(resumeModuleSchema).superRefine((modules, ctx) => {
+    // basics 必须位于首位
+    if (modules.length === 0 || modules[0]?.type !== "basics") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "基本信息模块必须存在且位于首位",
+        path: [0, "type"],
+      });
+    }
+    // 每个固定模块类型必须恰好出现一次
+    const fixedTypes = ["basics", "skills", "work", "projects", "education"] as const;
+    for (const ft of fixedTypes) {
+      const count = modules.filter((m) => m.type === ft).length;
+      if (count !== 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `固定模块 "${ft}" 必须恰好出现一次，当前出现 ${count} 次`,
+          path: [],
+        });
+      }
+    }
   }),
-  modules: z.array(resumeModuleSchema).length(5),
 });
 
 export type ResumeDocument = z.infer<typeof resumeDocumentSchema>;
 
-const entry = (
+// ──────────────────────────────────────
+// 迁移
+// ──────────────────────────────────────
+
+/** 将 v1 文档无损迁移为 v2 文档。 */
+function migrateV1ToV2(
+  v1: z.infer<typeof resumeDocumentV1Schema>,
+): ResumeDocument {
+  return {
+    ...v1,
+    version: 2 as const,
+    modules: v1.modules, // v1 的 5 个固定模块结构与 v2 兼容
+  };
+}
+
+/**
+ * 统一的外部数据解析入口。依次尝试 v2 直接解析、v1 解析后迁移。
+ * 两版都无法解析时抛出描述性错误。
+ */
+export function parseAndMigrateResume(raw: unknown): ResumeDocument {
+  const v2Result = resumeDocumentSchema.safeParse(raw);
+  if (v2Result.success) return v2Result.data;
+
+  const v1Result = resumeDocumentV1Schema.safeParse(raw);
+  if (v1Result.success) return migrateV1ToV2(v1Result.data);
+
+  throw new Error(`简历数据无法解析: ${v2Result.error.message}`);
+}
+
+// ──────────────────────────────────────
+// 工厂函数
+// ──────────────────────────────────────
+
+function entry(
   id: string,
   title: string,
   subtitle: string,
   startDate: string,
   endDate: string,
   description: string,
-): ResumeEntry => ({
-  id,
-  title,
-  subtitle,
-  startDate,
-  endDate,
-  location: "",
-  description: normalizeRichText(description),
-});
+): ResumeEntry {
+  return {
+    id,
+    title,
+    subtitle,
+    startDate,
+    endDate,
+    location: "",
+    description: normalizeRichText(description),
+  };
+}
 
+/** 创建一份 v2 默认简历，包含 5 个固定模块，不含自定义模块。 */
 export function createDefaultResume(
   id: string,
   title = "未命名简历",
@@ -94,7 +223,7 @@ export function createDefaultResume(
   const now = new Date().toISOString();
 
   return {
-    version: 1,
+    version: 2,
     id,
     title,
     createdAt: now,
@@ -195,19 +324,35 @@ export function createDefaultResume(
   };
 }
 
+// ──────────────────────────────────────
+// 模块级操作（按 moduleId 寻址）
+// ──────────────────────────────────────
+
+/** 查找模块在 modules 数组中的索引。 */
+function findModuleIndex(
+  resume: ResumeDocument,
+  moduleId: string,
+): number {
+  return resume.modules.findIndex((m) => m.id === moduleId);
+}
+
+/** 将模块向上/下移动一位。basics（索引 0）不可移动，任何模块不可移到 basics 之前。 */
 export function moveModule(
   resume: ResumeDocument,
-  type: ModuleType,
+  moduleId: string,
   direction: -1 | 1,
 ): ResumeDocument {
-  const modules = [...resume.modules];
-  const index = modules.findIndex((module) => module.type === type);
+  const index = findModuleIndex(resume, moduleId);
+  if (index < 0) return resume;
   const nextIndex = index + direction;
-  if (index <= 0 || nextIndex <= 0 || nextIndex >= modules.length) return resume;
+  if (index <= 0 || nextIndex <= 0 || nextIndex >= resume.modules.length)
+    return resume;
+  const modules = [...resume.modules];
   [modules[index], modules[nextIndex]] = [modules[nextIndex], modules[index]];
   return touch({ ...resume, modules });
 }
 
+/** 按数组索引重排模块。basics（索引 0）不可移动，任何模块不可移到索引 0。 */
 export function reorderModule(
   resume: ResumeDocument,
   fromIndex: number,
@@ -227,19 +372,187 @@ export function reorderModule(
   return touch({ ...resume, modules });
 }
 
+/** 切换模块可见性。basics 不可隐藏。 */
 export function toggleModule(
   resume: ResumeDocument,
-  type: ModuleType,
+  moduleId: string,
 ): ResumeDocument {
-  if (type === "basics") return resume;
+  const found = resume.modules.find((m) => m.id === moduleId);
+  if (!found || found.type === "basics") return resume;
   return touch({
     ...resume,
-    modules: resume.modules.map((module) =>
-      module.type === type ? { ...module, visible: !module.visible } : module,
+    modules: resume.modules.map((m) =>
+      m.id === moduleId ? { ...m, visible: !m.visible } as ResumeModule : m,
     ),
   });
 }
 
+/** 新建自定义模块并追加到模块列表末尾。 */
+export function addCustomModule(
+  resume: ResumeDocument,
+  id?: string,
+  title?: string,
+): ResumeDocument {
+  const customCount = resume.modules.filter(
+    (m) => m.type === "custom",
+  ).length;
+  const newModule: CustomResumeModule = {
+    id: id ?? crypto.randomUUID(),
+    type: "custom",
+    title: title ?? `自定义 ${customCount + 1}`,
+    visible: true,
+    items: [],
+  };
+  return touch({ ...resume, modules: [...resume.modules, newModule] });
+}
+
+/** 删除自定义模块。固定模块不可删除。 */
+export function removeCustomModule(
+  resume: ResumeDocument,
+  moduleId: string,
+): ResumeDocument {
+  const found = resume.modules.find((m) => m.id === moduleId);
+  if (!found || found.type !== "custom") return resume;
+  return touch({
+    ...resume,
+    modules: resume.modules.filter((m) => m.id !== moduleId),
+  });
+}
+
+/** 重命名任意模块。空名称时回退到模块默认名称。 */
+export function renameModule(
+  resume: ResumeDocument,
+  moduleId: string,
+  title: string,
+): ResumeDocument {
+  const fallbackTitle = (() => {
+    const m = resume.modules.find((m) => m.id === moduleId);
+    return m?.title ?? "未命名模块";
+  })();
+  return touch({
+    ...resume,
+    modules: resume.modules.map((m) =>
+      m.id === moduleId
+        ? ({ ...m, title: title.trim() || fallbackTitle } as ResumeModule)
+        : m,
+    ),
+  });
+}
+
+// ──────────────────────────────────────
+// 自定义模块条目操作
+// ──────────────────────────────────────
+
+/** 向自定义模块添加条目。 */
+export function addCustomEntry(
+  resume: ResumeDocument,
+  moduleId: string,
+  entryId?: string,
+): ResumeDocument {
+  const newEntry: CustomResumeEntry = {
+    id: entryId ?? crypto.randomUUID(),
+    title: "新的自定义项目",
+    subtitle: "",
+    startDate: "",
+    endDate: "",
+    description: "",
+    visible: true,
+  };
+  return touch({
+    ...resume,
+    modules: resume.modules.map((m) =>
+      m.id === moduleId && m.type === "custom"
+        ? { ...m, items: [...m.items, newEntry] }
+        : m,
+    ),
+  });
+}
+
+/** 从自定义模块删除条目。 */
+export function removeCustomEntry(
+  resume: ResumeDocument,
+  moduleId: string,
+  entryId: string,
+): ResumeDocument {
+  return touch({
+    ...resume,
+    modules: resume.modules.map((m) =>
+      m.id === moduleId && m.type === "custom"
+        ? { ...m, items: m.items.filter((e) => e.id !== entryId) }
+        : m,
+    ),
+  });
+}
+
+/** 移动自定义模块内条目的位置。 */
+export function moveCustomEntry(
+  resume: ResumeDocument,
+  moduleId: string,
+  entryId: string,
+  direction: -1 | 1,
+): ResumeDocument {
+  return touch({
+    ...resume,
+    modules: resume.modules.map((m) => {
+      if (m.id !== moduleId || m.type !== "custom") return m;
+      const items = [...m.items];
+      const index = items.findIndex((e) => e.id === entryId);
+      const next = index + direction;
+      if (index < 0 || next < 0 || next >= items.length) return m;
+      [items[index], items[next]] = [items[next], items[index]];
+      return { ...m, items };
+    }),
+  });
+}
+
+/** 更新自定义模块条目的字段。 */
+export function updateCustomEntry(
+  resume: ResumeDocument,
+  moduleId: string,
+  entryId: string,
+  patch: Partial<CustomResumeEntry>,
+): ResumeDocument {
+  return touch({
+    ...resume,
+    modules: resume.modules.map((m) =>
+      m.id === moduleId && m.type === "custom"
+        ? {
+            ...m,
+            items: m.items.map((e) =>
+              e.id === entryId ? { ...e, ...patch } : e,
+            ),
+          }
+        : m,
+    ),
+  });
+}
+
+/** 切换自定义模块条目的可见性。 */
+export function toggleCustomEntry(
+  resume: ResumeDocument,
+  moduleId: string,
+  entryId: string,
+): ResumeDocument {
+  return touch({
+    ...resume,
+    modules: resume.modules.map((m) =>
+      m.id === moduleId && m.type === "custom"
+        ? {
+            ...m,
+            items: m.items.map((e) =>
+              e.id === entryId ? { ...e, visible: !e.visible } : e,
+            ),
+          }
+        : m,
+    ),
+  });
+}
+
+// ──────────────────────────────────────
+// 通用工具
+// ──────────────────────────────────────
+
+/** 更新时间戳，工厂方法中已调用，外部通常无需直接使用。 */
 export function touch(resume: ResumeDocument): ResumeDocument {
   return { ...resume, updatedAt: new Date().toISOString() };
 }

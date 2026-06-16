@@ -1,4 +1,5 @@
 import {
+  parseAndMigrateResume,
   resumeDocumentSchema,
   type ResumeDocument,
 } from "@/features/resume-model/resume-model";
@@ -25,7 +26,7 @@ export async function readResumeFile(
   handle: ResumeFileHandle,
 ): Promise<{ resume: ResumeDocument; lastModified: number }> {
   const file = await handle.getFile();
-  const resume = resumeDocumentSchema.parse(JSON.parse(await file.text()));
+  const resume = parseAndMigrateResume(JSON.parse(await file.text()));
   return { resume, lastModified: file.lastModified };
 }
 

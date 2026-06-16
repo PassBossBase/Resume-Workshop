@@ -16,11 +16,10 @@ describe("EditorContent", () => {
     });
 
     expect(screen.getByDisplayValue("周星野")).toBeInTheDocument();
-    expect(
-      useResumeStore
-        .getState()
-        .resume?.modules.find((module) => module.type === "basics")?.basics?.name,
-    ).toBe("周星野");
+    const basicsModule = useResumeStore
+      .getState()
+      .resume?.modules.find((module) => module.type === "basics");
+    expect(basicsModule?.type === "basics" ? basicsModule.basics?.name : undefined).toBe("周星野");
   });
 
   it("uses one rich text editor for the entire skills module", () => {

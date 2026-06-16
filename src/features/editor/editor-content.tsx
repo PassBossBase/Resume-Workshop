@@ -7,18 +7,17 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import type {
-  ModuleType,
-  ResumeEntry,
-} from "@/features/resume-model/resume-model";
+import type { ResumeEntry } from "@/features/resume-model/resume-model";
 import { RichTextEditor } from "@/features/rich-text/rich-text-editor";
 import { SectionCard } from "@/components/anime-ui/ui";
 import { DateInput } from "./date-input";
-import { moduleMeta } from "./module-meta";
+import { getModuleMeta } from "./module-meta";
+import { CustomModuleEditor } from "./custom-module-editor";
 import { useResumeStore } from "@/stores/resume-store";
 
 /**
  * 编辑器中间面板：基本信息表单、模块条目列表、富文本编辑与日期输入。
+ * 根据活动模块的 type 分派到对应的编辑器（basics / skills / 固定条目模块 / 自定义模块）。
  */
 const basicFields = [
   ["name", "姓名"],
@@ -32,7 +31,7 @@ const basicFields = [
 
 export function EditorContent() {
   const resume = useResumeStore((state) => state.resume);
-  const activeModule = useResumeStore((state) => state.activeModule);
+  const activeModuleId = useResumeStore((state) => state.activeModuleId);
   const updateBasic = useResumeStore((state) => state.updateBasic);
   const updateEntry = useResumeStore((state) => state.updateEntry);
   const addEntry = useResumeStore((state) => state.addEntry);
@@ -40,10 +39,15 @@ export function EditorContent() {
   const moveEntry = useResumeStore((state) => state.moveEntry);
 
   if (!resume) return null;
-  const activeSection = resume.modules.find((item) => item.type === activeModule);
+  const activeSection = resume.modules.find((item) => item.id === activeModuleId);
   if (!activeSection) return null;
-  const meta = moduleMeta[activeModule];
+  const meta = getModuleMeta(activeSection);
   const Icon = meta.icon;
+
+  // 自定义模块使用独立编辑器
+  if (activeSection.type === "custom") {
+    return <CustomModuleEditor module={activeSection} />;
+  }
 
   return (
     <div className="min-h-full bg-[var(--paper)] p-5 md:p-7 xl:p-9">
@@ -58,11 +62,11 @@ export function EditorContent() {
           <p className="text-xs font-black uppercase tracking-[0.18em] text-black/40">
             正在编辑
           </p>
-          <h2 className="text-2xl font-black">{meta.label}</h2>
+          <h2 className="text-2xl font-black">{meta.displayTitle}</h2>
         </div>
       </SectionCard>
 
-      {activeModule === "basics" && activeSection.basics ? (
+      {activeSection.type === "basics" && activeSection.basics ? (
         <div className="space-y-7">
           <section>
             <h3 className="mb-3 text-lg font-black">头像</h3>
@@ -124,7 +128,7 @@ export function EditorContent() {
             </div>
           </section>
         </div>
-      ) : activeModule === "skills" ? (
+      ) : activeSection.type === "skills" ? (
         <SectionCard variant="beige" className="p-5">
           <div className="mb-4">
             <h3 className="text-lg font-black">专业技能内容</h3>
@@ -138,9 +142,9 @@ export function EditorContent() {
             onChange={(description) => {
               const firstItem = activeSection.items[0];
               if (firstItem) {
-                updateEntry("skills", firstItem.id, { description });
+                updateEntry(activeSection.id, firstItem.id, { description });
               } else {
-                addEntry("skills");
+                addEntry(activeSection.id);
               }
             }}
           />
@@ -152,37 +156,23 @@ export function EditorContent() {
               key={item.id}
               index={index}
               item={item}
-              type={activeModule as Exclude<ModuleType, "basics">}
               onChange={(patch) =>
-                updateEntry(
-                  activeModule as Exclude<ModuleType, "basics">,
-                  item.id,
-                  patch,
-                )
+                updateEntry(activeSection.id, item.id, patch)
               }
               onMove={(direction) =>
-                moveEntry(
-                  activeModule as Exclude<ModuleType, "basics">,
-                  item.id,
-                  direction,
-                )
+                moveEntry(activeSection.id, item.id, direction)
               }
               onRemove={() =>
-                removeEntry(
-                  activeModule as Exclude<ModuleType, "basics">,
-                  item.id,
-                )
+                removeEntry(activeSection.id, item.id)
               }
             />
           ))}
           <button
             className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black bg-[var(--yellow)] py-4 font-black transition hover:-translate-y-0.5"
-            onClick={() =>
-              addEntry(activeModule as Exclude<ModuleType, "basics">)
-            }
+            onClick={() => addEntry(activeSection.id)}
           >
             <Plus size={19} />
-            添加{meta.label}
+            添加{meta.displayTitle}
           </button>
         </div>
       )}
@@ -199,7 +189,6 @@ function EntryEditor({
 }: {
   item: ResumeEntry;
   index: number;
-  type: Exclude<ModuleType, "basics">;
   onChange: (patch: Partial<ResumeEntry>) => void;
   onMove: (direction: -1 | 1) => void;
   onRemove: () => void;

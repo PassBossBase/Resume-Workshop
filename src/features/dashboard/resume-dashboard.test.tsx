@@ -103,10 +103,11 @@ describe("ResumeDashboard", () => {
 
   it("renders each resume card preview from the saved user data", async () => {
     const resume = createDefaultResume("preview-resume", "用户简历");
-    const basics = resume.modules.find((module) => module.type === "basics");
-    if (!basics?.basics) throw new Error("Missing basics module");
-    basics.basics.name = "张真实";
-    basics.basics.role = "前端架构师";
+    const basicsModule = resume.modules.find((module) => module.type === "basics");
+    if (!basicsModule || basicsModule.type !== "basics" || !basicsModule.basics)
+      throw new Error("Missing basics module");
+    basicsModule.basics.name = "张真实";
+    basicsModule.basics.role = "前端架构师";
     repositoryMocks.listResumes.mockResolvedValue([resume]);
 
     render(<ResumeDashboard initialResumes={[]} />);

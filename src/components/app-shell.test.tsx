@@ -103,4 +103,25 @@ describe("AppShell", () => {
     expect(screen.queryByRole("menu")).not.toBeInTheDocument();
     expect(trigger).toHaveAttribute("aria-expanded", "false");
   });
+
+  it("links each sidebar item to its matching route", () => {
+    render(
+      <AppShell>
+        <div>页面内容</div>
+      </AppShell>,
+    );
+
+    expect(screen.getByRole("link", { name: "我的简历" })).toHaveAttribute(
+      "href",
+      "/",
+    );
+    expect(screen.getByRole("link", { name: "简历模板" })).toHaveAttribute(
+      "href",
+      "/templates",
+    );
+    expect(screen.getByRole("link", { name: "通用设置" })).toHaveAttribute(
+      "href",
+      "/settings",
+    );
+  });
 });

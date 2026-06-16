@@ -1,6 +1,7 @@
 import { openDB, type DBSchema } from "idb";
 import type { z } from "zod";
 import {
+  parseAndMigrateResume,
   resumeDocumentSchema,
   type ResumeDocument,
 } from "@/features/resume-model/resume-model";
@@ -42,13 +43,13 @@ export async function loadResume(
 ): Promise<ResumeDocument | undefined> {
   const db = await dbPromise();
   const value = await db.get("resumes", id);
-  return value ? resumeDocumentSchema.parse(value) : undefined;
+  return value ? parseAndMigrateResume(value) : undefined;
 }
 
 export async function listResumes(): Promise<ResumeDocument[]> {
   const db = await dbPromise();
   const values = await db.getAllFromIndex("resumes", "by-updated");
-  return values.reverse().map((value) => resumeDocumentSchema.parse(value));
+  return values.reverse().map((value) => parseAndMigrateResume(value));
 }
 
 export async function deleteResume(id: string): Promise<void> {

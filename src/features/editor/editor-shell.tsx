@@ -26,8 +26,9 @@ import {
   saveResume,
 } from "@/features/storage/resume-repository";
 import { EditorContent } from "./editor-content";
-import { moduleMeta } from "./module-meta";
+import { getModuleMeta } from "./module-meta";
 import { useResumeStore } from "@/stores/resume-store";
+import type { ResumeModule } from "@/features/resume-model/resume-model";
 import { StylePanel } from "./style-panel";
 import { ResumePreview } from "@/features/templates/resume-preview";
 
@@ -43,7 +44,7 @@ export function EditorShell({ id }: { id: string }) {
   const rename = useResumeStore((state) => state.rename);
   const saveState = useResumeStore((state) => state.saveState);
   const setSaveState = useResumeStore((state) => state.setSaveState);
-  const activeModule = useResumeStore((state) => state.activeModule);
+  const activeModuleId = useResumeStore((state) => state.activeModuleId);
   const setActiveModule = useResumeStore((state) => state.setActiveModule);
   const [mobileTab, setMobileTab] = useState<MobileTab>("content");
   const [ready, setReady] = useState(false);
@@ -191,7 +192,7 @@ export function EditorShell({ id }: { id: string }) {
         </div>
       </header>
 
-      <div className="hidden h-[calc(100vh-78px)] grid-cols-[270px_minmax(410px,500px)_minmax(0,1fr)] divide-x-2 divide-black/10 lg:grid min-[1750px]:grid-cols-[300px_minmax(470px,620px)_minmax(800px,1fr)]">
+      <div className="hidden h-[calc(100vh-78px)] grid-cols-[300px_minmax(410px,500px)_minmax(0,1fr)] divide-x-2 divide-black/10 lg:grid xl:grid-cols-[320px_minmax(440px,560px)_minmax(0,1fr)] 2xl:grid-cols-[340px_minmax(480px,620px)_minmax(0,1fr)]">
         <aside className="scrollbar-thin overflow-y-auto bg-[#f6f1e7]">
           <StylePanel />
         </aside>
@@ -210,7 +211,11 @@ export function EditorShell({ id }: { id: string }) {
       <div className="h-[calc(100vh-78px)] lg:hidden">
         {mobileTab === "content" && (
           <div className="h-full overflow-y-auto pb-24">
-            <ModuleTabs active={activeModule} onChange={setActiveModule} />
+            <ModuleTabs
+              modules={resume.modules}
+              activeModuleId={activeModuleId}
+              onChange={setActiveModule}
+            />
             <EditorContent />
           </div>
         )}
@@ -254,35 +259,36 @@ export function EditorShell({ id }: { id: string }) {
 }
 
 function ModuleTabs({
-  active,
+  modules,
+  activeModuleId,
   onChange,
 }: {
-  active: keyof typeof moduleMeta;
-  onChange: (type: keyof typeof moduleMeta) => void;
+  modules: ResumeModule[];
+  activeModuleId: string;
+  onChange: (moduleId: string) => void;
 }) {
   return (
     <div className="scrollbar-thin flex gap-2 overflow-x-auto border-b-2 border-black/10 bg-(--paper) p-3">
-      {(Object.keys(moduleMeta) as Array<keyof typeof moduleMeta>).map(
-        (type) => {
-          const meta = moduleMeta[type];
-          const Icon = meta.icon;
-          return (
-            <button
-              key={type}
-              className={`flex shrink-0 items-center gap-2 rounded-full border-2 border-black px-4 py-2 font-bold ${
-                active === type ? "bg-black text-white" : "bg-white"
-              }`}
-              onClick={() => onChange(type)}
-            >
-              <Icon
-                size={16}
-                style={{ color: active === type ? meta.color : undefined }}
-              />
-              {meta.label}
-            </button>
-          );
-        },
-      )}
+      {modules.map((module) => {
+        const meta = getModuleMeta(module);
+        const Icon = meta.icon;
+        const active = module.id === activeModuleId;
+        return (
+          <button
+            key={module.id}
+            className={`flex shrink-0 items-center gap-2 rounded-full border-2 border-black px-4 py-2 font-bold ${
+              active ? "bg-black text-white" : "bg-white"
+            }`}
+            onClick={() => onChange(module.id)}
+          >
+            <Icon
+              size={16}
+              style={{ color: active ? meta.color : undefined }}
+            />
+            <span className="max-w-28 truncate">{meta.displayTitle}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }
