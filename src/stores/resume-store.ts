@@ -21,10 +21,16 @@ import {
   toggleModule,
   touch,
   updateCustomEntry,
+  updateEntryStyle,
+  updateLayoutConfig,
+  updateModuleMeta,
   type CustomResumeEntry,
+  type EntryStyle,
+  type LayoutConfig,
   type ResumeDocument,
   type ResumeEntry,
   type ResumeModule,
+  type BasicsData,
 } from "@/features/resume-model/resume-model";
 
 type BasicKey = keyof NonNullable<ResumeDocument["modules"][number] extends { basics?: infer B } ? B : never>;
@@ -52,6 +58,7 @@ interface ResumeState {
 
   // 基本信息（固定操作 basics 模块）
   updateBasic: (key: BasicKey, value: string) => void;
+  updateBasicsField: (patch: Partial<BasicsData>) => void;
 
   // 固定模块条目操作（按 moduleId 寻址）
   updateEntry: (moduleId: string, entryId: string, patch: Partial<ResumeEntry>) => void;
@@ -78,6 +85,11 @@ interface ResumeState {
 
   // 样式
   updateStyle: <K extends StyleKey>(key: K, value: ResumeDocument["styles"][K]) => void;
+
+  // v3 新增
+  updateLayoutConfig: (patch: Partial<LayoutConfig>) => void;
+  updateModuleMeta: (moduleId: string, patch: { sectionIcon?: string }) => void;
+  updateEntryStyle: (moduleId: string, entryId: string, style: EntryStyle | undefined) => void;
 }
 
 export const useResumeStore = create<ResumeState>((set) => {
@@ -111,6 +123,16 @@ export const useResumeStore = create<ResumeState>((set) => {
         modules: resume.modules.map((m) =>
           m.type === "basics" && m.basics
             ? ({ ...m, basics: { ...m.basics, [key]: value } } as ResumeModule)
+            : m,
+        ),
+      })),
+
+    updateBasicsField: (patch) =>
+      applyResume((resume) => ({
+        ...resume,
+        modules: resume.modules.map((m) =>
+          m.type === "basics" && m.basics
+            ? ({ ...m, basics: { ...m.basics, ...patch } } as ResumeModule)
             : m,
         ),
       })),
@@ -152,7 +174,6 @@ export const useResumeStore = create<ResumeState>((set) => {
           subtitle: "",
           startDate: "",
           endDate: "",
-          location: "",
           description: "",
         };
         return {
@@ -272,6 +293,17 @@ export const useResumeStore = create<ResumeState>((set) => {
         ...resume,
         styles: { ...resume.styles, [key]: value },
       })),
+
+    // ── v3 新增 ───────────────────────────────
+
+    updateLayoutConfig: (patch) =>
+      applyResume((resume) => updateLayoutConfig(resume, patch)),
+
+    updateModuleMeta: (moduleId, patch) =>
+      applyResume((resume) => updateModuleMeta(resume, moduleId, patch)),
+
+    updateEntryStyle: (moduleId, entryId, style) =>
+      applyResume((resume) => updateEntryStyle(resume, moduleId, entryId, style)),
   };
 });
 

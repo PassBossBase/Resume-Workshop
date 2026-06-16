@@ -1,0 +1,171 @@
+/**
+ * 「复古分割线顶部标题单栏」模板渲染器。
+ *
+ * 布局：顶部双标题+分割线 → 信息网格+头像 → 分段线分隔模块区
+ */
+import { GraduationCap, BriefcaseBusiness } from "lucide-react";
+import { memo } from "react";
+import type { CustomResumeEntry, ResumeDocument, ResumeModule } from "@/features/resume-model/resume-model";
+import { getBasicDisplayItems } from "@/features/resume-model/resume-model";
+import type { ResumePageData } from "./resume-pages";
+import { normalizeRichText, sanitizeRichText } from "@/features/rich-text/rich-text";
+import { registerTemplate } from "./template-registry";
+
+export const LineSeparateTemplate = memo(function LineSeparateTemplate({
+  resume, page, pageRef,
+}: {
+  resume: ResumeDocument;
+  page: ResumePageData;
+  pageRef?: (node: HTMLDivElement | null) => void;
+}) {
+  const cfg = resume.layoutConfig;
+  if (cfg.type !== "single_column_line_separate") return null;
+
+  const firstModule = resume.modules[0];
+  const basics = firstModule?.type === "basics" ? firstModule.basics : undefined;
+  const basicDisplayItems = getBasicDisplayItems(basics);
+  const fontFamilies = {
+    sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
+    serif: '"Songti SC", SimSun, serif',
+    rounded: '"Microsoft YaHei", "PingFang SC", sans-serif',
+  };
+
+  return (
+    <div
+      ref={pageRef}
+      className="resume-page relative min-h-[1123px] w-[794px] overflow-hidden bg-white"
+      style={{
+        fontFamily: fontFamilies[resume.styles.fontFamily],
+        fontSize: resume.styles.fontSize,
+        lineHeight: resume.styles.lineHeight,
+        color: cfg.textColor,
+        padding: `${resume.styles.pageMargin}px`,
+      }}
+    >
+      {/* ======== 顶部标题横条 ======== */}
+      <header className="mb-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-[28px] font-black tracking-wide" style={{ color: cfg.titleColor }}>
+              个人简历
+            </h1>
+          </div>
+          <div className="flex gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-full border-2 border-black">
+              <GraduationCap size={18} />
+            </span>
+            <span className="grid h-10 w-10 place-items-center rounded-full border-2 border-black">
+              <BriefcaseBusiness size={18} />
+            </span>
+          </div>
+        </div>
+        {/* 分割线 */}
+        <div className="mt-4" style={{ height: 3, background: cfg.headerLineColor }} />
+      </header>
+
+      {/* ======== 基础信息网格 + 头像 ======== */}
+      {page.showHeader && basics && (
+        <div className="relative mb-6 py-4">
+          <div className="grid grid-cols-2 gap-x-10 gap-y-2 text-[13px]">
+            {basicDisplayItems.map((item) => (
+              <InfoRow key={item.key} label={item.label} value={item.value} />
+            ))}
+          </div>
+          {basics.avatar && basics.avatarPosition && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              alt=""
+              className="absolute object-cover"
+              src={basics.avatar}
+              style={{
+                top: basics.avatarPosition.top,
+                right: basics.avatarPosition.right,
+                width: basics.avatarPosition.width,
+                height: basics.avatarPosition.height,
+              }}
+            />
+          )}
+        </div>
+      )}
+
+      {/* ======== 分段线模块区 ======== */}
+      <main style={{ display: "grid", gap: resume.styles.sectionGap }}>
+        {page.modules.filter((m) => m.type !== "basics").map((mod) => (
+          <LineSeparateSection
+            accent={resume.styles.accent}
+            key={mod.id}
+            module={mod}
+            titleColor={cfg.titleColor}
+            textColor={cfg.textColor}
+            separateColor={cfg.sectionSeparateLineColor}
+          />
+        ))}
+      </main>
+    </div>
+  );
+});
+
+function InfoRow({ label, value }: { label: string; value?: string }) {
+  if (!value) return null;
+  return (
+    <div className="flex gap-2">
+      <span className="font-bold shrink-0">{label}：</span>
+      <span>{value}</span>
+    </div>
+  );
+}
+
+function LineSeparateSection({
+  module, accent, titleColor, textColor, separateColor,
+}: {
+  module: ResumeModule; accent: string; titleColor: string; textColor: string; separateColor: string;
+}) {
+  return (
+    <section className="break-inside-avoid">
+      {/* 顶部分割线 */}
+      <div className="mb-3" style={{ height: 2, background: separateColor }} />
+
+      <div className="mb-2 flex items-center gap-2">
+        <i className="h-3.5 w-1 rounded-full" style={{ background: accent }} />
+        <h2 className="text-[15px] font-black" style={{ color: titleColor }}>{module.title}</h2>
+      </div>
+
+      <div className="space-y-4">
+        {module.items.map((item) => {
+          if ("visible" in item && !(item as CustomResumeEntry).visible) return null;
+          return (
+            <article className="break-inside-avoid" key={item.id}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  {module.type !== "skills" && (
+                    <h3 className="font-black text-[14px]" style={{ color: textColor }}>{item.title}</h3>
+                  )}
+                  {item.subtitle && <span className="text-[12px] opacity-60">{item.subtitle}</span>}
+                </div>
+                {(item.startDate || item.endDate) && (
+                  <span className="shrink-0 text-[11px] font-bold opacity-50">
+                    {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
+                  </span>
+                )}
+              </div>
+              {item.description && (
+                <div
+                  className="rich-text-content resume-rich-text mt-1.5 text-[12px] opacity-75"
+                  style={{ color: textColor }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeRichText(normalizeRichText(item.description)) }}
+                />
+              )}
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+registerTemplate({
+  id: "single_column_line_separate",
+  name: "复古分割线",
+  description: "顶部双标题+分段线分隔，清晰稳重，适合传统行业",
+  component: LineSeparateTemplate,
+});

@@ -1,12 +1,13 @@
 "use client";
 
 import {
+  Cog,
+  FileJson,
   FileText,
   LayoutTemplate,
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
-  Settings,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -42,7 +43,8 @@ function getServerSidebarSnapshot() {
 const links = [
   { href: "/", label: "我的简历", icon: FileText },
   { href: "/templates", label: "简历模板", icon: LayoutTemplate },
-  { href: "/settings", label: "通用设置", icon: Settings },
+  { href: "/pdf-to-json", label: "PDF转JSON", icon: FileJson },
+  { href: "/settings", label: "通用设置", icon: Cog },
 ];
 
 function MobileNavigation({ pathname }: { pathname: string }) {
@@ -98,6 +100,7 @@ function MobileNavigation({ pathname }: { pathname: string }) {
                         "bg-[var(--blue)]",
                         "bg-[var(--pink)]",
                         "bg-[var(--mint)]",
+                        "bg-[var(--purple)]",
                       ][index]
                     }`}
                   >
@@ -182,6 +185,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                       "bg-[var(--blue)]",
                       "bg-[var(--pink)]",
                       "bg-[var(--mint)]",
+                      "bg-[var(--purple)]",
                     ][index]
                   }`}
                 >

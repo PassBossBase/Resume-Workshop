@@ -1,11 +1,17 @@
 /**
  * 简历数据模型与 Zod schema —— 应用唯一的数据源。
  *
+ * v3 变更：
+ * - 新增 5 种 templateId，支持多套布局渲染器。
+ * - 新增 layoutConfig，按 templateId 携带布局专属配置。
+ * - 模块增加 sectionIcon。
+ * - 条目增加 entryStyle（背景色等）。
+ * - basics 增加 avatarPosition、infoItems。
+ * - parseAndMigrateResume() 兼容 v1 / v2 旧数据自动迁移。
+ *
  * v2 变更：
  * - 模块类型新增 "custom"，支持用户自定义模块。
- * - 模块字段从固定 5 个改为固定模块 + 任意数量自定义模块的联合类型。
  * - 新增 CustomResumeEntry，相比固定条目增加 visible 字段，移除 location 字段。
- * - 所有外部数据通过 parseAndMigrateResume() 统一入口，兼容 v1 旧数据。
  */
 import { z } from "zod";
 import { normalizeRichText } from "@/features/rich-text/rich-text";
@@ -26,6 +32,114 @@ export const moduleTypeSchema = z.enum([
 export type ModuleType = z.infer<typeof moduleTypeSchema>;
 
 // ──────────────────────────────────────
+// 模板 ID（v3 扩展为 5 种布局）
+// ──────────────────────────────────────
+
+export const templateIdSchema = z.enum([
+  "classic",
+  "single_column_header_full_width",
+  "two_column_sidebar_left",
+  "single_column_timeline_block",
+  "single_column_line_separate",
+]);
+
+export type TemplateId = z.infer<typeof templateIdSchema>;
+
+// ──────────────────────────────────────
+// v3 新增：条目样式
+// ──────────────────────────────────────
+
+const entryStyleSchema = z.object({
+  bgColor: z.string().optional(),
+});
+
+export type EntryStyle = z.infer<typeof entryStyleSchema>;
+
+// ──────────────────────────────────────
+// v3 新增：头像位置
+// ──────────────────────────────────────
+
+const avatarPositionSchema = z.object({
+  top: z.number(),
+  right: z.number(),
+  width: z.number(),
+  height: z.number(),
+});
+
+export type AvatarPosition = z.infer<typeof avatarPositionSchema>;
+
+// ──────────────────────────────────────
+// v3 新增：信息条目（兼容不同模板的基础信息字段）
+// ──────────────────────────────────────
+
+const infoItemSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+  visible: z.boolean().optional(),
+});
+
+export type InfoItem = z.infer<typeof infoItemSchema>;
+
+const optionalBasicFieldSchema = z.enum([
+  "status",
+  "birthday",
+  "email",
+  "phone",
+  "location",
+]);
+
+export type OptionalBasicFieldKey = z.infer<typeof optionalBasicFieldSchema>;
+
+export const DEFAULT_OPTIONAL_BASIC_FIELD_ORDER: OptionalBasicFieldKey[] = [
+  "status",
+  "birthday",
+  "email",
+  "phone",
+  "location",
+];
+
+// ──────────────────────────────────────
+// 布局配置（按 templateId 判别）
+// ──────────────────────────────────────
+
+export const layoutConfigSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("classic") }),
+  z.object({
+    type: z.literal("single_column_header_full_width"),
+    headerBgColor: z.string(),
+    contentBgColor: z.string().default("#ffffff"),
+    titleColor: z.string(),
+    textColor: z.string().default("#2d3748"),
+    accentColor: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal("two_column_sidebar_left"),
+    sidebarBgColor: z.string(),
+    sidebarWidth: z.number().default(260),
+    sidebarTextColor: z.string().default("#ffffff"),
+    contentBgColor: z.string().default("#ffffff"),
+    titleColor: z.string().default("#23395d"),
+    textColor: z.string().default("#333333"),
+  }),
+  z.object({
+    type: z.literal("single_column_timeline_block"),
+    titleColor: z.string().default("#2b6cb0"),
+    timelineLineColor: z.string().default("#94b8e0"),
+    blockColorList: z.array(z.string()).default([]),
+    textColor: z.string().default("#222222"),
+  }),
+  z.object({
+    type: z.literal("single_column_line_separate"),
+    headerLineColor: z.string().default("#6b8ba4"),
+    sectionSeparateLineColor: z.string().default("#334155"),
+    titleColor: z.string().default("#223344"),
+    textColor: z.string().default("#333333"),
+  }),
+]);
+
+export type LayoutConfig = z.infer<typeof layoutConfigSchema>;
+
+// ──────────────────────────────────────
 // 基本信息（仅 basics 模块使用）
 // ──────────────────────────────────────
 
@@ -39,7 +153,106 @@ const basicsSchema = z.object({
   location: z.string(),
   website: z.string(),
   avatar: z.string(),
+  avatarPosition: avatarPositionSchema.optional(),
+  infoItems: z.array(infoItemSchema).default([]),
+  hiddenFields: z.array(optionalBasicFieldSchema).default([]),
+  removedFields: z.array(optionalBasicFieldSchema).default([]),
+  fieldOrder: z.array(optionalBasicFieldSchema).default(DEFAULT_OPTIONAL_BASIC_FIELD_ORDER),
 });
+
+export type BasicsData = z.infer<typeof basicsSchema>;
+
+export interface BasicDisplayItem {
+  key: "name" | "role" | OptionalBasicFieldKey | `custom-${number}`;
+  label: string;
+  value: string;
+  core: boolean;
+}
+
+const coreBasicDisplayFields = [
+  ["name", "姓名"],
+  ["role", "职位"],
+  ["status", "状态"],
+  ["birthday", "生日"],
+  ["email", "邮箱"],
+  ["phone", "电话"],
+  ["location", "地址"],
+] as const;
+
+export function getBasicDisplayItems(
+  basics: BasicsData | undefined,
+): BasicDisplayItem[] {
+  if (!basics) return [];
+  const hiddenFields = new Set(basics.hiddenFields);
+  const removedFields = new Set(basics.removedFields);
+  const optionalFieldOrder = normalizeOptionalFieldOrder(basics.fieldOrder);
+
+  const fixedItems = coreBasicDisplayFields.slice(0, 2).flatMap(([key, label]) => {
+    const value = basics[key].trim();
+    return value ? [{ key, label, value, core: true }] : [];
+  });
+
+  const optionalItems = optionalFieldOrder.flatMap((key) => {
+    if (hiddenFields.has(key) || removedFields.has(key)) return [];
+    const label = coreBasicDisplayFields.find(([field]) => field === key)?.[1] ?? key;
+    const value = basics[key].trim();
+    return value ? [{ key, label, value, core: true }] : [];
+  });
+
+  const customItems = basics.infoItems.flatMap((item, index) => {
+    if (item.visible === false) return [];
+    const label = item.label.trim();
+    const value = item.value.trim();
+    return label && value
+      ? [{ key: `custom-${index}` as const, label, value, core: false }]
+      : [];
+  });
+
+  return [...fixedItems, ...optionalItems, ...customItems];
+}
+
+function normalizeBasicsData(basics: BasicsData): BasicsData {
+  const infoItems = basics.infoItems ?? [];
+  const hiddenFields = basics.hiddenFields ?? [];
+  const removedFields = basics.removedFields ?? [];
+  const fieldOrder = normalizeOptionalFieldOrder(basics.fieldOrder ?? []);
+  const website = basics.website.trim();
+  const hasWebsiteItem = infoItems.some(
+    (item) => item.label.trim() === "个人网站",
+  );
+
+  return {
+    ...basics,
+    hiddenFields: hiddenFields.filter(isOptionalBasicField),
+    removedFields: removedFields.filter(isOptionalBasicField),
+    fieldOrder,
+    infoItems:
+      website && !hasWebsiteItem
+        ? [...infoItems, { label: "个人网站", value: website, visible: true }]
+        : infoItems.map((item) => ({ ...item, visible: item.visible ?? true })),
+  };
+}
+
+function isOptionalBasicField(
+  field: string,
+): field is OptionalBasicFieldKey {
+  return optionalBasicFieldSchema.safeParse(field).success;
+}
+
+function normalizeOptionalFieldOrder(
+  fieldOrder: OptionalBasicFieldKey[],
+): OptionalBasicFieldKey[] {
+  const unique = fieldOrder.filter(
+    (field, index, fields) =>
+      isOptionalBasicField(field) && fields.indexOf(field) === index,
+  );
+  return [
+    ...unique,
+    ...DEFAULT_OPTIONAL_BASIC_FIELD_ORDER.filter(
+      (field) => !unique.includes(field),
+    ),
+  ];
+}
 
 // ──────────────────────────────────────
 // 固定模块条目（5 个固定模块使用）
@@ -51,8 +264,8 @@ const entrySchema = z.object({
   subtitle: z.string(),
   startDate: z.string(),
   endDate: z.string(),
-  location: z.string(),
   description: z.string(),
+  entryStyle: entryStyleSchema.optional(),
 });
 
 export type ResumeEntry = z.infer<typeof entrySchema>;
@@ -69,6 +282,7 @@ const customEntrySchema = z.object({
   endDate: z.string(),
   description: z.string(),
   visible: z.boolean(),
+  entryStyle: entryStyleSchema.optional(),
 });
 
 export type CustomResumeEntry = z.infer<typeof customEntrySchema>;
@@ -84,6 +298,8 @@ const fixedModuleSchema = z.object({
   visible: z.boolean(),
   basics: basicsSchema.optional(),
   items: z.array(entrySchema),
+  // v3 新增
+  sectionIcon: z.string().optional(),
 });
 
 const customModuleSchema = z.object({
@@ -92,6 +308,8 @@ const customModuleSchema = z.object({
   title: z.string(),
   visible: z.boolean(),
   items: z.array(customEntrySchema),
+  // v3 新增
+  sectionIcon: z.string().optional(),
 });
 
 const resumeModuleSchema = z.discriminatedUnion("type", [
@@ -125,17 +343,67 @@ const resumeDocumentV1Schema = z.object({
   updatedAt: z.string(),
   templateId: z.literal("classic"),
   styles: stylesSchema,
-  modules: z.array(fixedModuleSchema).length(5),
+  modules: z.array(
+    z.object({
+      id: z.string(),
+      type: z.enum(["basics", "skills", "work", "projects", "education"]),
+      title: z.string(),
+      visible: z.boolean(),
+      basics: basicsSchema.optional(),
+      items: z.array(
+        z.object({
+          id: z.string(),
+          title: z.string(),
+          subtitle: z.string(),
+          startDate: z.string(),
+          endDate: z.string(),
+          description: z.string(),
+        }),
+      ),
+    }),
+  ).length(5),
 });
 
-/** v2 文档 Schema —— 当前版本。 */
-export const resumeDocumentSchema = z.object({
+/** v2 文档 Schema，仅用于迁移旧数据。 */
+const resumeDocumentV2Schema = z.object({
   version: z.literal(2),
   id: z.string(),
   title: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
   templateId: z.literal("classic"),
+  styles: stylesSchema,
+  modules: z.array(resumeModuleSchema).superRefine((modules, ctx) => {
+    if (modules.length === 0 || modules[0]?.type !== "basics") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "基本信息模块必须存在且位于首位",
+        path: [0, "type"],
+      });
+    }
+    const fixedTypes = ["basics", "skills", "work", "projects", "education"] as const;
+    for (const ft of fixedTypes) {
+      const count = modules.filter((m) => m.type === ft).length;
+      if (count !== 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `固定模块 "${ft}" 必须恰好出现一次，当前出现 ${count} 次`,
+          path: [],
+        });
+      }
+    }
+  }),
+});
+
+/** v3 文档 Schema —— 当前版本。 */
+export const resumeDocumentSchema = z.object({
+  version: z.literal(3),
+  id: z.string(),
+  title: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  templateId: templateIdSchema,
+  layoutConfig: layoutConfigSchema,
   styles: stylesSchema,
   modules: z.array(resumeModuleSchema).superRefine((modules, ctx) => {
     // basics 必须位于首位
@@ -159,6 +427,15 @@ export const resumeDocumentSchema = z.object({
       }
     }
   }),
+}).superRefine((doc, ctx) => {
+  // templateId 与 layoutConfig.type 必须一致
+  if (doc.templateId !== doc.layoutConfig.type) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `templateId "${doc.templateId}" 与 layoutConfig.type "${doc.layoutConfig.type}" 不一致`,
+      path: ["layoutConfig", "type"],
+    });
+  }
 });
 
 export type ResumeDocument = z.infer<typeof resumeDocumentSchema>;
@@ -167,29 +444,97 @@ export type ResumeDocument = z.infer<typeof resumeDocumentSchema>;
 // 迁移
 // ──────────────────────────────────────
 
-/** 将 v1 文档无损迁移为 v2 文档。 */
-function migrateV1ToV2(
+/** 将 v1 文档迁移为 v3 文档。 */
+function migrateV1ToV3(
   v1: z.infer<typeof resumeDocumentV1Schema>,
 ): ResumeDocument {
+  return normalizeResumeDocument({
+    version: 3 as const,
+    id: v1.id,
+    title: v1.title,
+    createdAt: v1.createdAt,
+    updatedAt: v1.updatedAt,
+    templateId: "classic",
+    layoutConfig: { type: "classic" },
+    styles: v1.styles,
+    modules: v1.modules.map((m) => ({
+      ...m,
+      sectionIcon: undefined,
+      basics: m.basics ? normalizeBasicsData(m.basics) : undefined,
+      items: m.items.map((e) => ({
+        ...e,
+        entryStyle: undefined,
+      })),
+    })),
+  });
+}
+
+/** 将 v2 文档迁移为 v3 文档。 */
+function migrateV2ToV3(
+  v2: z.infer<typeof resumeDocumentV2Schema>,
+): ResumeDocument {
+  return normalizeResumeDocument({
+    version: 3 as const,
+    id: v2.id,
+    title: v2.title,
+    createdAt: v2.createdAt,
+    updatedAt: v2.updatedAt,
+    templateId: "classic",
+    layoutConfig: { type: "classic" },
+    styles: v2.styles,
+    modules: v2.modules.map((m) => {
+      const base = {
+        id: m.id,
+        type: m.type,
+        title: m.title,
+        visible: m.visible,
+        sectionIcon: undefined as string | undefined,
+      };
+      if (m.type === "custom") {
+        return {
+          ...base,
+          type: "custom" as const,
+          items: m.items.map((e) => ({ ...e, entryStyle: undefined })),
+        };
+      }
+      const fixedModule = m as FixedResumeModule;
+      const basics = fixedModule.basics;
+      return {
+        ...base,
+        type: m.type as "basics" | "skills" | "work" | "projects" | "education",
+        basics: basics ? normalizeBasicsData(basics) : undefined,
+        items: m.items.map((e) => ({ ...e, entryStyle: undefined })),
+      };
+    }) as ResumeDocument["modules"],
+  });
+}
+
+function normalizeResumeDocument(resume: ResumeDocument): ResumeDocument {
   return {
-    ...v1,
-    version: 2 as const,
-    modules: v1.modules, // v1 的 5 个固定模块结构与 v2 兼容
+    ...resume,
+    modules: resume.modules.map((module) =>
+      module.type === "basics" && module.basics
+        ? { ...module, basics: normalizeBasicsData(module.basics) }
+        : module,
+    ) as ResumeDocument["modules"],
   };
 }
 
 /**
- * 统一的外部数据解析入口。依次尝试 v2 直接解析、v1 解析后迁移。
- * 两版都无法解析时抛出描述性错误。
+ * 统一的外部数据解析入口。依次尝试 v3 直接解析、v2→v3、v1→v3。
+ * 三版都无法解析时抛出描述性错误。
  */
 export function parseAndMigrateResume(raw: unknown): ResumeDocument {
-  const v2Result = resumeDocumentSchema.safeParse(raw);
-  if (v2Result.success) return v2Result.data;
+  const v3Result = resumeDocumentSchema.safeParse(raw);
+  if (v3Result.success) return normalizeResumeDocument(v3Result.data);
+
+  const v2Result = resumeDocumentV2Schema.safeParse(raw);
+  if (v2Result.success) return migrateV2ToV3(v2Result.data);
 
   const v1Result = resumeDocumentV1Schema.safeParse(raw);
-  if (v1Result.success) return migrateV1ToV2(v1Result.data);
+  if (v1Result.success) return migrateV1ToV3(v1Result.data);
 
-  throw new Error(`简历数据无法解析: ${v2Result.error.message}`);
+  throw new Error(`简历数据无法解析: ${v3Result.error.message}`);
 }
 
 // ──────────────────────────────────────
@@ -210,12 +555,11 @@ function entry(
     subtitle,
     startDate,
     endDate,
-    location: "",
     description: normalizeRichText(description),
   };
 }
 
-/** 创建一份 v2 默认简历，包含 5 个固定模块，不含自定义模块。 */
+/** 创建一份 v3 默认简历（经典单栏布局）。 */
 export function createDefaultResume(
   id: string,
   title = "未命名简历",
@@ -223,12 +567,13 @@ export function createDefaultResume(
   const now = new Date().toISOString();
 
   return {
-    version: 2,
+    version: 3,
     id,
     title,
     createdAt: now,
     updatedAt: now,
     templateId: "classic",
+    layoutConfig: { type: "classic" },
     styles: {
       accent: "#3f57e8",
       fontFamily: "sans",
@@ -251,8 +596,12 @@ export function createDefaultResume(
           email: "hello@example.com",
           phone: "138 0013 8000",
           location: "杭州市",
-          website: "portfolio.example.com",
+          website: "",
           avatar: "",
+          infoItems: [],
+          hiddenFields: [],
+          removedFields: [],
+          fieldOrder: DEFAULT_OPTIONAL_BASIC_FIELD_ORDER,
         },
         items: [],
       },
@@ -434,6 +783,67 @@ export function renameModule(
     modules: resume.modules.map((m) =>
       m.id === moduleId
         ? ({ ...m, title: title.trim() || fallbackTitle } as ResumeModule)
+        : m,
+    ),
+  });
+}
+
+// ──────────────────────────────────────
+// v3 新增：模块级元数据操作
+// ──────────────────────────────────────
+
+/** 更新任意模块的 sectionIcon。 */
+export function updateModuleMeta(
+  resume: ResumeDocument,
+  moduleId: string,
+  patch: { sectionIcon?: string },
+): ResumeDocument {
+  return touch({
+    ...resume,
+    modules: resume.modules.map((m) =>
+      m.id === moduleId ? { ...m, ...patch } as ResumeModule : m,
+    ),
+  });
+}
+
+// ──────────────────────────────────────
+// v3 新增：布局配置操作
+// ──────────────────────────────────────
+
+/** 更新布局配置，自动同步 templateId 与 layoutConfig.type。 */
+export function updateLayoutConfig(
+  resume: ResumeDocument,
+  patch: Partial<LayoutConfig>,
+): ResumeDocument {
+  const nextConfig = { ...resume.layoutConfig, ...patch } as LayoutConfig;
+  return touch({
+    ...resume,
+    templateId: nextConfig.type,
+    layoutConfig: nextConfig,
+  });
+}
+
+// ──────────────────────────────────────
+// v3 新增：条目样式操作
+// ──────────────────────────────────────
+
+/** 更新固定模块条目的样式。 */
+export function updateEntryStyle(
+  resume: ResumeDocument,
+  moduleId: string,
+  entryId: string,
+  style: EntryStyle | undefined,
+): ResumeDocument {
+  return touch({
+    ...resume,
+    modules: resume.modules.map((m) =>
+      m.id === moduleId && m.type !== "custom"
+        ? {
+            ...m,
+            items: m.items.map((e) =>
+              e.id === entryId ? { ...e, entryStyle: style } : e,
+            ),
+          }
         : m,
     ),
   });

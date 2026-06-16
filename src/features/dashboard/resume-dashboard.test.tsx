@@ -16,6 +16,9 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/features/storage/resume-repository", () => repositoryMocks);
 
+const hasTextContent = (text: string) => (_: string, node: Element | null) =>
+  node?.textContent === text;
+
 describe("ResumeDashboard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -112,7 +115,7 @@ describe("ResumeDashboard", () => {
 
     render(<ResumeDashboard initialResumes={[]} />);
 
-    expect(await screen.findByText("张真实")).toBeInTheDocument();
-    expect(screen.getByText("前端架构师")).toBeInTheDocument();
+    expect(await screen.findByText(hasTextContent("姓名：张真实"))).toBeInTheDocument();
+    expect(screen.getByText(hasTextContent("职位：前端架构师"))).toBeInTheDocument();
   });
 });

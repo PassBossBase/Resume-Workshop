@@ -1,28 +1,44 @@
 "use client";
 
-import { Eye, FilePlus2, Sparkles, X } from "lucide-react";
+import { Eye, FilePlus2, Plus, Sparkles, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import { InkButton, Modal, PageContainer, PageHeading, StickerCard } from "@/components/anime-ui/ui";
 import { useOverlay } from "@/hooks/use-overlay";
 import { createDefaultResume } from "@/features/resume-model/resume-model";
+import { builtinTemplateFactories } from "@/features/resume-model/template-presets";
 import { saveResume } from "@/features/storage/resume-repository";
-import { ClassicTemplatePage } from "./classic-template";
 import { buildResumePages } from "./resume-pages";
+import { getTemplate, listTemplates } from "./template-registry";
 import { TemplateThumbnail } from "./template-thumbnail";
+
+// 确保所有渲染器模块被加载并注册
+import "./classic-template";
+import "./header-full-width-template";
+import "./sidebar-left-template";
+import "./timeline-block-template";
+import "./line-separate-template";
 
 /** 模板选择页：展示可用模板、预览弹窗与一键使用 */
 export function TemplateGallery() {
   const router = useRouter();
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const sampleResume = useMemo(
-    () => createDefaultResume("classic-template-preview", "经典单栏模板"),
-    [],
-  );
-  const samplePage = useMemo(
-    () => buildResumePages(sampleResume)[0],
-    [sampleResume],
+
+  // 从注册表获取全部模板
+  const templateEntries = useMemo(() => listTemplates(), []);
+
+  // 为当前选中的模板构建预览数据
+  const previewResume = useMemo(() => {
+    const entry = templateEntries[selectedIndex];
+    const factory = entry ? builtinTemplateFactories[entry.id] : undefined;
+    if (factory) return factory();
+    return createDefaultResume("preview", "预览简历");
+  }, [selectedIndex, templateEntries]);
+  const previewPage = useMemo(
+    () => buildResumePages(previewResume)[0],
+    [previewResume],
   );
 
   useOverlay(previewOpen, {
@@ -30,9 +46,21 @@ export function TemplateGallery() {
     onClose: () => setPreviewOpen(false),
   });
 
-  const useTemplate = async () => {
+  const openPreview = (index: number) => {
+    setSelectedIndex(index);
+    setPreviewOpen(true);
+  };
+
+  const applyTemplate = async (index: number) => {
+    const entry = templateEntries[index];
+    const factory = entry ? builtinTemplateFactories[entry.id] : undefined;
+    if (!factory) return;
+    const resume = factory();
+    // 生成新的 ID 和时间戳，作为一份全新的简历
     const id = crypto.randomUUID();
-    await saveResume(createDefaultResume(id, "经典单栏简历"));
+    const now = new Date().toISOString();
+    const newResume = { ...resume, id, createdAt: now, updatedAt: now };
+    await saveResume(newResume);
     router.push(`/resume/${id}`);
   };
 
@@ -46,54 +74,65 @@ export function TemplateGallery() {
             badgeTextColor="text-white"
             badgeRotation="-rotate-1"
             title="简历模板"
-            subtitle="V1 先把一套模板做好。后续模板会沿用同一数据结构。"
+            subtitle="选择一套模板作为起点，快速生成你的简历。"
           />
         </div>
-        <div className="rounded-2xl border-2 border-black bg-(--yellow) px-4 py-3 font-black shadow-[3px_3px_0_black]">
-          1 套可用模板
-        </div>
+        <InkButton variant="paper">
+          <Plus size={18} />
+          添加模板
+        </InkButton>
       </div>
 
       <div
         className="mt-8 grid gap-7 md:grid-cols-2 lg:grid-cols-3"
         data-testid="template-grid"
       >
-        <StickerCard className="overflow-hidden" data-testid="template-card">
-          <TemplateThumbnail page={samplePage} resume={sampleResume} />
-          <div className="p-5 lg:p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <h2 className="text-xl font-black">经典单栏</h2>
-                <p className="mt-1 text-sm text-black/50">
-                  克制、清晰、适合大多数岗位
-                </p>
+        {templateEntries.map((entry, index) => {
+          const resume = (() => {
+            const factory = builtinTemplateFactories[entry.id];
+            return factory ? factory() : createDefaultResume("thumb", entry.name);
+          })();
+          const page = buildResumePages(resume)[0];
+
+          return (
+            <StickerCard className="overflow-hidden" data-testid="template-card" key={entry.id}>
+              <TemplateThumbnail page={page} resume={resume} />
+              <div className="p-5 lg:p-4">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h2 className="text-xl font-black">{entry.name}</h2>
+                    <p className="mt-1 text-sm text-black/50">
+                      {entry.description}
+                    </p>
+                  </div>
+                  <Sparkles className="text-(--orange)" />
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <InkButton
+                    aria-haspopup="dialog"
+                    onClick={() => openPreview(index)}
+                    variant="paper"
+                  >
+                    <Eye size={17} />
+                    预览
+                  </InkButton>
+                  <InkButton
+                    aria-label={`使用${entry.name}模板`}
+                    className="max-lg:gap-0"
+                    onClick={() => applyTemplate(index)}
+                    title="使用"
+                    variant="yellow"
+                  >
+                    <FilePlus2 size={17} />
+                    <span className="max-lg:sr-only" data-template-action-label>
+                      使用
+                    </span>
+                  </InkButton>
+                </div>
               </div>
-              <Sparkles className="text-(--orange)" />
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <InkButton
-                aria-haspopup="dialog"
-                onClick={() => setPreviewOpen(true)}
-                variant="paper"
-              >
-                <Eye size={17} />
-                预览
-              </InkButton>
-              <InkButton
-                aria-label="使用经典单栏模板"
-                className="max-lg:gap-0"
-                onClick={useTemplate}
-                title="使用"
-                variant="yellow"
-              >
-                <FilePlus2 size={17} />
-                <span className="max-lg:sr-only" data-template-action-label>
-                  使用
-                </span>
-              </InkButton>
-            </div>
-          </div>
-        </StickerCard>
+            </StickerCard>
+          );
+        })}
       </div>
 
       <Modal
@@ -112,7 +151,7 @@ export function TemplateGallery() {
               className="mt-1 text-xl font-black sm:text-2xl"
               id="template-preview-title"
             >
-              经典单栏模板预览
+              {templateEntries[selectedIndex]?.name ?? ""}模板预览
             </h2>
           </div>
           <button
@@ -129,10 +168,12 @@ export function TemplateGallery() {
         <div className="scrollbar-thin min-h-0 flex-1 overflow-auto bg-[#e7ebf1] p-4 sm:p-8">
           <div className="template-dialog-page mx-auto shadow-[0_20px_60px_rgb(30_40_60/25%)]">
             <div>
-              <ClassicTemplatePage
-                page={samplePage}
-                resume={sampleResume}
-              />
+              {(() => {
+                const entry = getTemplate(previewResume.templateId);
+                const Renderer = entry?.component;
+                if (!Renderer) return null;
+                return <Renderer page={previewPage} resume={previewResume} />;
+              })()}
             </div>
           </div>
         </div>
@@ -140,7 +181,7 @@ export function TemplateGallery() {
         <footer className="shrink-0 border-t-2 border-black bg-(--paper) p-4 sm:p-5">
           <InkButton
             className="w-full text-base sm:text-lg"
-            onClick={useTemplate}
+            onClick={() => applyTemplate(selectedIndex)}
             variant="dark"
           >
             使用此模板

@@ -1,13 +1,27 @@
 "use client";
 
+import { useState, type DragEvent } from "react";
 import {
   ArrowDown,
   ArrowUp,
+  CalendarDays,
+  Eye,
+  EyeOff,
+  GripVertical,
   ImagePlus,
+  Mail,
+  MapPin,
   Plus,
+  Phone,
   Trash2,
+  UserRound,
 } from "lucide-react";
-import type { ResumeEntry } from "@/features/resume-model/resume-model";
+import type {
+  BasicsData,
+  OptionalBasicFieldKey,
+  ResumeEntry,
+} from "@/features/resume-model/resume-model";
+import { DEFAULT_OPTIONAL_BASIC_FIELD_ORDER } from "@/features/resume-model/resume-model";
 import { RichTextEditor } from "@/features/rich-text/rich-text-editor";
 import { SectionCard } from "@/components/anime-ui/ui";
 import { DateInput } from "./date-input";
@@ -22,24 +36,105 @@ import { useResumeStore } from "@/stores/resume-store";
 const basicFields = [
   ["name", "姓名"],
   ["role", "职位"],
-  ["status", "求职状态"],
+  ["status", "状态"],
+  ["birthday", "生日"],
   ["email", "邮箱"],
   ["phone", "电话"],
-  ["location", "所在地"],
-  ["website", "个人网站"],
+  ["location", "地址"],
 ] as const;
 
+const fixedBasicFields = basicFields.slice(0, 2);
+const optionalBasicFields = basicFields.slice(2) as Array<
+  readonly [OptionalBasicFieldKey, string]
+>;
+
+const optionalFieldIcons: Record<OptionalBasicFieldKey, typeof UserRound> = {
+  status: UserRound,
+  birthday: CalendarDays,
+  email: Mail,
+  phone: Phone,
+  location: MapPin,
+};
+
+function getOrderedOptionalBasicFields(
+  fieldOrder: OptionalBasicFieldKey[] = DEFAULT_OPTIONAL_BASIC_FIELD_ORDER,
+) {
+  const order = [
+    ...fieldOrder.filter(
+      (field, index, fields) =>
+        DEFAULT_OPTIONAL_BASIC_FIELD_ORDER.includes(field) &&
+        fields.indexOf(field) === index,
+    ),
+    ...DEFAULT_OPTIONAL_BASIC_FIELD_ORDER.filter(
+      (field) => !fieldOrder.includes(field),
+    ),
+  ];
+  return order.map((field) => {
+    const label =
+      optionalBasicFields.find(([key]) => key === field)?.[1] ?? field;
+    return [field, label] as const;
+  });
+}
+
+function moveItemToTarget<T>(items: T[], item: T, targetItem: T): T[] {
+  const fromIndex = items.indexOf(item);
+  const targetIndex = items.indexOf(targetItem);
+  if (fromIndex < 0 || targetIndex < 0 || fromIndex === targetIndex)
+    return items;
+  const next = [...items];
+  const [moved] = next.splice(fromIndex, 1);
+  next.splice(targetIndex, 0, moved);
+  return next;
+}
+
+function moveItemToEnd<T>(items: T[], item: T): T[] {
+  return [...items.filter((candidate) => candidate !== item), item];
+}
+
+function moveIndexToTarget<T>(
+  items: T[],
+  fromIndex: number,
+  targetIndex: number,
+): T[] {
+  if (
+    fromIndex < 0 ||
+    targetIndex < 0 ||
+    fromIndex >= items.length ||
+    targetIndex >= items.length ||
+    fromIndex === targetIndex
+  ) {
+    return items;
+  }
+  const next = [...items];
+  const [moved] = next.splice(fromIndex, 1);
+  next.splice(targetIndex, 0, moved);
+  return next;
+}
+
 export function EditorContent() {
+  const [draggedBasicField, setDraggedBasicField] =
+    useState<OptionalBasicFieldKey | null>(null);
+  const [basicDropTarget, setBasicDropTarget] =
+    useState<OptionalBasicFieldKey | null>(null);
+  const [draggedCustomIndex, setDraggedCustomIndex] = useState<number | null>(
+    null,
+  );
+  const [customDropTarget, setCustomDropTarget] = useState<number | null>(null);
   const resume = useResumeStore((state) => state.resume);
   const activeModuleId = useResumeStore((state) => state.activeModuleId);
   const updateBasic = useResumeStore((state) => state.updateBasic);
+  const updateBasicsField = useResumeStore((state) => state.updateBasicsField);
   const updateEntry = useResumeStore((state) => state.updateEntry);
   const addEntry = useResumeStore((state) => state.addEntry);
   const removeEntry = useResumeStore((state) => state.removeEntry);
   const moveEntry = useResumeStore((state) => state.moveEntry);
+  const updateModuleMeta = useResumeStore((state) => state.updateModuleMeta);
+  const updateEntryStyle = useResumeStore((state) => state.updateEntryStyle);
 
   if (!resume) return null;
-  const activeSection = resume.modules.find((item) => item.id === activeModuleId);
+  const activeSection = resume.modules.find(
+    (item) => item.id === activeModuleId,
+  );
   if (!activeSection) return null;
   const meta = getModuleMeta(activeSection);
   const Icon = meta.icon;
@@ -51,7 +146,10 @@ export function EditorContent() {
 
   return (
     <div className="min-h-full bg-[var(--paper)] p-5 md:p-7 xl:p-9">
-      <SectionCard className="mb-8 flex items-center gap-3 px-5 py-4" variant="white">
+      <SectionCard
+        className="mb-8 flex items-center gap-3 px-5 py-4"
+        variant="white"
+      >
         <span
           className="grid h-11 w-11 place-items-center rounded-2xl border-2 border-black"
           style={{ background: meta.color }}
@@ -66,68 +164,300 @@ export function EditorContent() {
         </div>
       </SectionCard>
 
+      {activeSection.type !== "basics" && (
+        <div className="mb-8">
+          <label className="grid gap-1">
+            <span className="text-sm font-bold">模块图标</span>
+            <select
+              className="h-11 rounded-xl border-2 border-black bg-white px-3 font-medium outline-none"
+              value={activeSection.sectionIcon ?? ""}
+              onChange={(e) =>
+                updateModuleMeta(activeSection.id, {
+                  sectionIcon: e.target.value || undefined,
+                })
+              }
+            >
+              <option value="">无图标</option>
+              <option value="work">工作</option>
+              <option value="edu">教育</option>
+              <option value="skill">技能</option>
+              <option value="cert">证书</option>
+              <option value="eval">评价</option>
+              <option value="project">项目</option>
+              <option value="user">用户</option>
+            </select>
+          </label>
+        </div>
+      )}
+
       {activeSection.type === "basics" && activeSection.basics ? (
-        <div className="space-y-7">
-          <section>
-            <h3 className="mb-3 text-lg font-black">头像</h3>
-            <label className="flex cursor-pointer items-center gap-4 rounded-3xl border-2 border-dashed border-black bg-[#f7f4ec] p-4">
-              <span className="grid h-20 w-20 place-items-center overflow-hidden rounded-2xl border-2 border-black bg-[var(--yellow)]">
-                {activeSection.basics.avatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    alt="头像预览"
-                    className="h-full w-full object-cover"
-                    src={activeSection.basics.avatar}
-                  />
-                ) : (
-                  <ImagePlus />
-                )}
-              </span>
-              <span>
-                <strong className="block">上传个人头像</strong>
-                <small className="text-black/50">JPG / PNG，建议使用正方形照片</small>
-              </span>
-              <input
-                accept="image/png,image/jpeg,image/webp"
-                className="hidden"
-                type="file"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (!file) return;
-                  const reader = new FileReader();
-                  reader.onload = () =>
-                    updateBasic("avatar", String(reader.result ?? ""));
-                  reader.readAsDataURL(file);
-                }}
-              />
-            </label>
-          </section>
-          <section>
-            <h3 className="mb-4 text-lg font-black">基础字段</h3>
-            <div className="grid gap-4">
-              {basicFields.map(([key, label]) => (
-                <label key={key} className="grid gap-2 md:grid-cols-[110px_1fr] md:items-center">
-                  <span className="font-bold">{label}</span>
+        (() => {
+          const basics = activeSection.basics;
+          const orderedOptionalBasicFields = getOrderedOptionalBasicFields(
+            basics.fieldOrder,
+          );
+          return (
+            <div className="space-y-7">
+              <section>
+                <h3 className="mb-3 text-lg font-black">头像</h3>
+                <label className="flex cursor-pointer items-center gap-4 rounded-3xl border-2 border-dashed border-black bg-[#f7f4ec] p-4">
+                  <span className="grid h-20 w-20 place-items-center overflow-hidden rounded-2xl border-2 border-black bg-[var(--yellow)]">
+                    {basics.avatar ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        alt="头像预览"
+                        className="h-full w-full object-cover"
+                        src={basics.avatar}
+                      />
+                    ) : (
+                      <ImagePlus />
+                    )}
+                  </span>
+                  <span>
+                    <strong className="block">上传个人头像</strong>
+                    <small className="text-black/50">
+                      JPG / PNG，建议使用正方形照片
+                    </small>
+                  </span>
                   <input
-                    aria-label={label}
-                    className="h-12 rounded-2xl border-2 border-black/15 bg-white px-4 font-medium outline-none transition focus:border-black focus:shadow-[3px_3px_0_var(--yellow)]"
-                    value={activeSection.basics?.[key] ?? ""}
-                    onChange={(event) => updateBasic(key, event.target.value)}
+                    accept="image/png,image/jpeg,image/webp"
+                    className="hidden"
+                    type="file"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = () =>
+                        updateBasic("avatar", String(reader.result ?? ""));
+                      reader.readAsDataURL(file);
+                    }}
                   />
                 </label>
-              ))}
-              <div className="grid gap-2 md:grid-cols-[110px_1fr] md:items-center">
-                <span className="font-bold">出生日期</span>
-                <DateInput
-                  hideLabel
-                  label="出生日期"
-                  value={activeSection.basics.birthday}
-                  onChange={(value) => updateBasic("birthday", value)}
-                />
-              </div>
+                {basics.avatar && (
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    {(["top", "right", "width", "height"] as const).map(
+                      (field) => (
+                        <label key={field} className="grid gap-1">
+                          <span className="text-sm font-bold">
+                            {field === "top"
+                              ? "上边距"
+                              : field === "right"
+                                ? "右边距"
+                                : field === "width"
+                                  ? "宽度"
+                                  : "高度"}
+                          </span>
+                          <input
+                            className="h-11 rounded-2xl border-2 border-black/15 bg-white px-3 font-medium outline-none transition focus:border-black"
+                            min={0}
+                            type="number"
+                            value={basics.avatarPosition?.[field] ?? 0}
+                            onChange={(e) => {
+                              const pos = basics.avatarPosition ?? {
+                                top: 0,
+                                right: 0,
+                                width: 120,
+                                height: 150,
+                              };
+                              updateBasicsField({
+                                avatarPosition: {
+                                  ...pos,
+                                  [field]: Number(e.target.value),
+                                },
+                              });
+                            }}
+                          />
+                        </label>
+                      ),
+                    )}
+                  </div>
+                )}
+              </section>
+              <section>
+                <h3 className="mb-4 text-lg font-black">基础字段</h3>
+                <div>
+                  {fixedBasicFields.map(([key, label]) => (
+                    <BasicFieldRow
+                      fixed
+                      key={key}
+                      label={label}
+                      value={basics[key] ?? ""}
+                      onChange={(value) => updateBasic(key, value)}
+                    />
+                  ))}
+                  {orderedOptionalBasicFields
+                    .filter(([key]) => !basics.removedFields.includes(key))
+                    .map(([key, label]) => (
+                      <BasicFieldRow
+                        hidden={basics.hiddenFields.includes(key)}
+                        icon={optionalFieldIcons[key]}
+                        isDragging={draggedBasicField === key}
+                        isDropTarget={
+                          basicDropTarget === key && draggedBasicField !== key
+                        }
+                        key={key}
+                        label={label}
+                        onDragEnd={() => {
+                          setDraggedBasicField(null);
+                          setBasicDropTarget(null);
+                        }}
+                        onDragLeave={() => setBasicDropTarget(null)}
+                        onDragOver={(event) => {
+                          event.preventDefault();
+                          setBasicDropTarget(key);
+                        }}
+                        onDragStart={() => setDraggedBasicField(key)}
+                        onDrop={() => {
+                          if (!draggedBasicField || draggedBasicField === key)
+                            return;
+                          updateBasicsField({
+                            fieldOrder: moveItemToTarget(
+                              orderedOptionalBasicFields.map(
+                                ([field]) => field,
+                              ),
+                              draggedBasicField,
+                              key,
+                            ),
+                          });
+                          setDraggedBasicField(null);
+                          setBasicDropTarget(null);
+                        }}
+                        value={basics[key] ?? ""}
+                        onChange={(value) => updateBasic(key, value)}
+                        onRemove={() => {
+                          updateBasicsField({
+                            hiddenFields: basics.hiddenFields.filter(
+                              (field) => field !== key,
+                            ),
+                            removedFields: [
+                              ...new Set([...basics.removedFields, key]),
+                            ],
+                          });
+                        }}
+                        onToggle={() => {
+                          const hidden = basics.hiddenFields.includes(key)
+                            ? basics.hiddenFields.filter(
+                                (field) => field !== key,
+                              )
+                            : [...basics.hiddenFields, key];
+                          updateBasicsField({ hiddenFields: hidden });
+                        }}
+                      />
+                    ))}
+                  {basics.removedFields.length > 0 && (
+                    <div className="rounded-3xl border-2 border-dashed border-black/15 bg-white/50 p-4">
+                      <p className="mb-3 text-sm font-bold text-black/55">
+                        添加基础字段
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {optionalBasicFields
+                          .filter(([key]) => basics.removedFields.includes(key))
+                          .map(([key, label]) => {
+                            const Icon = optionalFieldIcons[key];
+                            return (
+                              <button
+                                className="inline-flex h-10 items-center gap-2 rounded-2xl border-2 border-black/15 bg-white px-3 text-sm font-bold transition hover:border-black hover:shadow-[3px_3px_0_var(--yellow)]"
+                                key={key}
+                                onClick={() => {
+                                  updateBasicsField({
+                                    fieldOrder: moveItemToEnd(
+                                      basics.fieldOrder ??
+                                        DEFAULT_OPTIONAL_BASIC_FIELD_ORDER,
+                                      key,
+                                    ),
+                                    removedFields: basics.removedFields.filter(
+                                      (field) => field !== key,
+                                    ),
+                                  });
+                                }}
+                              >
+                                <Icon size={16} />
+                                {label}
+                              </button>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
+              <section>
+                <h3 className="mb-4 text-lg font-black">自定义字段</h3>
+                <div className="space-y-3">
+                  {basics.infoItems.map((item, index) => (
+                    <CustomBasicFieldRow
+                      isDragging={draggedCustomIndex === index}
+                      isDropTarget={
+                        customDropTarget === index &&
+                        draggedCustomIndex !== index
+                      }
+                      item={item}
+                      key={index}
+                      onDragEnd={() => {
+                        setDraggedCustomIndex(null);
+                        setCustomDropTarget(null);
+                      }}
+                      onDragLeave={() => setCustomDropTarget(null)}
+                      onDragOver={(event) => {
+                        event.preventDefault();
+                        setCustomDropTarget(index);
+                      }}
+                      onDragStart={() => setDraggedCustomIndex(index)}
+                      onDrop={() => {
+                        if (
+                          draggedCustomIndex === null ||
+                          draggedCustomIndex === index
+                        )
+                          return;
+                        updateBasicsField({
+                          infoItems: moveIndexToTarget(
+                            basics.infoItems,
+                            draggedCustomIndex,
+                            index,
+                          ),
+                        });
+                        setDraggedCustomIndex(null);
+                        setCustomDropTarget(null);
+                      }}
+                      onChange={(patch) => {
+                        const next = [...basics.infoItems];
+                        next[index] = { ...next[index], ...patch };
+                        updateBasicsField({ infoItems: next });
+                      }}
+                      onRemove={() => {
+                        const next = basics.infoItems.filter(
+                          (_, i) => i !== index,
+                        );
+                        updateBasicsField({ infoItems: next });
+                      }}
+                      onToggle={() => {
+                        const next = [...basics.infoItems];
+                        next[index] = {
+                          ...next[index],
+                          visible: item.visible === false,
+                        };
+                        updateBasicsField({ infoItems: next });
+                      }}
+                    />
+                  ))}
+                  <button
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black/25 bg-[var(--yellow)]/50 py-3 font-bold transition hover:border-black hover:bg-[var(--yellow)]"
+                    onClick={() => {
+                      const next = [
+                        ...basics.infoItems,
+                        { label: "", value: "", visible: true },
+                      ];
+                      updateBasicsField({ infoItems: next });
+                    }}
+                  >
+                    <Plus size={16} />
+                    添加信息项
+                  </button>
+                </div>
+              </section>
             </div>
-          </section>
-        </div>
+          );
+        })()
       ) : activeSection.type === "skills" ? (
         <SectionCard variant="beige" className="p-5">
           <div className="mb-4">
@@ -162,8 +492,9 @@ export function EditorContent() {
               onMove={(direction) =>
                 moveEntry(activeSection.id, item.id, direction)
               }
-              onRemove={() =>
-                removeEntry(activeSection.id, item.id)
+              onRemove={() => removeEntry(activeSection.id, item.id)}
+              onStyleChange={(style) =>
+                updateEntryStyle(activeSection.id, item.id, style)
               }
             />
           ))}
@@ -180,18 +511,221 @@ export function EditorContent() {
   );
 }
 
+function BasicFieldRow({
+  fixed = false,
+  hidden = false,
+  icon: Icon,
+  isDragging = false,
+  isDropTarget = false,
+  label,
+  onDragEnd,
+  onDragLeave,
+  onDragOver,
+  onDragStart,
+  onDrop,
+  value,
+  onChange,
+  onRemove,
+  onToggle,
+}: {
+  fixed?: boolean;
+  hidden?: boolean;
+  icon?: typeof UserRound;
+  isDragging?: boolean;
+  isDropTarget?: boolean;
+  label: string;
+  onDragEnd?: () => void;
+  onDragLeave?: () => void;
+  onDragOver?: (event: DragEvent<HTMLDivElement>) => void;
+  onDragStart?: () => void;
+  onDrop?: () => void;
+  value: string;
+  onChange: (value: string) => void;
+  onRemove?: () => void;
+  onToggle?: () => void;
+}) {
+  return (
+    <div
+      className={[
+        "grid items-center gap-3 rounded-2xl border-2 p-2 transition",
+        fixed
+          ? "grid-cols-[92px_minmax(0,1fr)] border-transparent md:grid-cols-[120px_minmax(0,1fr)]"
+          : "grid-cols-[92px_minmax(0,1fr)_136px] md:grid-cols-[120px_minmax(0,1fr)_136px]",
+        isDragging
+          ? "opacity-50"
+          : isDropTarget
+            ? "border-black border-dashed bg-[var(--yellow)]/30"
+            : fixed
+              ? ""
+              : "border-transparent",
+        hidden ? "opacity-55" : "",
+      ].join(" ")}
+      data-drag-row
+      draggable={!fixed}
+      onDragEnd={onDragEnd}
+      onDragLeave={onDragLeave}
+      onDragOver={onDragOver}
+      onDragStart={(event) => {
+        if (fixed) return;
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", label);
+        onDragStart?.();
+      }}
+      onDrop={onDrop}
+    >
+      <div className="flex min-w-0 items-center gap-2">
+        {Icon && <Icon className="shrink-0" size={19} />}
+        <span className="shrink-0 font-bold">{label}</span>
+      </div>
+      {label === "生日" ? (
+        <DateInput hideLabel label="生日" value={value} onChange={onChange} />
+      ) : (
+        <input
+          aria-label={label}
+          className="h-12 w-full rounded-2xl border-2 border-black/15 bg-white px-4 font-medium outline-none transition focus:border-black focus:shadow-[3px_3px_0_var(--yellow)]"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      )}
+      {(onToggle || onRemove) && (
+        <div className="flex justify-end gap-2">
+          {!fixed && (
+            <span
+              aria-label={`拖拽排序${label}`}
+              className="grid h-11 w-9 cursor-grab place-items-center rounded-2xl text-black/45 transition hover:bg-black/10 active:cursor-grabbing"
+            >
+              <GripVertical size={19} />
+            </span>
+          )}
+          {onToggle && (
+            <button
+              aria-label={`${hidden ? "显示" : "隐藏"}${label}`}
+              className="grid h-11 w-11 place-items-center rounded-2xl border-2 border-transparent transition hover:border-black/15 hover:bg-white"
+              onClick={onToggle}
+            >
+              {hidden ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          )}
+          {onRemove && (
+            <button
+              aria-label={`删除${label}`}
+              className="grid h-11 w-11 place-items-center rounded-2xl border-2 border-transparent text-red-500 transition hover:border-red-200 hover:bg-red-50"
+              onClick={onRemove}
+            >
+              <Trash2 size={18} />
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CustomBasicFieldRow({
+  isDragging = false,
+  isDropTarget = false,
+  item,
+  onChange,
+  onDragEnd,
+  onDragLeave,
+  onDragOver,
+  onDragStart,
+  onDrop,
+  onRemove,
+  onToggle,
+}: {
+  isDragging?: boolean;
+  isDropTarget?: boolean;
+  item: BasicsData["infoItems"][number];
+  onChange: (patch: Partial<BasicsData["infoItems"][number]>) => void;
+  onDragEnd: () => void;
+  onDragLeave: () => void;
+  onDragOver: (event: DragEvent<HTMLDivElement>) => void;
+  onDragStart: () => void;
+  onDrop: () => void;
+  onRemove: () => void;
+  onToggle: () => void;
+}) {
+  const itemName = item.label || "自定义字段";
+  const hidden = item.visible === false;
+
+  return (
+    <div
+      className={[
+        "grid items-center gap-3 rounded-3xl pr-3  transition md:grid-cols-[96px_minmax(0,1fr)_96px]",
+        isDragging
+          ? "opacity-50"
+          : isDropTarget
+            ? "border-black border-dashed bg-[var(--yellow)]/30"
+            : "border-black/10",
+        hidden ? "opacity-55" : "",
+      ].join(" ")}
+      data-drag-row
+      draggable
+      onDragEnd={onDragEnd}
+      onDragLeave={onDragLeave}
+      onDragOver={onDragOver}
+      onDragStart={(event) => {
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", itemName);
+        onDragStart();
+      }}
+      onDrop={onDrop}
+    >
+      <input
+        aria-label="标签"
+        className="h-12 w-full rounded-2xl border-2 border-black/10 bg-white px-4 font-medium outline-none transition focus:border-black focus:shadow-[3px_3px_0_var(--yellow)]"
+        placeholder="标签"
+        value={item.label}
+        onChange={(event) => onChange({ label: event.target.value })}
+      />
+      <input
+        aria-label="值"
+        className="h-12 w-full rounded-2xl border-2 border-black/10 bg-white px-4 font-medium outline-none transition focus:border-black focus:shadow-[3px_3px_0_var(--yellow)]"
+        placeholder="值"
+        value={item.value}
+        onChange={(event) => onChange({ value: event.target.value })}
+      />
+      <div className="flex justify-end gap-2">
+        <span
+          aria-label={`拖拽排序${itemName}`}
+          className="grid h-11 w-9 cursor-grab place-items-center rounded-2xl text-black/45 transition hover:bg-black/10 active:cursor-grabbing"
+        >
+          <GripVertical size={19} />
+        </span>
+        <button
+          aria-label={`${hidden ? "显示" : "隐藏"}${itemName}`}
+          className="grid h-11 w-11 place-items-center rounded-2xl border-2 border-transparent transition hover:border-black/15 hover:bg-white"
+          onClick={onToggle}
+        >
+          {hidden ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+        <button
+          aria-label={`删除${itemName}`}
+          className="grid h-11 w-11 place-items-center rounded-2xl border-2 border-transparent text-red-500 transition hover:border-red-200 hover:bg-red-50"
+          onClick={onRemove}
+        >
+          <Trash2 size={18} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function EntryEditor({
   item,
   index,
   onChange,
   onMove,
   onRemove,
+  onStyleChange,
 }: {
   item: ResumeEntry;
   index: number;
   onChange: (patch: Partial<ResumeEntry>) => void;
   onMove: (direction: -1 | 1) => void;
   onRemove: () => void;
+  onStyleChange?: (style: { bgColor?: string } | undefined) => void;
 }) {
   return (
     <SectionCard variant="beige" className="p-5">
@@ -200,20 +734,40 @@ function EntryEditor({
           条目 {index + 1}
         </span>
         <div className="flex gap-2">
-          <button aria-label="上移" className="rounded-xl border-2 border-black p-2" onClick={() => onMove(-1)}>
+          <button
+            aria-label="上移"
+            className="rounded-xl border-2 border-black p-2"
+            onClick={() => onMove(-1)}
+          >
             <ArrowUp size={16} />
           </button>
-          <button aria-label="下移" className="rounded-xl border-2 border-black p-2" onClick={() => onMove(1)}>
+          <button
+            aria-label="下移"
+            className="rounded-xl border-2 border-black p-2"
+            onClick={() => onMove(1)}
+          >
             <ArrowDown size={16} />
           </button>
-          <button aria-label="删除条目" className="rounded-xl border-2 border-black p-2 text-red-600" onClick={onRemove}>
+          <button
+            aria-label="删除条目"
+            className="rounded-xl border-2 border-black p-2 text-red-600"
+            onClick={onRemove}
+          >
             <Trash2 size={16} />
           </button>
         </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
-        <Field label="名称" value={item.title} onChange={(title) => onChange({ title })} />
-        <Field label="职位 / 专业" value={item.subtitle} onChange={(subtitle) => onChange({ subtitle })} />
+        <Field
+          label="名称"
+          value={item.title}
+          onChange={(title) => onChange({ title })}
+        />
+        <Field
+          label="职位 / 专业"
+          value={item.subtitle}
+          onChange={(subtitle) => onChange({ subtitle })}
+        />
         <DateInput
           label="开始时间"
           value={item.startDate}
@@ -233,6 +787,32 @@ function EntryEditor({
           onChange={(description) => onChange({ description })}
         />
       </div>
+      {onStyleChange && (
+        <div className="mt-3">
+          <label className="grid gap-1">
+            <span className="text-sm font-bold">
+              背景颜色（时间轴色块模板使用）
+            </span>
+            <div className="flex items-center gap-2">
+              <input
+                className="h-10 w-20 rounded-xl border-2 border-black/15 px-2 outline-none"
+                type="color"
+                value={item.entryStyle?.bgColor ?? "#4a90e2"}
+                onChange={(e) => onStyleChange({ bgColor: e.target.value })}
+              />
+              {item.entryStyle?.bgColor && (
+                <button
+                  aria-label="清除背景颜色"
+                  className="h-10 rounded-xl border-2 border-black/15 px-3 text-sm font-bold text-red-500 transition hover:border-black"
+                  onClick={() => onStyleChange(undefined)}
+                >
+                  清除
+                </button>
+              )}
+            </div>
+          </label>
+        </div>
+      )}
     </SectionCard>
   );
 }

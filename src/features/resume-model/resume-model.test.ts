@@ -3,6 +3,7 @@ import {
   addCustomEntry,
   addCustomModule,
   createDefaultResume,
+  getBasicDisplayItems,
   moveCustomEntry,
   moveModule,
   parseAndMigrateResume,
@@ -20,11 +21,11 @@ import {
 describe("resume model", () => {
   // ── v2 默认简历 ──────────────────────────────
 
-  it("creates a valid v2 resume with the five core modules", () => {
+  it("creates a valid v3 resume with the five core modules", () => {
     const resume = createDefaultResume("resume-1", "前端工程师简历");
 
     expect(resumeDocumentSchema.parse(resume)).toEqual(resume);
-    expect(resume.version).toBe(2);
+    expect(resume.version).toBe(3);
     expect(resume.modules.map((module) => module.type)).toEqual([
       "basics",
       "skills",
@@ -36,7 +37,7 @@ describe("resume model", () => {
 
   // ── v1 → v2 迁移 ────────────────────────────
 
-  it("migrates a v1 resume to v2 without losing data", () => {
+  it("migrates a v1 resume to v3 without losing data", () => {
     const v1 = {
       version: 1 as const,
       id: "v1-resume",
@@ -60,7 +61,7 @@ describe("resume model", () => {
         },
         {
           id: "skills", type: "skills" as const, title: "专业技能", visible: true,
-          items: [{ id: "s1", title: "技能", subtitle: "", startDate: "", endDate: "", location: "", description: "" }],
+          items: [{ id: "s1", title: "技能", subtitle: "", startDate: "", endDate: "", description: "" }],
         },
         {
           id: "work", type: "work" as const, title: "工作经历", visible: true,
@@ -77,29 +78,153 @@ describe("resume model", () => {
       ],
     };
 
-    const v2 = parseAndMigrateResume(v1);
+    const v3 = parseAndMigrateResume(v1);
 
-    expect(v2.version).toBe(2);
-    expect(v2.id).toBe("v1-resume");
-    expect(v2.title).toBe("旧版简历");
-    expect(v2.modules).toHaveLength(5);
-    expect(v2.modules[0].type).toBe("basics");
+    expect(v3.version).toBe(3);
+    expect(v3.id).toBe("v1-resume");
+    expect(v3.title).toBe("旧版简历");
+    expect(v3.layoutConfig).toEqual({ type: "classic" });
+    expect(v3.modules).toHaveLength(5);
+    expect(v3.modules[0].type).toBe("basics");
     // skills 模块的数据完整保留
-    const skills = v2.modules.find((m) => m.type === "skills");
+    const skills = v3.modules.find((m) => m.type === "skills");
     expect(skills?.items).toHaveLength(1);
     expect(skills?.items[0].title).toBe("技能");
   });
 
-  it("rejects data that is neither v1 nor v2", () => {
-    expect(() => parseAndMigrateResume({ version: 3 })).toThrow();
+  it("rejects data that is not a valid resume document", () => {
+    expect(() => parseAndMigrateResume({ version: 99 })).toThrow();
     expect(() => parseAndMigrateResume(null)).toThrow();
     expect(() => parseAndMigrateResume("invalid")).toThrow();
   });
 
-  it("round-trips a v2 resume through parseAndMigrateResume", () => {
+  it("round-trips a v3 resume through parseAndMigrateResume", () => {
     const resume = createDefaultResume("round-trip");
     const parsed = parseAndMigrateResume(resume);
     expect(parsed).toEqual(resume);
+  });
+
+  it("migrates legacy website into custom basic info", () => {
+    const resume = createDefaultResume("with-website");
+    const raw = {
+      ...resume,
+      modules: resume.modules.map((module) =>
+        module.type === "basics" && module.basics
+          ? {
+              ...module,
+              basics: {
+                ...module.basics,
+                website: "portfolio.example.com",
+              },
+            }
+          : module,
+      ),
+    };
+
+    const parsed = parseAndMigrateResume(raw);
+    const basics = parsed.modules[0].type === "basics" ? parsed.modules[0].basics : undefined;
+
+    expect(basics?.infoItems).toContainEqual({
+      label: "个人网站",
+      value: "portfolio.example.com",
+      visible: true,
+    });
+  });
+
+  it("does not duplicate an existing website custom field", () => {
+    const resume = createDefaultResume("with-website-item");
+    const raw = {
+      ...resume,
+      modules: resume.modules.map((module) =>
+        module.type === "basics" && module.basics
+          ? {
+              ...module,
+              basics: {
+                ...module.basics,
+                website: "portfolio.example.com",
+                infoItems: [{ label: "个人网站", value: "old.example.com" }],
+              },
+            }
+          : module,
+      ),
+    };
+
+    const parsed = parseAndMigrateResume(raw);
+    const basics = parsed.modules[0].type === "basics" ? parsed.modules[0].basics : undefined;
+
+    expect(basics?.infoItems.filter((item) => item.label === "个人网站")).toHaveLength(1);
+    expect(basics?.infoItems[0]).toEqual({
+      label: "个人网站",
+      value: "old.example.com",
+      visible: true,
+    });
+  });
+
+  it("keeps birthday as a core display field", () => {
+    const resume = createDefaultResume("birthday-core");
+    const basics = resume.modules[0].type === "basics" ? resume.modules[0].basics : undefined;
+    const items = getBasicDisplayItems(basics);
+
+    expect(items.map((item) => item.label).slice(0, 7)).toEqual([
+      "姓名",
+      "职位",
+      "状态",
+      "生日",
+      "邮箱",
+      "电话",
+      "地址",
+    ]);
+    expect(items.find((item) => item.key === "birthday")?.core).toBe(true);
+  });
+
+  it("omits hidden and removed optional basic fields from display items", () => {
+    const resume = createDefaultResume("hidden-removed-fields");
+    const basics = resume.modules[0].type === "basics" ? resume.modules[0].basics : undefined;
+
+    const items = getBasicDisplayItems(
+      basics
+        ? {
+            ...basics,
+            hiddenFields: ["email"],
+            removedFields: ["phone"],
+          }
+        : undefined,
+    );
+
+    expect(items.map((item) => item.key)).toContain("name");
+    expect(items.map((item) => item.key)).toContain("role");
+    expect(items.map((item) => item.key)).not.toContain("email");
+    expect(items.map((item) => item.key)).not.toContain("phone");
+  });
+
+  it("uses optional basic field order and hidden custom fields in display items", () => {
+    const resume = createDefaultResume("ordered-fields");
+    const basics = resume.modules[0].type === "basics" ? resume.modules[0].basics : undefined;
+
+    const items = getBasicDisplayItems(
+      basics
+        ? {
+            ...basics,
+            fieldOrder: ["email", "status", "location", "phone", "birthday"],
+            infoItems: [
+              { label: "展示项", value: "显示", visible: true },
+              { label: "隐藏项", value: "不显示", visible: false },
+            ],
+          }
+        : undefined,
+    );
+
+    expect(items.map((item) => item.key).slice(0, 7)).toEqual([
+      "name",
+      "role",
+      "email",
+      "status",
+      "location",
+      "phone",
+      "birthday",
+    ]);
+    expect(items.map((item) => item.label)).toContain("展示项");
+    expect(items.map((item) => item.label)).not.toContain("隐藏项");
   });
 
   // ── 模块移动与排序（按 moduleId 寻址） ──────
@@ -292,12 +417,12 @@ describe("resume model", () => {
     const resume = createDefaultResume("resume-1");
     // 对固定模块调用自定义条目操作应无效果
     const unchanged = addCustomEntry(resume, "work", "e1");
-    expect(unchanged).toEqual(touch(resume));
+    expect({ ...unchanged, updatedAt: resume.updatedAt }).toEqual(resume);
   });
 
   // ── v2 Schema 约束 ─────────────────────────
 
-  it("rejects a v2 document without basics as the first module", () => {
+  it("rejects a document without basics as the first module", () => {
     const resume = createDefaultResume("resume-1");
     const modules = [...resume.modules];
     // swap basics out of position 0
@@ -307,7 +432,7 @@ describe("resume model", () => {
     expect(resumeDocumentSchema.safeParse(invalid).success).toBe(false);
   });
 
-  it("rejects a v2 document with duplicate fixed modules", () => {
+  it("rejects a document with duplicate fixed modules", () => {
     const resume = createDefaultResume("resume-1");
     const invalid = {
       ...resume,
@@ -325,6 +450,3 @@ describe("resume model", () => {
     expect(resumeDocumentSchema.safeParse(withAnother).success).toBe(true);
   });
 });
-
-/** 独立 touch 导入用于测试不变性 */
-import { touch } from "./resume-model";
