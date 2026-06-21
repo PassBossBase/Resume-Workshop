@@ -14,14 +14,16 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 核心功能：
 
+- 仪表盘新建简历时弹出模板选择弹窗，可从 5 套内置模板 + 空白模板中选择，点击即创建。
 - 创建、复制、编辑和删除多份简历。
 - 编辑基本信息、专业技能、工作经历、项目经历和教育经历。
+- 支持自定义模块，可手动添加荣誉证书、自我评价等额外分区。
 - 调整模块显隐与顺序、经历条目顺序以及全局排版样式。
 - 使用 Tiptap 编辑富文本，支持常用文字格式、链接、对齐和首行缩进。
 - 根据内容估算生成 A4 多页预览，并导出 PDF。
 - 使用 IndexedDB 作为所有浏览器上的本地缓存。
 - 在支持 File System Access API 的桌面 Chrome 中连接本地目录，将简历同步为 JSON 文件。
-- 提供桌面三栏编辑工作台和移动端“内容 / 样式 / 预览”切换界面。
+- 提供桌面三栏编辑工作台和移动端”内容 / 样式 / 预览”切换界面。
 
 产品视觉分为两套语气：应用界面使用明亮、带黑色描边和硬阴影的漫画风；简历模板与 PDF 输出保持专业、清晰和克制。
 
@@ -49,8 +51,8 @@ src/
 ├─ components/             # 跨功能复用组件与应用壳层
 │  └─ anime-ui/            # 项目自有的视觉基础组件
 ├─ features/               # 按业务能力划分的功能模块
-│  ├─ dashboard/           # 简历列表、新建、复制、删除
-│  ├─ editor/              # 编辑工作台、内容表单、样式面板、日期输入
+│  ├─ dashboard/           # 简历列表、新建弹窗、复制、删除
+│  ├─ editor/              # 编辑工作台、内容表单、样式面板、字体选择、日期输入
 │  ├─ pdf-export/          # DOM 页面转 PDF
 │  ├─ resume-model/        # Zod Schema、类型、默认数据、模型操作
 │  ├─ rich-text/           # Tiptap 编辑器与富文本清理
@@ -70,7 +72,10 @@ src/
 - `src/features/storage/resume-repository.ts`：IndexedDB 仓库。
 - `src/features/storage/directory-sync.ts`：目录文件读写及冲突检测。
 - `src/features/templates/resume-pages.ts`：简历内容分页估算。
-- `src/features/templates/classic-template.tsx`：当前唯一的简历模板。
+- `src/features/templates/classic-template.tsx`：经典单栏模板（5 套内置模板之一）。
+- `src/features/templates/blank-template.tsx`：空白模板渲染器（水平分割线 + 居中头部 + 两列/三列表头）。
+- `src/features/templates/template-registry.ts`：模板注册表，所有渲染器通过 `registerTemplate()` 注册。
+- `src/features/dashboard/new-resume-modal.tsx`：新建简历模板选择弹窗（空白模板置顶 + 5 套模板缩略图）。
 - `src/features/rich-text/rich-text.ts`：富文本规范化、白名单清理和纯文本提取。
 - `src/hooks/use-overlay.ts`：弹层的 Escape、滚动锁定和初始焦点行为。
 - `src/components/anime-ui/ui.tsx`：`InkButton`、`StickerCard`、`Modal`、页面容器等基础 UI。
@@ -79,8 +84,8 @@ src/
 
 ### 路由
 
-- `/`：简历仪表盘，从 IndexedDB 加载列表，提供新建、复制、编辑和删除。
-- `/templates`：模板库。目前只有“经典单栏”模板。
+- `/`：简历仪表盘，从 IndexedDB 加载列表，提供新建弹窗（6 种模板可选）、复制、编辑和删除。
+- `/templates`：模板库，展示全部 6 套模板（含空白模板），支持预览和一键使用。
 - `/settings`：连接、重新授权、迁移缓存和断开本地目录。
 - `/resume/[id]`：简历编辑工作台。Next.js 16 的动态 `params` 是 Promise，必须先 `await`。
 
@@ -88,15 +93,16 @@ src/
 
 ### 数据模型
 
-`ResumeDocument` 当前固定为 `version: 1`，`templateId` 当前固定为 `"classic"`。文档必须包含恰好五个模块：
+`ResumeDocument` 当前版本为 `version: 3`，`templateId` 支持 6 种值（`"blank"`、`"classic"`、`"single_column_header_full_width"`、`"two_column_sidebar_left"`、`"single_column_timeline_block"`、`"single_column_line_separate"`）。文档必须包含恰好五个固定模块，外加可选的自定义模块：
 
 1. `basics`
 2. `skills`
 3. `work`
 4. `projects`
 5. `education`
+6. `custom`（可选，用户手动添加）
 
-`basics` 必须始终存在、位于首位且不可隐藏。其他模块可以隐藏和排序。所有持久化数据必须通过 `resumeDocumentSchema` 校验，不能直接信任 IndexedDB、JSON 文件或未来的导入数据。
+`basics` 必须始终存在、位于首位且不可隐藏。其他模块可以隐藏和排序。所有持久化数据必须通过 `resumeDocumentSchema` 校验，不能直接信任 IndexedDB、JSON 文件或未来的导入数据。旧版本数据（v1/v2）通过 `parseAndMigrateResume()` 自动迁移到 v3。
 
 ### 编辑状态
 
@@ -232,6 +238,17 @@ npm run build
 7. IndexedDB 和目录 JSON 兼容性。
 8. PDF 导出。
 9. 手动浏览器验证。
+
+新增模板时，除上述检查外还需同步完成：
+- `templateIdSchema` 和 `layoutConfigSchema` 各添加一个条目。
+- 新建模板渲染器文件，调用 `registerTemplate()` 注册。
+- 在 `template-thumbnail.tsx`、`resume-preview.tsx`、`template-gallery.tsx` 中添加 `import` 侧效注册。
+- 在 `template-presets.ts` 的 `builtinTemplateFactories` 中添加工厂函数。
+
+字体相关变更注意：
+- `fontFamily` 字段使用 `z.string()` 宽松校验，不在 Schema 层锁死可选值。
+- 所有模板渲染器的 `fontFamilies` map 需标注 `Record<string, string>` 以兼容 `string` 索引。
+- 样式面板和模板渲染器中的字体选项需保持同步。
 
 修改本地存储或目录同步时，必须保留：
 
