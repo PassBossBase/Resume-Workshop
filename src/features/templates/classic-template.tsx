@@ -41,10 +41,11 @@ export const ClassicTemplatePage = memo(function ClassicTemplatePage({
   const basics = firstModule?.type === "basics" ? firstModule.basics : undefined;
   const basicDisplayItems = getBasicDisplayItems(basics);
 
-  const fontFamilies = {
+  const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
     serif: '"Songti SC", SimSun, serif',
     rounded: '"Microsoft YaHei", "PingFang SC", sans-serif',
+    alibaba: '"Alibaba PuHuiTi", "阿里巴巴普惠体", "Microsoft YaHei", sans-serif',
   };
 
   return (
@@ -79,9 +80,11 @@ export const ClassicTemplatePage = memo(function ClassicTemplatePage({
               style={{ background: resume.styles.accent }}
             />
             <div>
-              <h1 className="text-[34px] font-black tracking-wide">
-                个人简历
-              </h1>
+              {basics?.name && (
+                <h1 className="text-[34px] font-black tracking-wide">
+                  {basics.name}
+                </h1>
+              )}
             </div>
           </div>
           <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-[12px] text-[#526079]">

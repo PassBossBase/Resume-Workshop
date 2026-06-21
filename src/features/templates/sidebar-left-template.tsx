@@ -29,10 +29,11 @@ export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
   );
   const sidebarBg = cfg.sidebarBgColor;
   const sidebarW = cfg.sidebarWidth;
-  const fontFamilies = {
+  const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
     serif: '"Songti SC", SimSun, serif',
     rounded: '"Microsoft YaHei", "PingFang SC", sans-serif',
+    alibaba: '"Alibaba PuHuiTi", "阿里巴巴普惠体", "Microsoft YaHei", sans-serif',
   };
 
   return (
@@ -91,9 +92,11 @@ export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
       <main className="flex-1 px-8 py-8" style={{ background: cfg.contentBgColor }}>
         {page.showHeader && (
           <header className="mb-6 border-b pb-5" style={{ borderColor: resume.styles.accent }}>
-            <h1 className="text-[26px] font-black" style={{ color: cfg.titleColor }}>
-              个人简历
-            </h1>
+            {basics?.name && (
+              <h1 className="text-[26px] font-black" style={{ color: cfg.titleColor }}>
+                {basics.name}
+              </h1>
+            )}
           </header>
         )}
 

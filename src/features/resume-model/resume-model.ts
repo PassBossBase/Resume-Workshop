@@ -36,6 +36,7 @@ export type ModuleType = z.infer<typeof moduleTypeSchema>;
 // ──────────────────────────────────────
 
 export const templateIdSchema = z.enum([
+  "blank",
   "classic",
   "single_column_header_full_width",
   "two_column_sidebar_left",
@@ -103,6 +104,12 @@ export const DEFAULT_OPTIONAL_BASIC_FIELD_ORDER: OptionalBasicFieldKey[] = [
 // ──────────────────────────────────────
 
 export const layoutConfigSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("blank"),
+    separatorColor: z.string().default("#cbd5e1"),
+    titleColor: z.string().default("#1e293b"),
+    textColor: z.string().default("#475569"),
+  }),
   z.object({ type: z.literal("classic") }),
   z.object({
     type: z.literal("single_column_header_full_width"),
@@ -188,6 +195,8 @@ export function getBasicDisplayItems(
   const optionalFieldOrder = normalizeOptionalFieldOrder(basics.fieldOrder);
 
   const fixedItems = coreBasicDisplayFields.slice(0, 2).flatMap(([key, label]) => {
+    // 姓名作为大标题单独展示，此处不再重复渲染
+    if (key === "name") return [];
     const value = basics[key].trim();
     return value ? [{ key, label, value, core: true }] : [];
   });
@@ -327,7 +336,7 @@ export type ResumeModule = z.infer<typeof resumeModuleSchema>;
 
 const stylesSchema = z.object({
   accent: z.string(),
-  fontFamily: z.enum(["sans", "serif", "rounded"]),
+  fontFamily: z.string(),
   fontSize: z.number().min(12).max(20),
   lineHeight: z.number().min(1.2).max(2),
   pageMargin: z.number().min(24).max(64),
@@ -668,6 +677,89 @@ export function createDefaultResume(
             "主修产品设计、视觉传达与人机交互\n校级优秀毕业设计",
           ),
         ],
+      },
+    ],
+  };
+}
+
+/** 创建一份完全空白的 v3 简历（经典单栏布局，无示例数据）。 */
+export function createBlankResume(
+  id: string,
+  title = "空白简历",
+): ResumeDocument {
+  const now = new Date().toISOString();
+
+  return {
+    version: 3,
+    id,
+    title,
+    createdAt: now,
+    updatedAt: now,
+    templateId: "blank",
+    layoutConfig: {
+      type: "blank",
+      separatorColor: "#cbd5e1",
+      titleColor: "#1e293b",
+      textColor: "#475569",
+    },
+    styles: {
+      accent: "#3f57e8",
+      fontFamily: "alibaba",
+      fontSize: 15,
+      lineHeight: 1.55,
+      pageMargin: 36,
+      sectionGap: 28,
+    },
+    modules: [
+      {
+        id: "basics",
+        type: "basics",
+        title: "基本信息",
+        visible: true,
+        basics: {
+          name: "",
+          role: "",
+          status: "",
+          birthday: "",
+          email: "",
+          phone: "",
+          location: "",
+          website: "",
+          avatar: "",
+          infoItems: [],
+          hiddenFields: [],
+          removedFields: [],
+          fieldOrder: DEFAULT_OPTIONAL_BASIC_FIELD_ORDER,
+        },
+        items: [],
+      },
+      {
+        id: "skills",
+        type: "skills",
+        title: "专业技能",
+        visible: true,
+        items: [],
+      },
+      {
+        id: "work",
+        type: "work",
+        title: "工作经历",
+        visible: true,
+        items: [],
+      },
+      {
+        id: "projects",
+        type: "projects",
+        title: "项目经历",
+        visible: true,
+        items: [],
+      },
+      {
+        id: "education",
+        type: "education",
+        title: "教育经历",
+        visible: true,
+        items: [],
       },
     ],
   };

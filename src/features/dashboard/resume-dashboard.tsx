@@ -13,10 +13,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { InkButton, Modal, PageContainer, PageHeading, StickerCard } from "@/components/anime-ui/ui";
 import { useOverlay } from "@/hooks/use-overlay";
-import {
-  createDefaultResume,
-  type ResumeDocument,
-} from "@/features/resume-model/resume-model";
+import { NewResumeModal } from "@/features/dashboard/new-resume-modal";
+import type { ResumeDocument } from "@/features/resume-model/resume-model";
 import {
   deleteResume,
   listResumes,
@@ -34,6 +32,7 @@ export function ResumeDashboard({
   const router = useRouter();
   const [resumes, setResumes] = useState(initialResumes);
   const [isLoading, setIsLoading] = useState(initialResumes.length === 0);
+  const [newResumeOpen, setNewResumeOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<ResumeDocument>();
   const [isDeleting, setIsDeleting] = useState(false);
   const closeDeleteRef = useRef<HTMLButtonElement>(null);
@@ -50,13 +49,6 @@ export function ResumeDashboard({
       .catch(() => undefined)
       .finally(() => setIsLoading(false));
   }, []);
-
-  const createResume = async () => {
-    const id = crypto.randomUUID();
-    const resume = createDefaultResume(id, `我的简历 ${resumes.length + 1}`);
-    await saveResume(resume);
-    router.push(`/resume/${id}`);
-  };
 
   const duplicate = async (resume: ResumeDocument) => {
     const copy = {
@@ -101,7 +93,7 @@ export function ResumeDashboard({
             subtitle="把经历整理成一份清晰、专业又属于你的简历。"
           />
         </div>
-        <InkButton onClick={createResume} variant="pink">
+        <InkButton onClick={() => setNewResumeOpen(true)} variant="pink">
           <Plus size={19} />
           新建简历
         </InkButton>
@@ -147,7 +139,7 @@ export function ResumeDashboard({
           <p className="mx-auto mt-3 max-w-md leading-7 text-black/60">
             内容自动保存在浏览器。桌面 Chrome 还可以连接本地文件夹。
           </p>
-          <InkButton className="mt-7" onClick={createResume} variant="yellow">
+          <InkButton className="mt-7" onClick={() => setNewResumeOpen(true)} variant="yellow">
             创建第一份简历
           </InkButton>
         </StickerCard>
@@ -278,6 +270,12 @@ export function ResumeDashboard({
           </div>
         </div>
       </Modal>
+
+      <NewResumeModal
+        open={newResumeOpen}
+        onClose={() => setNewResumeOpen(false)}
+        defaultTitle={`我的简历 ${resumes.length + 1}`}
+      />
     </PageContainer>
   );
 }

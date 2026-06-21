@@ -63,10 +63,11 @@ export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
   const basics = firstModule?.type === "basics" ? firstModule.basics : undefined;
   const basicDisplayItems = getBasicDisplayItems(basics);
   const headerBg = cfg.headerBgColor;
-  const fontFamilies = {
+  const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
     serif: '"Songti SC", SimSun, serif',
     rounded: '"Microsoft YaHei", "PingFang SC", sans-serif',
+    alibaba: '"Alibaba PuHuiTi", "阿里巴巴普惠体", "Microsoft YaHei", sans-serif',
   };
 
   return (
@@ -101,9 +102,11 @@ export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
             />
           )}
 
-          <h1 className="text-[28px] font-black" style={{ color: "#ffffff" }}>
-            个人简历
-          </h1>
+          {basics?.name && (
+            <h1 className="text-[28px] font-black" style={{ color: "#ffffff" }}>
+              {basics.name}
+            </h1>
+          )}
 
           <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-1.5 text-[12px] opacity-90">
             {basicDisplayItems.map((item) => (

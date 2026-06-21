@@ -24,10 +24,11 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
   const firstModule = resume.modules[0];
   const basics = firstModule?.type === "basics" ? firstModule.basics : undefined;
   const basicDisplayItems = getBasicDisplayItems(basics);
-  const fontFamilies = {
+  const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
     serif: '"Songti SC", SimSun, serif',
     rounded: '"Microsoft YaHei", "PingFang SC", sans-serif',
+    alibaba: '"Alibaba PuHuiTi", "阿里巴巴普惠体", "Microsoft YaHei", sans-serif',
   };
 
   return (
@@ -47,9 +48,11 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
         <header className="mb-5">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-[28px] font-black tracking-wide" style={{ color: cfg.titleColor }}>
-                个人简历
-              </h1>
+              {basics?.name && (
+                <h1 className="text-[28px] font-black tracking-wide" style={{ color: cfg.titleColor }}>
+                  {basics.name}
+                </h1>
+              )}
             </div>
             <div className="flex gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-full border-2 border-black">
@@ -60,8 +63,8 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
               </span>
             </div>
           </div>
-          {/* 分割线 */}
-          <div className="mt-4" style={{ height: 3, background: cfg.headerLineColor }} />
+          {/* 分割线 - 跟随主题色 */}
+          <div className="mt-4" style={{ height: 3, background: resume.styles.accent }} />
         </header>
       )}
 
@@ -99,7 +102,7 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
             module={mod}
             titleColor={cfg.titleColor}
             textColor={cfg.textColor}
-            separateColor={cfg.sectionSeparateLineColor}
+            separateColor={resume.styles.accent}
           />
         ))}
       </main>

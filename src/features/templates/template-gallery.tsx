@@ -19,6 +19,7 @@ import { getTemplate, listTemplates } from "./template-registry";
 import { TemplateThumbnail } from "./template-thumbnail";
 
 // 确保所有渲染器模块被加载并注册
+import "./blank-template";
 import "./classic-template";
 import "./header-full-width-template";
 import "./sidebar-left-template";
@@ -83,10 +84,10 @@ export function TemplateGallery() {
             subtitle="选择一套模板作为起点，快速生成你的简历。"
           />
         </div>
-        <InkButton variant="paper">
+        {/* <InkButton variant="paper">
           <Plus size={18} />
           添加模板
-        </InkButton>
+        </InkButton> */}
       </div>
 
       <div

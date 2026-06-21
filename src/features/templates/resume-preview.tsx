@@ -7,6 +7,7 @@ import { getTemplate } from "./template-registry";
 import { buildContinuousResumePage } from "./resume-pages";
 
 // 确保所有渲染器模块被加载并注册（硬刷新时也有效）
+import "./blank-template";
 import "./header-full-width-template";
 import "./sidebar-left-template";
 import "./timeline-block-template";

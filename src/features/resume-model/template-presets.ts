@@ -7,6 +7,7 @@
  */
 import {
   DEFAULT_OPTIONAL_BASIC_FIELD_ORDER,
+  createBlankResume,
   createDefaultResume,
   type ResumeDocument,
 } from "@/features/resume-model/resume-model";
@@ -762,6 +763,7 @@ export function createLineSeparateTemplate(): ResumeDocument {
 }
 
 export const builtinTemplateFactories: Record<string, () => ResumeDocument> = {
+  blank: () => createBlankResume(crypto.randomUUID(), "空白简历"),
   classic: () => createDefaultResume(crypto.randomUUID(), "经典单栏简历"),
   single_column_header_full_width: createHeaderFullWidthTemplate,
   two_column_sidebar_left: createSidebarLeftTemplate,

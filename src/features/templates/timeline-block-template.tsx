@@ -23,15 +23,17 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
   const firstModule = resume.modules[0];
   const basics = firstModule?.type === "basics" ? firstModule.basics : undefined;
   const basicDisplayItems = getBasicDisplayItems(basics);
-  const fontFamilies = {
+  const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
     serif: '"Songti SC", SimSun, serif',
     rounded: '"Microsoft YaHei", "PingFang SC", sans-serif',
+    alibaba: '"Alibaba PuHuiTi", "阿里巴巴普惠体", "Microsoft YaHei", sans-serif',
   };
 
   const colors = cfg.blockColorList;
-  const workModule = page.modules.find((m) => m.type === "work");
-  const leftModules = page.modules.filter((m) => m.type !== "work" && m.type !== "basics");
+  // 右侧时间轴模块：工作经历 + 项目经历，按 page.modules 顺序排列（支持拖拽换位）
+  const rightModules = page.modules.filter((m) => m.type === "work" || m.type === "projects");
+  const leftModules = page.modules.filter((m) => m.type !== "work" && m.type !== "projects" && m.type !== "basics");
 
   return (
     <div
@@ -49,9 +51,11 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
         <header className="relative px-10 pt-8 pb-4" style={{ background: "#ffffff" }}>
           <div className="flex items-start justify-between">
             <div style={{ maxWidth: 620 }}>
-              <h1 className="text-[26px] font-black" style={{ color: cfg.titleColor }}>
-                个人简历
-              </h1>
+              {basics?.name && (
+                <h1 className="text-[26px] font-black" style={{ color: cfg.titleColor }}>
+                  {basics.name}
+                </h1>
+              )}
             </div>
             {basics?.avatar && basics?.avatarPosition && (
               // eslint-disable-next-line @next/next/no-img-element
@@ -95,58 +99,63 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
           ))}
         </aside>
 
-        {/* 右侧时间轴 */}
-        <div className="flex-1">
-          {workModule && workModule.items.length > 0 && (
-            <section>
-              <h3 className="mb-5 text-[14px] font-black" style={{ color: cfg.titleColor }}>
-                {workModule.title}
-              </h3>
-              <div className="relative">
-                {/* 时间轴线条 */}
-                <div
-                  className="absolute left-[10px] top-0 h-full"
-                  style={{ width: 2, background: cfg.timelineLineColor }}
-                />
-                <div className="space-y-5">
-                  {workModule.items.map((item, i) => (
-                    <div className="relative pl-8" key={item.id}>
-                      {/* 圆点 */}
-                      <span
-                        className="absolute left-[4px] top-1.5 block rounded-full border-2 bg-white"
-                        style={{
-                          width: 14, height: 14,
-                          borderColor: cfg.timelineLineColor,
-                        }}
-                      />
-                      {/* 日期 */}
-                      {(item.startDate || item.endDate) && (
-                        <span className="text-[11px] font-bold opacity-50">
-                          {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
-                        </span>
-                      )}
-                      {/* 色块卡片 */}
-                      <div
-                        className="mt-1 rounded-lg px-4 py-3 text-white"
-                        style={{ background: item.entryStyle?.bgColor ?? colors[i % colors.length] ?? cfg.titleColor }}
-                      >
-                        <h4 className="font-black text-[14px]">{item.title}</h4>
-                        {item.subtitle && <p className="text-[12px] opacity-90">{item.subtitle}</p>}
-                        {item.description && (
-                          <div
-                            className="mt-2 text-[12px] leading-relaxed opacity-90"
-                            dangerouslySetInnerHTML={{ __html: sanitizeRichText(normalizeRichText(item.description)) }}
-                          />
+        {/* 右侧时间轴：工作经历 + 项目经历，顺序由模块排列决定 */}
+        <div className="flex-1 min-w-0">
+          {rightModules.map((mod, modIdx) => {
+            if (mod.items.length === 0) return null;
+            return (
+              <section key={mod.id} className={modIdx > 0 ? "mt-6" : ""}>
+                <h3 className="mb-5 text-[14px] font-black" style={{ color: cfg.titleColor }}>
+                  {mod.title}
+                </h3>
+                <div className="relative">
+                  {/* 时间轴线条 */}
+                  <div
+                    className="absolute left-[10px] top-0 h-full"
+                    style={{ width: 2, background: cfg.timelineLineColor }}
+                  />
+                  <div className="space-y-5">
+                    {mod.items.map((item, i) => (
+                      <div className="relative pl-8 overflow-hidden" key={item.id}>
+                        {/* 圆点 */}
+                        <span
+                          className="absolute left-[4px] top-1.5 block rounded-full border-2 bg-white"
+                          style={{
+                            width: 14, height: 14,
+                            borderColor: cfg.timelineLineColor,
+                          }}
+                        />
+                        {/* 日期 */}
+                        {(item.startDate || item.endDate) && (
+                          <span className="text-[11px] font-bold opacity-50 wrap-break-word">
+                            {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
+                          </span>
                         )}
+                        {/* 色块卡片 */}
+                        <div
+                          className="mt-1 rounded-lg px-4 py-3 text-white"
+                          style={{ background: item.entryStyle?.bgColor ?? colors[i % colors.length] ?? cfg.titleColor }}
+                        >
+                          <h4 className="font-black text-[14px] wrap-break-word">{item.title}</h4>
+                          {item.subtitle && <p className="text-[12px] opacity-90 wrap-break-word">{item.subtitle}</p>}
+                          {item.description && (
+                            <div
+                              className="mt-2 text-[12px] leading-relaxed opacity-90 wrap-break-word"
+                              dangerouslySetInnerHTML={{ __html: sanitizeRichText(normalizeRichText(item.description)) }}
+                            />
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </section>
-          )}
+              </section>
+            );
+          })}
         </div>
       </div>
+      {/* 预览区最后一页底部留白，PDF 导出时排除 */}
+      <div aria-hidden="true" data-pdf-exclude="true" style={{ height: 20 }} />
     </div>
   );
 });
@@ -157,27 +166,27 @@ function TimelineLeftSection({
   module: ResumeModule; titleColor: string; textColor: string;
 }) {
   return (
-    <section className="mb-5 break-inside-avoid">
-      <h3 className="mb-2 text-[13px] font-black" style={{ color: titleColor }}>
+    <section className="mb-5 break-inside-avoid overflow-hidden">
+      <h3 className="mb-2 text-[13px] font-black wrap-break-word" style={{ color: titleColor }}>
         {module.title}
       </h3>
 
       {module.items.map((item) => {
         if ("visible" in item && !(item as CustomResumeEntry).visible) return null;
         return (
-          <div className="mb-2 text-[12px]" key={item.id} style={{ color: textColor }}>
+          <div className="mb-2 text-[12px] overflow-hidden" key={item.id} style={{ color: textColor }}>
             {(item.startDate || item.endDate) && (
-              <span className="font-bold opacity-50">
+              <span className="font-bold opacity-50 wrap-break-word">
                 {[item.startDate, item.endDate].filter(Boolean).join(" ~ ")}
               </span>
             )}
             {item.title && module.type !== "skills" && (
-              <p className="font-bold mt-0.5">{item.title}</p>
+              <p className="font-bold mt-0.5 wrap-break-word">{item.title}</p>
             )}
-            {item.subtitle && <p className="opacity-60">{item.subtitle}</p>}
+            {item.subtitle && <p className="opacity-60 wrap-break-word">{item.subtitle}</p>}
             {item.description && (
               <div
-                className="mt-1 opacity-75"
+                className="mt-1 opacity-75 wrap-break-word"
                 dangerouslySetInnerHTML={{ __html: sanitizeRichText(normalizeRichText(item.description)) }}
               />
             )}
@@ -191,6 +200,6 @@ function TimelineLeftSection({
 registerTemplate({
   id: "single_column_timeline_block",
   name: "时间轴色块",
-  description: "左侧信息栏+右侧时间轴色块经历，适合行政/管理岗位",
+  description: "左侧信息栏+右侧时间轴色块工作与项目经历，适合行政/管理岗位",
   component: TimelineBlockTemplate,
 });

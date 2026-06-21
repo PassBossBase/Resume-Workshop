@@ -226,13 +226,14 @@ export function StylePanel() {
             onChange={(event) =>
               updateStyle(
                 "fontFamily",
-                event.target.value as "sans" | "serif" | "rounded",
+                event.target.value,
               )
             }
           >
             <option value="sans">清晰黑体</option>
             <option value="serif">优雅宋体</option>
             <option value="rounded">圆润字体</option>
+            <option value="alibaba">阿里巴巴普惠体</option>
           </select>
         </label>
       </Panel>

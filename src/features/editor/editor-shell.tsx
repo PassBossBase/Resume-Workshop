@@ -184,7 +184,11 @@ export function EditorShell({ id }: { id: string }) {
           >
             <MoonStar size={19} />
           </button> */}
-          <InkButton className="min-h-11 px-3 md:px-5" onClick={download}>
+          <InkButton
+            variant="yellow"
+            className="min-h-11 px-3 md:px-5"
+            onClick={download}
+          >
             <Download size={18} />
             <span className="hidden sm:inline">导出 PDF</span>
             <span className="sm:hidden">导出</span>
