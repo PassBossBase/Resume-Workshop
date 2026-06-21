@@ -2,7 +2,7 @@
 
 import {
   Cog,
-  FileJson,
+  // FileJson,
   FileText,
   LayoutTemplate,
   Menu,
@@ -12,11 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  useState,
-  useSyncExternalStore,
-  type ReactNode,
-} from "react";
+import { useState, useSyncExternalStore, type ReactNode } from "react";
 import { BrandMark } from "./anime-ui/ui";
 import { useOverlay } from "@/hooks/use-overlay";
 
@@ -43,7 +39,7 @@ function getServerSidebarSnapshot() {
 const links = [
   { href: "/", label: "我的简历", icon: FileText },
   { href: "/templates", label: "简历模板", icon: LayoutTemplate },
-  { href: "/pdf-to-json", label: "PDF转JSON", icon: FileJson },
+  // { href: "/pdf-to-json", label: "PDF转JSON", icon: FileJson },
   { href: "/settings", label: "通用设置", icon: Cog },
 ];
 
@@ -59,7 +55,7 @@ function MobileNavigation({ pathname }: { pathname: string }) {
         aria-label={open ? "关闭更多菜单" : "打开更多菜单"}
         aria-expanded={open}
         aria-controls="mobile-navigation"
-        className="relative z-20 grid h-12 w-12 place-items-center rounded-2xl border-2 border-black bg-white transition hover:-translate-y-0.5 hover:shadow-[3px_3px_0_black] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue)]"
+        className="relative z-20 grid h-12 w-12 place-items-center rounded-2xl border-2 border-black bg-white transition hover:-translate-y-0.5 hover:shadow-[3px_3px_0_black] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--blue)"
         onClick={() => setOpen((current) => !current)}
       >
         {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
@@ -77,7 +73,7 @@ function MobileNavigation({ pathname }: { pathname: string }) {
             id="mobile-navigation"
             role="menu"
             aria-label="主导航"
-            className="absolute right-0 top-[calc(100%+14px)] z-20 w-64 rotate-[0.5deg] rounded-3xl border-2 border-black bg-[var(--paper)] p-3 shadow-[6px_6px_0_black]"
+            className="absolute right-0 top-[calc(100%+14px)] z-20 w-64 rotate-[0.5deg] rounded-3xl border-2 border-black bg-(--paper) p-3 shadow-[6px_6px_0_black]"
           >
             {links.map(({ href, label, icon: Icon }, index) => {
               const active = pathname === href;
@@ -90,17 +86,17 @@ function MobileNavigation({ pathname }: { pathname: string }) {
                   onClick={() => setOpen(false)}
                   className={`flex items-center gap-3 rounded-2xl border-2 px-3 py-3 font-bold transition ${
                     active
-                      ? "border-black bg-[var(--yellow)]"
+                      ? "border-black bg-(--yellow)"
                       : "border-transparent hover:border-black hover:bg-white"
                   }`}
                 >
                   <span
                     className={`grid h-9 w-9 place-items-center rounded-xl border-2 border-black ${
                       [
-                        "bg-[var(--blue)]",
-                        "bg-[var(--pink)]",
-                        "bg-[var(--mint)]",
-                        "bg-[var(--purple)]",
+                        "bg-(--blue)",
+                        "bg-(--pink)",
+                        "bg-(--mint)",
+                        "bg-(--purple)",
                       ][index]
                     }`}
                   >
@@ -144,7 +140,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen">
       <aside
         className={`no-print fixed top-0 left-0 z-40 hidden h-screen border-r-2 border-black bg-[#fff8e8] transition-[padding,width] duration-200 lg:flex lg:flex-col ${
-          sidebarCollapsed ? "w-[88px] p-4" : "w-[260px] p-6"
+          sidebarCollapsed ? "w-22 p-4" : "w-65 p-6"
         }`}
         data-collapsed={sidebarCollapsed}
         data-testid="desktop-sidebar"
@@ -182,10 +178,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <span
                   className={`grid h-9 w-9 place-items-center rounded-xl border-2 border-black ${
                     [
-                      "bg-[var(--blue)]",
-                      "bg-[var(--pink)]",
-                      "bg-[var(--mint)]",
-                      "bg-[var(--purple)]",
+                      "bg-(--blue)",
+                      "bg-(--pink)",
+                      "bg-(--mint)",
+                      "bg-(--purple)",
                     ][index]
                   }`}
                 >
@@ -201,7 +197,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             type="button"
             aria-label={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
             aria-expanded={!sidebarCollapsed}
-            className="absolute cursor-pointer left-0 bottom-2 grid h-10 w-full shrink-0 place-items-center border-2 border-black bg-white transition hover:-translate-y-0.5 hover:bg-[var(--yellow)] hover:shadow-[3px_3px_0_black] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue)]"
+            className="absolute cursor-pointer left-0 bottom-2 grid h-10 w-full shrink-0 place-items-center border-2 border-black bg-white transition hover:-translate-y-0.5 hover:bg-(--yellow) hover:shadow-[3px_3px_0_black] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue)]"
             onClick={toggleSidebar}
             title={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
           >
@@ -215,10 +211,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
       <div
         className={`min-w-0 transition-[padding] duration-200 ${
-          sidebarCollapsed ? "lg:pl-[88px]" : "lg:pl-[260px]"
+          sidebarCollapsed ? "lg:pl-22" : "lg:pl-65"
         }`}
       >
-        <header className="no-print relative z-40 flex h-20 items-center justify-between border-b-2 border-black bg-[var(--paper)] px-5 lg:hidden">
+        <header className="no-print relative z-40 flex h-20 items-center justify-between border-b-2 border-black bg-(--paper) px-5 lg:hidden">
           <BrandMark />
           <MobileNavigation pathname={pathname} />
         </header>
