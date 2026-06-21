@@ -12,7 +12,7 @@ import "./sidebar-left-template";
 import "./timeline-block-template";
 import "./line-separate-template";
 
-/** 实时预览面板，将分页后的简历按不同断点缩放渲染 */
+/** 实时预览面板，将连续简历按不同断点缩放渲染，并用红线标记分页位置 */
 export const ResumePreview = memo(function ResumePreview({
   registerPage,
 }: {
@@ -73,6 +73,7 @@ export const ResumePreview = memo(function ResumePreview({
         >
           <div
             className="absolute left-0 top-0 origin-top-left shadow-[0_20px_60px_rgb(30_40_60/20%)]"
+            data-testid="continuous-preview"
             style={{ transform: `scale(${scale})` }}
           >
             <Renderer

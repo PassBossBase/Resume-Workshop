@@ -230,46 +230,58 @@ export function EditorContent() {
                       reader.onload = () =>
                         updateBasic("avatar", String(reader.result ?? ""));
                       reader.readAsDataURL(file);
+                      event.currentTarget.value = "";
                     }}
                   />
                 </label>
                 {basics.avatar && (
-                  <div className="mt-4 grid grid-cols-2 gap-3">
-                    {(["top", "right", "width", "height"] as const).map(
-                      (field) => (
-                        <label key={field} className="grid gap-1">
-                          <span className="text-sm font-bold">
-                            {field === "top"
-                              ? "上边距"
-                              : field === "right"
-                                ? "右边距"
-                                : field === "width"
-                                  ? "宽度"
-                                  : "高度"}
-                          </span>
-                          <input
-                            className="h-11 rounded-2xl border-2 border-black/15 bg-white px-3 font-medium outline-none transition focus:border-black"
-                            min={0}
-                            type="number"
-                            value={basics.avatarPosition?.[field] ?? 0}
-                            onChange={(e) => {
-                              const pos = basics.avatarPosition ?? {
-                                top: 0,
-                                right: 0,
-                                width: 120,
-                                height: 150,
-                              };
-                              updateBasicsField({
-                                avatarPosition: {
-                                  ...pos,
-                                  [field]: Number(e.target.value),
-                                },
-                              });
-                            }}
-                          />
-                        </label>
-                      ),
-                    )}
+                  <div className="mt-4 space-y-4">
+                    <button
+                      aria-label="取消个人头像"
+                      className="inline-flex h-10 items-center gap-2 rounded-2xl border-2 border-black bg-white px-4 text-sm font-black shadow-[3px_3px_0_#111] transition hover:-translate-y-0.5"
+                      type="button"
+                      onClick={() => updateBasic("avatar", "")}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      取消头像
+                    </button>
+                    <div className="grid grid-cols-2 gap-3">
+                      {(["top", "right", "width", "height"] as const).map(
+                        (field) => (
+                          <label key={field} className="grid gap-1">
+                            <span className="text-sm font-bold">
+                              {field === "top"
+                                ? "上边距"
+                                : field === "right"
+                                  ? "右边距"
+                                  : field === "width"
+                                    ? "宽度"
+                                    : "高度"}
+                            </span>
+                            <input
+                              className="h-11 rounded-2xl border-2 border-black/15 bg-white px-3 font-medium outline-none transition focus:border-black"
+                              min={0}
+                              type="number"
+                              value={basics.avatarPosition?.[field] ?? 0}
+                              onChange={(e) => {
+                                const pos = basics.avatarPosition ?? {
+                                  top: 0,
+                                  right: 0,
+                                  width: 120,
+                                  height: 150,
+                                };
+                                updateBasicsField({
+                                  avatarPosition: {
+                                    ...pos,
+                                    [field]: Number(e.target.value),
+                                  },
+                                });
+                              }}
+                            />
+                          </label>
+                        ),
+                      )}
+                    </div>
                   </div>
                 )}
               </section>

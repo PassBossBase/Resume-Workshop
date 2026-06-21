@@ -3,7 +3,13 @@
 import { Eye, FilePlus2, Plus, Sparkles, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
-import { InkButton, Modal, PageContainer, PageHeading, StickerCard } from "@/components/anime-ui/ui";
+import {
+  InkButton,
+  Modal,
+  PageContainer,
+  PageHeading,
+  StickerCard,
+} from "@/components/anime-ui/ui";
 import { useOverlay } from "@/hooks/use-overlay";
 import { createDefaultResume } from "@/features/resume-model/resume-model";
 import { builtinTemplateFactories } from "@/features/resume-model/template-presets";
@@ -84,18 +90,24 @@ export function TemplateGallery() {
       </div>
 
       <div
-        className="mt-8 grid gap-7 md:grid-cols-2 lg:grid-cols-3"
+        className="mt-8 grid gap-7 sm:grid-cols-2 xl:grid-cols-3"
         data-testid="template-grid"
       >
         {templateEntries.map((entry, index) => {
           const resume = (() => {
             const factory = builtinTemplateFactories[entry.id];
-            return factory ? factory() : createDefaultResume("thumb", entry.name);
+            return factory
+              ? factory()
+              : createDefaultResume("thumb", entry.name);
           })();
           const page = buildResumePages(resume)[0];
 
           return (
-            <StickerCard className="overflow-hidden" data-testid="template-card" key={entry.id}>
+            <StickerCard
+              className="overflow-hidden"
+              data-testid="template-card"
+              key={entry.id}
+            >
               <TemplateThumbnail page={page} resume={resume} />
               <div className="p-5 lg:p-4">
                 <div className="flex items-start justify-between">

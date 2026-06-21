@@ -22,6 +22,37 @@ describe("EditorContent", () => {
     expect(basicsModule?.type === "basics" ? basicsModule.basics?.name : undefined).toBe("周星野");
   });
 
+  it("clears the uploaded avatar from the basic information form", () => {
+    const resume = createDefaultResume("editor-resume-with-avatar");
+    useResumeStore.getState().load({
+      ...resume,
+      modules: resume.modules.map((module) =>
+        module.type === "basics" && module.basics
+          ? {
+              ...module,
+              basics: {
+                ...module.basics,
+                avatar: "data:image/png;base64,avatar",
+              },
+            }
+          : module,
+      ),
+    });
+
+    render(<EditorContent />);
+    expect(screen.getByAltText("头像预览")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "取消个人头像" }));
+
+    const basicsModule = useResumeStore
+      .getState()
+      .resume?.modules.find((module) => module.type === "basics");
+    const basics = basicsModule?.type === "basics" ? basicsModule.basics : undefined;
+
+    expect(basics?.avatar).toBe("");
+    expect(screen.queryByAltText("头像预览")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "取消个人头像" })).not.toBeInTheDocument();
+  });
   it("renders the core basic fields in the agreed order", () => {
     render(<EditorContent />);
 
