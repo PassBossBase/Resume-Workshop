@@ -4,15 +4,15 @@ import { useState, type DragEvent } from "react";
 import {
   ArrowDown,
   ArrowUp,
-  CalendarDays,
+  // CalendarDays,
   Eye,
   EyeOff,
   GripVertical,
   ImagePlus,
-  Mail,
-  MapPin,
+  // Mail,
+  // MapPin,
   Plus,
-  Phone,
+  // Phone,
   Trash2,
   UserRound,
 } from "lucide-react";
@@ -48,13 +48,13 @@ const optionalBasicFields = basicFields.slice(2) as Array<
   readonly [OptionalBasicFieldKey, string]
 >;
 
-const optionalFieldIcons: Record<OptionalBasicFieldKey, typeof UserRound> = {
-  status: UserRound,
-  birthday: CalendarDays,
-  email: Mail,
-  phone: Phone,
-  location: MapPin,
-};
+// const optionalFieldIcons: Record<OptionalBasicFieldKey, typeof UserRound> = {
+//   status: UserRound,
+//   birthday: CalendarDays,
+//   email: Mail,
+//   phone: Phone,
+//   location: MapPin,
+// };
 
 function getOrderedOptionalBasicFields(
   fieldOrder: OptionalBasicFieldKey[] = DEFAULT_OPTIONAL_BASIC_FIELD_ORDER,
@@ -235,7 +235,7 @@ export function EditorContent() {
                   />
                 </label>
                 {basics.avatar && (
-                  <div className="mt-4 space-y-4">
+                  <div className="mt-4">
                     <button
                       aria-label="取消个人头像"
                       className="inline-flex h-10 items-center gap-2 rounded-2xl border-2 border-black bg-white px-4 text-sm font-black shadow-[3px_3px_0_#111] transition hover:-translate-y-0.5"
@@ -245,43 +245,6 @@ export function EditorContent() {
                       <Trash2 className="h-4 w-4" />
                       取消头像
                     </button>
-                    <div className="grid grid-cols-2 gap-3">
-                      {(["top", "right", "width", "height"] as const).map(
-                        (field) => (
-                          <label key={field} className="grid gap-1">
-                            <span className="text-sm font-bold">
-                              {field === "top"
-                                ? "上边距"
-                                : field === "right"
-                                  ? "右边距"
-                                  : field === "width"
-                                    ? "宽度"
-                                    : "高度"}
-                            </span>
-                            <input
-                              className="h-11 rounded-2xl border-2 border-black/15 bg-white px-3 font-medium outline-none transition focus:border-black"
-                              min={0}
-                              type="number"
-                              value={basics.avatarPosition?.[field] ?? 0}
-                              onChange={(e) => {
-                                const pos = basics.avatarPosition ?? {
-                                  top: 0,
-                                  right: 0,
-                                  width: 120,
-                                  height: 150,
-                                };
-                                updateBasicsField({
-                                  avatarPosition: {
-                                    ...pos,
-                                    [field]: Number(e.target.value),
-                                  },
-                                });
-                              }}
-                            />
-                          </label>
-                        ),
-                      )}
-                    </div>
                   </div>
                 )}
               </section>
@@ -302,7 +265,7 @@ export function EditorContent() {
                     .map(([key, label]) => (
                       <BasicFieldRow
                         hidden={basics.hiddenFields.includes(key)}
-                        icon={optionalFieldIcons[key]}
+                        // icon={optionalFieldIcons[key]}
                         isDragging={draggedBasicField === key}
                         isDropTarget={
                           basicDropTarget === key && draggedBasicField !== key
@@ -365,7 +328,7 @@ export function EditorContent() {
                         {optionalBasicFields
                           .filter(([key]) => basics.removedFields.includes(key))
                           .map(([key, label]) => {
-                            const Icon = optionalFieldIcons[key];
+                            // const Icon = optionalFieldIcons[key];
                             return (
                               <button
                                 className="inline-flex h-10 items-center gap-2 rounded-2xl border-2 border-black/15 bg-white px-3 text-sm font-bold transition hover:border-black hover:shadow-[3px_3px_0_var(--yellow)]"
@@ -383,7 +346,7 @@ export function EditorContent() {
                                   });
                                 }}
                               >
-                                <Icon size={16} />
+                                {/* <Icon size={16} /> */}
                                 {label}
                               </button>
                             );
@@ -559,10 +522,10 @@ function BasicFieldRow({
   return (
     <div
       className={[
-        "grid items-center gap-3 rounded-2xl border-2 p-2 transition",
+        "grid items-center rounded-2xl border-2 p-2 transition",
         fixed
-          ? "grid-cols-[92px_minmax(0,1fr)] border-transparent md:grid-cols-[120px_minmax(0,1fr)]"
-          : "grid-cols-[92px_minmax(0,1fr)_136px] md:grid-cols-[120px_minmax(0,1fr)_136px]",
+          ? "grid-cols-[92px_minmax(0,1fr)] border-transparent md:grid-cols-[100px_minmax(0,1fr)]"
+          : "grid-cols-[92px_minmax(0,1fr)_136px] md:grid-cols-[100px_minmax(0,1fr)_136px]",
         isDragging
           ? "opacity-50"
           : isDropTarget
@@ -600,11 +563,11 @@ function BasicFieldRow({
         />
       )}
       {(onToggle || onRemove) && (
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end">
           {!fixed && (
             <span
               aria-label={`拖拽排序${label}`}
-              className="grid h-11 w-9 cursor-grab place-items-center rounded-2xl text-black/45 transition hover:bg-black/10 active:cursor-grabbing"
+              className="grid h-11 w-8 cursor-grab place-items-center rounded-2xl text-black/45 transition hover:bg-black/10 active:cursor-grabbing"
             >
               <GripVertical size={19} />
             </span>
@@ -612,7 +575,7 @@ function BasicFieldRow({
           {onToggle && (
             <button
               aria-label={`${hidden ? "显示" : "隐藏"}${label}`}
-              className="grid h-11 w-11 place-items-center rounded-2xl border-2 border-transparent transition hover:border-black/15 hover:bg-white"
+              className="grid h-11 w-8 place-items-center rounded-2xl border-2 border-transparent transition hover:border-black/15 hover:bg-white"
               onClick={onToggle}
             >
               {hidden ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -621,7 +584,7 @@ function BasicFieldRow({
           {onRemove && (
             <button
               aria-label={`删除${label}`}
-              className="grid h-11 w-11 place-items-center rounded-2xl border-2 border-transparent text-red-500 transition hover:border-red-200 hover:bg-red-50"
+              className="grid h-11 w-8 place-items-center rounded-2xl border-2 border-transparent text-red-500 transition hover:border-red-200 hover:bg-red-50"
               onClick={onRemove}
             >
               <Trash2 size={18} />

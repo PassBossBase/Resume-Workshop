@@ -75,18 +75,12 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
               <InfoRow key={item.key} label={item.label} value={item.value} />
             ))}
           </div>
-          {basics.avatar && basics.avatarPosition && (
+          {basics.avatar && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               alt=""
-              className="absolute object-cover"
+              className="absolute right-0 top-0 h-[112px] w-[88px] object-cover"
               src={basics.avatar}
-              style={{
-                top: basics.avatarPosition.top,
-                right: basics.avatarPosition.right,
-                width: basics.avatarPosition.width,
-                height: basics.avatarPosition.height,
-              }}
             />
           )}
         </div>

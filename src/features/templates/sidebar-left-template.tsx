@@ -49,17 +49,13 @@ export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
         className="shrink-0 px-5 pt-8 pb-6 text-[0.857em]"
         style={{ width: sidebarW, background: sidebarBg, color: cfg.sidebarTextColor }}
       >
-        {basics?.avatar && basics?.avatarPosition && (
+        {basics?.avatar && (
           <div className="mb-6 flex justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               alt=""
-              className="object-cover"
+              className="h-20 w-20 rounded-full object-cover"
               src={basics.avatar}
-              style={{
-                width: basics.avatarPosition.width,
-                height: basics.avatarPosition.height,
-              }}
             />
           </div>
         )}

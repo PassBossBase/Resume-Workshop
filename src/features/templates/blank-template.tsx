@@ -79,6 +79,13 @@ export const BlankTemplate = memo(function BlankTemplate({
       {/* ======== 居中对齐头部 ======== */}
       {page.showHeader && (
         <header className="mb-6 text-center">
+          {basics?.avatar && (
+            <img
+              alt=""
+              className="mx-auto mb-3 h-24 w-24 rounded-full object-cover"
+              src={basics.avatar}
+            />
+          )}
           {basics?.name && (
             <h1
               className="text-[2em] font-black tracking-wide"

@@ -56,16 +56,12 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
                 </h1>
               )}
             </div>
-            {basics?.avatar && basics?.avatarPosition && (
+            {basics?.avatar && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 alt=""
-                className="shrink-0 object-cover"
+                className="h-[112px] w-[88px] shrink-0 object-cover"
                 src={basics.avatar}
-                style={{
-                  width: basics.avatarPosition.width,
-                  height: basics.avatarPosition.height,
-                }}
               />
             )}
           </div>
