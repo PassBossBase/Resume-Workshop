@@ -100,9 +100,9 @@ export function ResumeDashboard({
           />
         </div>
         <div className="flex gap-4">
-          <InkButton onClick={() => setImportResume(true)} variant="blue">
+          {/* <InkButton onClick={() => setImportResume(true)} variant="blue">
             导入简历
-          </InkButton>
+          </InkButton> */}
           <InkButton onClick={() => setNewResumeOpen(true)} variant="pink">
             新建简历
           </InkButton>
