@@ -93,7 +93,6 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
               key={mod.id}
               module={mod}
               titleColor={cfg.titleColor}
-              textColor={cfg.textColor}
             />
           ))}
         </aside>
@@ -126,7 +125,7 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
                         />
                         {/* 日期 */}
                         {(item.startDate || item.endDate) && (
-                          <span className="text-[0.786em] font-bold opacity-50 wrap-break-word">
+                          <span className="text-[0.786em] font-bold text-black wrap-break-word">
                             {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
                           </span>
                         )}
@@ -160,9 +159,9 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
 });
 
 function TimelineLeftSection({
-  module, titleColor, textColor,
+  module, titleColor,
 }: {
-  module: ResumeModule; titleColor: string; textColor: string;
+  module: ResumeModule; titleColor: string;
 }) {
   return (
     <section className="mb-5 break-inside-avoid overflow-hidden">
@@ -173,19 +172,19 @@ function TimelineLeftSection({
       {module.items.map((item) => {
         if ("visible" in item && !(item as CustomResumeEntry).visible) return null;
         return (
-          <div className="mb-2 text-[0.857em] overflow-hidden" key={item.id} style={{ color: textColor }}>
+          <div className="mb-2 text-[0.857em] overflow-hidden text-black" key={item.id}>
             {(item.startDate || item.endDate) && (
-              <span className="font-bold opacity-50 wrap-break-word">
+              <span className="font-bold wrap-break-word">
                 {[item.startDate, item.endDate].filter(Boolean).join(" ~ ")}
               </span>
             )}
             {item.title && module.type !== "skills" && (
               <p className="font-bold mt-0.5 wrap-break-word">{item.title}</p>
             )}
-            {item.subtitle && <p className="opacity-60 wrap-break-word">{item.subtitle}</p>}
+            {item.subtitle && <p className="wrap-break-word">{item.subtitle}</p>}
             {item.description && (
               <div
-                className="mt-1 opacity-75 wrap-break-word"
+                className="mt-1 wrap-break-word"
                 dangerouslySetInnerHTML={{ __html: sanitizeRichText(normalizeRichText(item.description)) }}
               />
             )}

@@ -112,7 +112,7 @@ export function StylePanel() {
         onDragEnd={handleDragEnd}
       >
         <button
-          className="flex flex-1 items-center gap-3 text-left font-bold"
+          className="flex min-w-0 flex-1 items-center gap-3 text-left font-bold"
           onClick={() => setActiveModule(module.id)}
           aria-label={`编辑${meta.displayTitle}`}
         >
@@ -122,10 +122,10 @@ export function StylePanel() {
           >
             <Icon size={16} color="white" />
           </span>
-          <span className="whitespace-nowrap">{meta.displayTitle}</span>
+          <span className="truncate">{meta.displayTitle}</span>
         </button>
         {!isBasics && (
-          <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+          <div className="flex shrink-0 items-center gap-1">
             <span
               className="grid h-7 w-7 cursor-grab place-items-center rounded-lg hover:bg-black/10 active:cursor-grabbing"
               aria-label={`拖拽移动${meta.displayTitle}`}

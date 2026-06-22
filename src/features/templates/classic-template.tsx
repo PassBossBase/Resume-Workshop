@@ -132,7 +132,7 @@ function ResumeSection({
                     <h3 className="font-black">{item.title}</h3>
                   )}
                   {item.subtitle && (
-                    <span className="text-[0.857em] font-semibold text-[#7b8799]">
+                    <span className="text-[0.857em] font-semibold text-black">
                       {item.subtitle}
                     </span>
                   )}
@@ -145,7 +145,7 @@ function ResumeSection({
               </div>
               {item.description && (
                 <div
-                  className="rich-text-content resume-rich-text mt-2 text-[0.857em] text-[#526079]"
+                  className="rich-text-content resume-rich-text mt-2 text-[0.857em] text-black"
                   dangerouslySetInnerHTML={{
                     __html: sanitizeRichText(normalizeRichText(item.description)),
                   }}

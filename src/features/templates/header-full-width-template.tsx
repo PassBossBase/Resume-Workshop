@@ -181,21 +181,20 @@ function HeaderFullWidthSection({
                     </h3>
                   )}
                   {item.subtitle && (
-                    <span className="text-[0.929em] font-medium opacity-70">
+                    <span className="text-[0.929em] font-medium text-black">
                       {item.subtitle}
                     </span>
                   )}
                 </div>
                 {(item.startDate || item.endDate) && (
-                  <span className="shrink-0 text-[0.857em] font-bold opacity-60">
+                  <span className="shrink-0 text-[0.857em] font-bold text-black">
                     {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
                   </span>
                 )}
               </div>
               {item.description && (
                 <div
-                  className="rich-text-content resume-rich-text mt-2 text-[0.929em] opacity-80"
-                  style={{ color: textColor }}
+                  className="rich-text-content resume-rich-text mt-2 text-[0.929em] text-black"
                   dangerouslySetInnerHTML={{
                     __html: sanitizeRichText(normalizeRichText(item.description)),
                   }}

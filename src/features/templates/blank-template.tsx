@@ -215,8 +215,7 @@ function BlankItem({
       {/* 描述段落 */}
       {item.description && (
         <div
-          className="rich-text-content resume-rich-text mt-1.5 text-[0.857em] opacity-75"
-          style={{ color: textColor }}
+          className="rich-text-content resume-rich-text mt-1.5 text-[0.857em] text-black"
           dangerouslySetInnerHTML={{
             __html: sanitizeRichText(normalizeRichText(item.description)),
           }}
@@ -253,10 +252,10 @@ function ItemHeader({
         <h3 className="text-[1em] font-black text-left">
           {itemTitle || <NoData />}
         </h3>
-        <span className="text-[0.857em] text-center opacity-60">
+        <span className="text-[0.857em] text-center text-black">
           {itemSubtitle || <NoData />}
         </span>
-        <span className="shrink-0 text-right text-[0.786em] font-bold opacity-50">
+        <span className="shrink-0 text-right text-[0.786em] font-bold text-black">
           {dateText || <NoData />}
         </span>
       </div>
@@ -272,11 +271,11 @@ function ItemHeader({
       <div>
         <h3 className="text-[1em] font-black">{itemTitle || <NoData />}</h3>
         {itemSubtitle && (
-          <span className="text-[0.857em] opacity-60">{itemSubtitle}</span>
+          <span className="text-[0.857em] text-black">{itemSubtitle}</span>
         )}
       </div>
       {dateText && (
-        <span className="shrink-0 text-[0.786em] font-bold opacity-50">
+        <span className="shrink-0 text-[0.786em] font-bold text-black">
           {dateText}
         </span>
       )}

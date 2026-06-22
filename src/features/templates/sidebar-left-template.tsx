@@ -135,18 +135,17 @@ function SidebarSection({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   {module.type !== "skills" && <h3 className="font-black text-[1em]" style={{ color: textColor }}>{item.title}</h3>}
-                  {item.subtitle && <span className="text-[0.857em] opacity-60">{item.subtitle}</span>}
+                  {item.subtitle && <span className="text-[0.857em] text-black">{item.subtitle}</span>}
                 </div>
                 {(item.startDate || item.endDate) && (
-                  <span className="shrink-0 text-[0.786em] font-bold opacity-50">
+                  <span className="shrink-0 text-[0.786em] font-bold text-black">
                     {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
                   </span>
                 )}
               </div>
               {item.description && (
                 <div
-                  className="rich-text-content resume-rich-text mt-1.5 text-[0.857em] opacity-75"
-                  style={{ color: textColor }}
+                  className="rich-text-content resume-rich-text mt-1.5 text-[0.857em] text-black"
                   dangerouslySetInnerHTML={{ __html: sanitizeRichText(normalizeRichText(item.description)) }}
                 />
               )}
