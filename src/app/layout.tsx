@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "简历工坊",
   description: "一款活泼、私密、完全本地运行的简历编辑器",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Yellow rounded square background -->
+  <rect x="1" y="1" width="30" height="30" rx="9" fill="#ffd84d" stroke="#191919" stroke-width="2"/>
+  <!-- Pink dot -->
+  <circle cx="28" cy="4" r="3.5" fill="#ff4f91" stroke="#191919" stroke-width="1.5"/>
+  <!-- R letter -->
+  <text x="16" y="23" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="19" font-weight="900" fill="#171717">R</text>
+</svg>

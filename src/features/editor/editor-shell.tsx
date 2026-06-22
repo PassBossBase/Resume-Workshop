@@ -31,6 +31,8 @@ import { useResumeStore } from "@/stores/resume-store";
 import type { ResumeModule } from "@/features/resume-model/resume-model";
 import { StylePanel } from "./style-panel";
 import { ResumePreview } from "@/features/templates/resume-preview";
+import { usePanelResize } from "./use-panel-resize";
+import { ResizeHandle, PanelRestoreButton } from "./resize-handle";
 
 type MobileTab = "content" | "style" | "preview";
 
@@ -52,6 +54,7 @@ export function EditorShell({ id }: { id: string }) {
   const directoryRef = useRef<FileSystemDirectoryHandle | undefined>(undefined);
   const fileStampRef = useRef<number | undefined>(undefined);
   const initialLoadRef = useRef(true);
+  const resize = usePanelResize();
 
   useEffect(() => {
     let cancelled = false;
@@ -196,14 +199,67 @@ export function EditorShell({ id }: { id: string }) {
         </div>
       </header>
 
-      <div className="hidden h-[calc(100vh-78px)] grid-cols-[300px_minmax(410px,500px)_minmax(0,1fr)] divide-x-2 divide-black/10 lg:grid xl:grid-cols-[320px_minmax(440px,560px)_minmax(0,1fr)] 2xl:grid-cols-[340px_minmax(480px,620px)_minmax(0,1fr)]">
-        <aside className="scrollbar-thin overflow-y-auto bg-[#f6f1e7]">
-          <StylePanel />
-        </aside>
-        <section className="scrollbar-thin overflow-y-auto">
-          <EditorContent />
-        </section>
-        <section className="min-w-0 overflow-auto">
+      <div className="hidden h-[calc(100vh-78px)] lg:flex">
+        {/* 左侧样式面板 */}
+        <div
+          style={{
+            width: resize.leftCollapsed ? 44 : resize.leftWidth,
+            transition: resize.isDragging ? "none" : "width 200ms ease",
+          }}
+          className="shrink-0 overflow-hidden"
+        >
+          {resize.leftCollapsed ? (
+            <PanelRestoreButton
+              onClick={resize.expandLeft}
+              label="展开样式面板"
+              side="left"
+            />
+          ) : (
+            <aside className="scrollbar-thin h-full overflow-y-auto bg-[#f6f1e7]">
+              <StylePanel />
+            </aside>
+          )}
+        </div>
+
+        {!resize.leftCollapsed && (
+          <ResizeHandle
+            position="left"
+            onMouseDown={resize.onLeftDragStart}
+            onDoubleClick={resize.resetLeft}
+          />
+        )}
+
+        {/* 中间编辑面板 */}
+        <div
+          style={{
+            width: resize.middleCollapsed ? 44 : resize.middleWidth,
+            transition: resize.isDragging ? "none" : "width 200ms ease",
+          }}
+          className="shrink-0 overflow-hidden"
+        >
+          {resize.middleCollapsed ? (
+            <PanelRestoreButton
+              onClick={resize.expandMiddle}
+              label="展开编辑面板"
+              side="right"
+            />
+          ) : (
+            <section className="scrollbar-thin h-full overflow-y-auto">
+              <EditorContent />
+            </section>
+          )}
+        </div>
+
+        {!resize.middleCollapsed && (
+          <ResizeHandle
+            position="middle"
+            onMouseDown={resize.onMiddleDragStart}
+            onDoubleClick={resize.resetMiddle}
+          />
+        )}
+
+        {/* 右侧预览面板 */}
+        <section className="min-w-0 flex-1 overflow-auto">
           <ResumePreview
             registerPage={(index, node) => {
               pageRefs.current[index] = node;

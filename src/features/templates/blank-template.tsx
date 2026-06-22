@@ -82,18 +82,18 @@ export const BlankTemplate = memo(function BlankTemplate({
           {basics?.name && (
             <h1
               className="text-[2em] font-black tracking-wide"
-              style={{ color: cfg.titleColor }}
+              style={{ color: "#171717" }}
             >
               {basics.name}
             </h1>
           )}
           {basics?.role && (
-            <p className="mt-1 text-[1.071em] font-bold opacity-70">
+            <p className="mt-1 text-[1.071em] font-bold" style={{ color: "#171717" }}>
               {basics.role}
             </p>
           )}
           {basicDisplayItems.length > 0 && (
-            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[0.857em] opacity-70">
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[0.857em]" style={{ color: "#171717" }}>
               {basicDisplayItems
                 .filter((item) => item.key !== "role")
                 .map((item) => (
