@@ -61,8 +61,7 @@ export const BlankTemplate = memo(function BlankTemplate({
   const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
     serif: '"Songti SC", SimSun, serif',
-    rounded: '"Microsoft YaHei", "PingFang SC", sans-serif',
-    alibaba: '"Alibaba PuHuiTi", "阿里巴巴普惠体", "Microsoft YaHei", sans-serif',
+    rounded: '"KaiTi", "STKaiti", "Kaiti SC", serif',
   };
 
   return (
@@ -82,20 +81,22 @@ export const BlankTemplate = memo(function BlankTemplate({
         <header className="mb-6 text-center">
           {basics?.name && (
             <h1
-              className="text-[28px] font-black tracking-wide"
+              className="text-[2em] font-black tracking-wide"
               style={{ color: cfg.titleColor }}
             >
               {basics.name}
             </h1>
           )}
           {basics?.role && (
-            <p className="mt-1 text-[15px] font-bold opacity-70">
+            <p className="mt-1 text-[1.071em] font-bold opacity-70">
               {basics.role}
             </p>
           )}
           {basicDisplayItems.length > 0 && (
-            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[12px] opacity-70">
-              {basicDisplayItems.map((item) => (
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[0.857em] opacity-70">
+              {basicDisplayItems
+                .filter((item) => item.key !== "role")
+                .map((item) => (
                 <span className="inline-flex items-center gap-1" key={item.key}>
                   <ContactIcon itemKey={item.key} />
                   <span>{item.value}</span>
@@ -156,7 +157,7 @@ function BlankSection({
           style={{ background: accent }}
         />
         <h2
-          className="text-[15px] font-black"
+          className="text-[1.071em] font-black"
           style={{ color: titleColor }}
         >
           {module.title}
@@ -214,7 +215,7 @@ function BlankItem({
       {/* 描述段落 */}
       {item.description && (
         <div
-          className="rich-text-content resume-rich-text mt-1.5 text-[12px] opacity-75"
+          className="rich-text-content resume-rich-text mt-1.5 text-[0.857em] opacity-75"
           style={{ color: textColor }}
           dangerouslySetInnerHTML={{
             __html: sanitizeRichText(normalizeRichText(item.description)),
@@ -249,13 +250,13 @@ function ItemHeader({
         className="grid grid-cols-3 items-center gap-3"
         style={{ color: textColor }}
       >
-        <h3 className="text-[14px] font-black text-left">
+        <h3 className="text-[1em] font-black text-left">
           {itemTitle || <NoData />}
         </h3>
-        <span className="text-[12px] text-center opacity-60">
+        <span className="text-[0.857em] text-center opacity-60">
           {itemSubtitle || <NoData />}
         </span>
-        <span className="shrink-0 text-right text-[11px] font-bold opacity-50">
+        <span className="shrink-0 text-right text-[0.786em] font-bold opacity-50">
           {dateText || <NoData />}
         </span>
       </div>
@@ -269,13 +270,13 @@ function ItemHeader({
       style={{ color: textColor }}
     >
       <div>
-        <h3 className="text-[14px] font-black">{itemTitle || <NoData />}</h3>
+        <h3 className="text-[1em] font-black">{itemTitle || <NoData />}</h3>
         {itemSubtitle && (
-          <span className="text-[12px] opacity-60">{itemSubtitle}</span>
+          <span className="text-[0.857em] opacity-60">{itemSubtitle}</span>
         )}
       </div>
       {dateText && (
-        <span className="shrink-0 text-[11px] font-bold opacity-50">
+        <span className="shrink-0 text-[0.786em] font-bold opacity-50">
           {dateText}
         </span>
       )}

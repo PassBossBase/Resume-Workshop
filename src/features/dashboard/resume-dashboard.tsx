@@ -5,13 +5,18 @@ import {
   Copy,
   FilePlus2,
   Pencil,
-  Plus,
   Trash2,
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { InkButton, Modal, PageContainer, PageHeading, StickerCard } from "@/components/anime-ui/ui";
+import {
+  InkButton,
+  Modal,
+  PageContainer,
+  PageHeading,
+  StickerCard,
+} from "@/components/anime-ui/ui";
 import { useOverlay } from "@/hooks/use-overlay";
 import { NewResumeModal } from "@/features/dashboard/new-resume-modal";
 import type { ResumeDocument } from "@/features/resume-model/resume-model";
@@ -32,6 +37,7 @@ export function ResumeDashboard({
   const router = useRouter();
   const [resumes, setResumes] = useState(initialResumes);
   const [isLoading, setIsLoading] = useState(initialResumes.length === 0);
+  const [importResume, setImportResume] = useState(false);
   const [newResumeOpen, setNewResumeOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<ResumeDocument>();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -93,10 +99,14 @@ export function ResumeDashboard({
             subtitle="把经历整理成一份清晰、专业又属于你的简历。"
           />
         </div>
-        <InkButton onClick={() => setNewResumeOpen(true)} variant="pink">
-          <Plus size={19} />
-          新建简历
-        </InkButton>
+        <div className="flex gap-4">
+          <InkButton onClick={() => setImportResume(true)} variant="blue">
+            导入简历
+          </InkButton>
+          <InkButton onClick={() => setNewResumeOpen(true)} variant="pink">
+            新建简历
+          </InkButton>
+        </div>
       </div>
 
       {isLoading ? (
@@ -139,7 +149,11 @@ export function ResumeDashboard({
           <p className="mx-auto mt-3 max-w-md leading-7 text-black/60">
             内容自动保存在浏览器。桌面 Chrome 还可以连接本地文件夹。
           </p>
-          <InkButton className="mt-7" onClick={() => setNewResumeOpen(true)} variant="yellow">
+          <InkButton
+            className="mt-7"
+            onClick={() => setNewResumeOpen(true)}
+            variant="yellow"
+          >
             创建第一份简历
           </InkButton>
         </StickerCard>
@@ -221,10 +235,7 @@ export function ResumeDashboard({
               <span className="text-xs font-black tracking-[0.18em] text-red-600">
                 DANGER ZONE
               </span>
-              <h2
-                className="mt-1 text-2xl font-black"
-                id="delete-resume-title"
-              >
+              <h2 className="mt-1 text-2xl font-black" id="delete-resume-title">
                 确认删除简历？
               </h2>
             </div>

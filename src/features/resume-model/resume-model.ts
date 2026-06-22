@@ -704,7 +704,7 @@ export function createBlankResume(
     },
     styles: {
       accent: "#3f57e8",
-      fontFamily: "alibaba",
+      fontFamily: "sans",
       fontSize: 15,
       lineHeight: 1.55,
       pageMargin: 36,

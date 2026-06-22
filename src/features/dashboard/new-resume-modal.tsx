@@ -85,17 +85,14 @@ export function NewResumeModal({
       {/* ======== Header: comic-dots 风格 ======== */}
       <div className="comic-dots border-b-2 border-black bg-[#eef2ff] px-6 py-5">
         <div className="flex items-start gap-4">
-          <span className="grid h-14 w-14 shrink-0 rotate-[-4deg] place-items-center rounded-2xl border-2 border-black bg-(--blue) text-white shadow-[3px_3px_0_black]">
+          <span className="grid h-14 w-14 shrink-0 rotate-[-4deg] place-items-center rounded-2xl border-2 border-black bg-(--pink) text-white shadow-[3px_3px_0_black]">
             <FilePlus2 size={28} strokeWidth={2.5} />
           </span>
           <div className="min-w-0 pt-1">
             <span className="text-xs font-black tracking-[0.18em] text-(--blue)">
               CREATE RESUME
             </span>
-            <h2
-              className="mt-1 text-2xl font-black"
-              id="new-resume-title"
-            >
+            <h2 className="mt-1 text-2xl font-black" id="new-resume-title">
               创建简历
             </h2>
           </div>

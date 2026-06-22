@@ -66,8 +66,7 @@ export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
   const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
     serif: '"Songti SC", SimSun, serif',
-    rounded: '"Microsoft YaHei", "PingFang SC", sans-serif',
-    alibaba: '"Alibaba PuHuiTi", "阿里巴巴普惠体", "Microsoft YaHei", sans-serif',
+    rounded: '"KaiTi", "STKaiti", "Kaiti SC", serif',
   };
 
   return (
@@ -103,12 +102,12 @@ export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
           )}
 
           {basics?.name && (
-            <h1 className="text-[28px] font-black" style={{ color: "#ffffff" }}>
+            <h1 className="text-[2em] font-black" style={{ color: "#ffffff" }}>
               {basics.name}
             </h1>
           )}
 
-          <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-1.5 text-[12px] opacity-90">
+          <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-1.5 text-[0.857em] opacity-90">
             {basicDisplayItems.map((item) => (
               <span key={item.key}>
                 {item.label}：{item.value}
@@ -163,7 +162,7 @@ function HeaderFullWidthSection({
       {/* 模块标题 */}
       <div className="mb-3 flex items-center gap-2 border-b pb-2" style={{ borderColor: accent }}>
         <ModuleIcon iconName={module.sectionIcon} size={16} style={{ color: accent }} />
-        <h2 className="text-[16px] font-black" style={{ color: titleColor }}>
+        <h2 className="text-[1.143em] font-black" style={{ color: titleColor }}>
           {module.title}
         </h2>
       </div>
@@ -182,20 +181,20 @@ function HeaderFullWidthSection({
                     </h3>
                   )}
                   {item.subtitle && (
-                    <span className="text-[13px] font-medium opacity-70">
+                    <span className="text-[0.929em] font-medium opacity-70">
                       {item.subtitle}
                     </span>
                   )}
                 </div>
                 {(item.startDate || item.endDate) && (
-                  <span className="shrink-0 text-[12px] font-bold opacity-60">
+                  <span className="shrink-0 text-[0.857em] font-bold opacity-60">
                     {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
                   </span>
                 )}
               </div>
               {item.description && (
                 <div
-                  className="rich-text-content resume-rich-text mt-2 text-[13px] opacity-80"
+                  className="rich-text-content resume-rich-text mt-2 text-[0.929em] opacity-80"
                   style={{ color: textColor }}
                   dangerouslySetInnerHTML={{
                     __html: sanitizeRichText(normalizeRichText(item.description)),

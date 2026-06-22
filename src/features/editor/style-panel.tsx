@@ -218,6 +218,15 @@ export function StylePanel() {
             onChange={(event) => updateStyle("pageMargin", Number(event.target.value))}
           />
         </Control>
+        <Control label="模块间距" value={`${resume.styles.sectionGap}px`}>
+          <input
+            max="52"
+            min="16"
+            type="range"
+            value={resume.styles.sectionGap}
+            onChange={(event) => updateStyle("sectionGap", Number(event.target.value))}
+          />
+        </Control>
         <label className="mt-4 block">
           <span className="mb-2 block text-sm font-bold">字体风格</span>
           <select
@@ -233,7 +242,6 @@ export function StylePanel() {
             <option value="sans">清晰黑体</option>
             <option value="serif">优雅宋体</option>
             <option value="rounded">圆润字体</option>
-            <option value="alibaba">阿里巴巴普惠体</option>
           </select>
         </label>
       </Panel>

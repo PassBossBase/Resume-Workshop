@@ -27,8 +27,7 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
   const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
     serif: '"Songti SC", SimSun, serif',
-    rounded: '"Microsoft YaHei", "PingFang SC", sans-serif',
-    alibaba: '"Alibaba PuHuiTi", "阿里巴巴普惠体", "Microsoft YaHei", sans-serif',
+    rounded: '"KaiTi", "STKaiti", "Kaiti SC", serif',
   };
 
   return (
@@ -49,7 +48,7 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
           <div className="flex items-center justify-between">
             <div>
               {basics?.name && (
-                <h1 className="text-[28px] font-black tracking-wide" style={{ color: cfg.titleColor }}>
+                <h1 className="text-[2em] font-black tracking-wide" style={{ color: cfg.titleColor }}>
                   {basics.name}
                 </h1>
               )}
@@ -71,7 +70,7 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
       {/* ======== 基础信息网格 + 头像 ======== */}
       {page.showHeader && basics && (
         <div className="relative mb-6 py-4">
-          <div className="grid grid-cols-2 gap-x-10 gap-y-2 text-[13px]">
+          <div className="grid grid-cols-2 gap-x-10 gap-y-2 text-[0.929em]">
             {basicDisplayItems.map((item) => (
               <InfoRow key={item.key} label={item.label} value={item.value} />
             ))}
@@ -132,7 +131,7 @@ function LineSeparateSection({
 
       <div className="mb-2 flex items-center gap-2">
         <i className="h-3.5 w-1 rounded-full" style={{ background: accent }} />
-        <h2 className="text-[15px] font-black" style={{ color: titleColor }}>{module.title}</h2>
+        <h2 className="text-[1.071em] font-black" style={{ color: titleColor }}>{module.title}</h2>
       </div>
 
       <div className="space-y-4">
@@ -143,19 +142,19 @@ function LineSeparateSection({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   {module.type !== "skills" && (
-                    <h3 className="font-black text-[14px]" style={{ color: textColor }}>{item.title}</h3>
+                    <h3 className="font-black text-[1em]" style={{ color: textColor }}>{item.title}</h3>
                   )}
-                  {item.subtitle && <span className="text-[12px] opacity-60">{item.subtitle}</span>}
+                  {item.subtitle && <span className="text-[0.857em] opacity-60">{item.subtitle}</span>}
                 </div>
                 {(item.startDate || item.endDate) && (
-                  <span className="shrink-0 text-[11px] font-bold opacity-50">
+                  <span className="shrink-0 text-[0.786em] font-bold opacity-50">
                     {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
                   </span>
                 )}
               </div>
               {item.description && (
                 <div
-                  className="rich-text-content resume-rich-text mt-1.5 text-[12px] opacity-75"
+                  className="rich-text-content resume-rich-text mt-1.5 text-[0.857em] opacity-75"
                   style={{ color: textColor }}
                   dangerouslySetInnerHTML={{ __html: sanitizeRichText(normalizeRichText(item.description)) }}
                 />

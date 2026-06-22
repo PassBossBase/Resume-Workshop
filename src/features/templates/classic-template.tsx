@@ -44,8 +44,7 @@ export const ClassicTemplatePage = memo(function ClassicTemplatePage({
   const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
     serif: '"Songti SC", SimSun, serif',
-    rounded: '"Microsoft YaHei", "PingFang SC", sans-serif',
-    alibaba: '"Alibaba PuHuiTi", "阿里巴巴普惠体", "Microsoft YaHei", sans-serif',
+    rounded: '"KaiTi", "STKaiti", "Kaiti SC", serif',
   };
 
   return (
@@ -81,13 +80,13 @@ export const ClassicTemplatePage = memo(function ClassicTemplatePage({
             />
             <div>
               {basics?.name && (
-                <h1 className="text-[34px] font-black tracking-wide">
+                <h1 className="text-[2.429em] font-black tracking-wide">
                   {basics.name}
                 </h1>
               )}
             </div>
           </div>
-          <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-[12px] text-[#526079]">
+          <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-[0.857em] text-[#526079]">
             {basicDisplayItems.map((item) => (
               <Info item={item} key={item.key} />
             ))}
@@ -119,7 +118,7 @@ function ResumeSection({
     <section className="break-inside-avoid">
       <div className="mb-4 flex items-center gap-3 border-b border-[#dfe4ec] pb-2">
         <i className="h-5 w-1.5 rounded-full" style={{ background: accent }} />
-        <h2 className="text-[17px] font-black">{module.title}</h2>
+        <h2 className="text-[1.214em] font-black">{module.title}</h2>
       </div>
       <div className="space-y-5">
         {module.items.map((item) => {
@@ -133,20 +132,20 @@ function ResumeSection({
                     <h3 className="font-black">{item.title}</h3>
                   )}
                   {item.subtitle && (
-                    <span className="text-[12px] font-semibold text-[#7b8799]">
+                    <span className="text-[0.857em] font-semibold text-[#7b8799]">
                       {item.subtitle}
                     </span>
                   )}
                 </div>
                 {(item.startDate || item.endDate) && (
-                  <span className="shrink-0 px-2 py-1 text-[10px] font-bold text-black">
+                  <span className="shrink-0 px-2 py-1 text-[0.714em] font-bold text-black">
                     {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
                   </span>
                 )}
               </div>
               {item.description && (
                 <div
-                  className="rich-text-content resume-rich-text mt-2 text-[12px] text-[#526079]"
+                  className="rich-text-content resume-rich-text mt-2 text-[0.857em] text-[#526079]"
                   dangerouslySetInnerHTML={{
                     __html: sanitizeRichText(normalizeRichText(item.description)),
                   }}

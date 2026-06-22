@@ -1,5 +1,10 @@
 import { clsx } from "clsx";
-import { memo, type ButtonHTMLAttributes, type HTMLAttributes, type ReactNode } from "react";
+import {
+  memo,
+  type ButtonHTMLAttributes,
+  type HTMLAttributes,
+  type ReactNode,
+} from "react";
 
 export const StickerCard = memo(function StickerCard({
   className,
@@ -21,12 +26,13 @@ export const InkButton = memo(function InkButton({
   variant = "dark",
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "dark" | "paper" | "pink" | "yellow";
+  variant?: "dark" | "paper" | "pink" | "yellow" | "blue";
 }) {
   const variants = {
     dark: "bg-[var(--ink)] text-white",
     paper: "bg-white text-[var(--ink)]",
     pink: "bg-[var(--pink)] text-white",
+    blue: "bg-[var(--blue)] text-white",
     yellow: "bg-[var(--yellow)] text-[var(--ink)]",
   };
   return (
@@ -210,11 +216,7 @@ export function SectionCard({
 
   return (
     <section
-      className={clsx(
-        "rounded-[24px] border-2",
-        variants[variant],
-        className,
-      )}
+      className={clsx("rounded-[24px] border-2", variants[variant], className)}
       {...props}
     >
       {children}

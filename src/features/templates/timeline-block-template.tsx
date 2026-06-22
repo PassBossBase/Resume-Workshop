@@ -26,8 +26,7 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
   const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
     serif: '"Songti SC", SimSun, serif',
-    rounded: '"Microsoft YaHei", "PingFang SC", sans-serif',
-    alibaba: '"Alibaba PuHuiTi", "阿里巴巴普惠体", "Microsoft YaHei", sans-serif',
+    rounded: '"KaiTi", "STKaiti", "Kaiti SC", serif',
   };
 
   const colors = cfg.blockColorList;
@@ -52,7 +51,7 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
           <div className="flex items-start justify-between">
             <div style={{ maxWidth: 620 }}>
               {basics?.name && (
-                <h1 className="text-[26px] font-black" style={{ color: cfg.titleColor }}>
+                <h1 className="text-[1.857em] font-black" style={{ color: cfg.titleColor }}>
                   {basics.name}
                 </h1>
               )}
@@ -80,8 +79,8 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
           {/* 个人信息组 */}
           {basicDisplayItems.length > 0 && (
             <section className="mb-5">
-              <h3 className="mb-2 text-[14px] font-black" style={{ color: cfg.titleColor }}>个人信息</h3>
-              <div className="space-y-1 text-[12px]">
+              <h3 className="mb-2 text-[1em] font-black" style={{ color: cfg.titleColor }}>个人信息</h3>
+              <div className="space-y-1 text-[0.857em]">
                 {basicDisplayItems.map((item) => (
                   <p key={item.key}>{item.label}：{item.value}</p>
                 ))}
@@ -105,7 +104,7 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
             if (mod.items.length === 0) return null;
             return (
               <section key={mod.id} className={modIdx > 0 ? "mt-6" : ""}>
-                <h3 className="mb-5 text-[14px] font-black" style={{ color: cfg.titleColor }}>
+                <h3 className="mb-5 text-[1em] font-black" style={{ color: cfg.titleColor }}>
                   {mod.title}
                 </h3>
                 <div className="relative">
@@ -127,7 +126,7 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
                         />
                         {/* 日期 */}
                         {(item.startDate || item.endDate) && (
-                          <span className="text-[11px] font-bold opacity-50 wrap-break-word">
+                          <span className="text-[0.786em] font-bold opacity-50 wrap-break-word">
                             {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
                           </span>
                         )}
@@ -136,11 +135,11 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
                           className="mt-1 rounded-lg px-4 py-3 text-white"
                           style={{ background: item.entryStyle?.bgColor ?? colors[i % colors.length] ?? cfg.titleColor }}
                         >
-                          <h4 className="font-black text-[14px] wrap-break-word">{item.title}</h4>
-                          {item.subtitle && <p className="text-[12px] opacity-90 wrap-break-word">{item.subtitle}</p>}
+                          <h4 className="font-black text-[1em] wrap-break-word">{item.title}</h4>
+                          {item.subtitle && <p className="text-[0.857em] opacity-90 wrap-break-word">{item.subtitle}</p>}
                           {item.description && (
                             <div
-                              className="mt-2 text-[12px] leading-relaxed opacity-90 wrap-break-word"
+                              className="mt-2 text-[0.857em] leading-relaxed opacity-90 wrap-break-word"
                               dangerouslySetInnerHTML={{ __html: sanitizeRichText(normalizeRichText(item.description)) }}
                             />
                           )}
@@ -167,14 +166,14 @@ function TimelineLeftSection({
 }) {
   return (
     <section className="mb-5 break-inside-avoid overflow-hidden">
-      <h3 className="mb-2 text-[13px] font-black wrap-break-word" style={{ color: titleColor }}>
+      <h3 className="mb-2 text-[0.929em] font-black wrap-break-word" style={{ color: titleColor }}>
         {module.title}
       </h3>
 
       {module.items.map((item) => {
         if ("visible" in item && !(item as CustomResumeEntry).visible) return null;
         return (
-          <div className="mb-2 text-[12px] overflow-hidden" key={item.id} style={{ color: textColor }}>
+          <div className="mb-2 text-[0.857em] overflow-hidden" key={item.id} style={{ color: textColor }}>
             {(item.startDate || item.endDate) && (
               <span className="font-bold opacity-50 wrap-break-word">
                 {[item.startDate, item.endDate].filter(Boolean).join(" ~ ")}
