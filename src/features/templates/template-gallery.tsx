@@ -123,11 +123,16 @@ export function TemplateGallery() {
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   <InkButton
                     aria-haspopup="dialog"
+                    aria-label={`预览${entry.name}模板`}
+                    className="max-lg:gap-0"
                     onClick={() => openPreview(index)}
+                    title="预览"
                     variant="paper"
                   >
                     <Eye size={17} />
-                    预览
+                    <span className="max-lg:sr-only">
+                      预览
+                    </span>
                   </InkButton>
                   <InkButton
                     aria-label={`使用${entry.name}模板`}

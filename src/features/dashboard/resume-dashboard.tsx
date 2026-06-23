@@ -6,6 +6,7 @@ import {
   FilePlus2,
   Pencil,
   Trash2,
+  Upload,
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -18,6 +19,7 @@ import {
   StickerCard,
 } from "@/components/anime-ui/ui";
 import { useOverlay } from "@/hooks/use-overlay";
+import { ImportResumeModal } from "@/features/dashboard/import-resume-modal";
 import { NewResumeModal } from "@/features/dashboard/new-resume-modal";
 import type { ResumeDocument } from "@/features/resume-model/resume-model";
 import {
@@ -100,9 +102,10 @@ export function ResumeDashboard({
           />
         </div>
         <div className="flex gap-4">
-          {/* <InkButton onClick={() => setImportResume(true)} variant="blue">
+          <InkButton onClick={() => setImportResume(true)} variant="blue">
+            <Upload size={17} />
             导入简历
-          </InkButton> */}
+          </InkButton>
           <InkButton onClick={() => setNewResumeOpen(true)} variant="pink">
             新建简历
           </InkButton>
@@ -286,6 +289,10 @@ export function ResumeDashboard({
         open={newResumeOpen}
         onClose={() => setNewResumeOpen(false)}
         defaultTitle={`我的简历 ${resumes.length + 1}`}
+      />
+      <ImportResumeModal
+        open={importResume}
+        onClose={() => setImportResume(false)}
       />
     </PageContainer>
   );

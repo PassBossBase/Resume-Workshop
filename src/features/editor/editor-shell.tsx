@@ -148,7 +148,7 @@ export function EditorShell({ id }: { id: string }) {
       Boolean(page),
     );
     if (!resume || pages.length === 0) return;
-    await exportResumePdf(pages, resume.title);
+    await exportResumePdf(pages, resume.title, resume);
   };
 
   if (!ready || !resume) {

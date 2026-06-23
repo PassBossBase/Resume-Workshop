@@ -1,5 +1,10 @@
 import { toCanvas } from "html-to-image";
 import { jsPDF } from "jspdf";
+import type { ResumeDocument } from "@/features/resume-model/resume-model";
+import {
+  buildPdfImportPayload,
+  embedPdfImportPayload,
+} from "@/features/pdf-export/pdf-import-payload";
 
 const A4_PAGE_WIDTH = 794;
 const A4_PAGE_HEIGHT = 1123;
@@ -20,6 +25,7 @@ interface PdfSlice {
 export async function exportResumePdf(
   pages: HTMLElement[],
   fileName: string,
+  resume: ResumeDocument,
 ): Promise<void> {
   if (pages.length === 0) throw new Error("没有可导出的简历页面");
   const pdf = new jsPDF({
@@ -89,6 +95,7 @@ export async function exportResumePdf(
     }
   }
 
+  embedPdfImportPayload(pdf, buildPdfImportPayload(resume));
   pdf.save(`${sanitizeFileName(fileName)}.pdf`);
 }
 

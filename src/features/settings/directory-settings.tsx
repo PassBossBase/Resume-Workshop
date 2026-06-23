@@ -6,12 +6,17 @@ import {
   FolderOpen,
   HardDrive,
   RefreshCcw,
-  ShieldCheck,
   Unplug,
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { InkButton, Modal, PageContainer, PageHeading, StickerCard } from "@/components/anime-ui/ui";
+import {
+  InkButton,
+  Modal,
+  PageContainer,
+  PageHeading,
+  StickerCard,
+} from "@/components/anime-ui/ui";
 import { useOverlay } from "@/hooks/use-overlay";
 import {
   resumeFileName,
@@ -195,7 +200,10 @@ export function DirectorySettings() {
                 {status === "denied" ? "重新授权" : "选择文件夹"}
               </InkButton>
               {handle && (
-                <InkButton onClick={() => setShowDisconnect(true)} variant="paper">
+                <InkButton
+                  onClick={() => setShowDisconnect(true)}
+                  variant="paper"
+                >
                   <Unplug size={17} />
                   断开
                 </InkButton>
@@ -248,10 +256,7 @@ export function DirectorySettings() {
             。断开后简历将继续保存到浏览器缓存，不会删除本地文件夹中已有的文件。
           </p>
           <div className="mt-6 grid grid-cols-2 gap-3">
-            <InkButton
-              onClick={() => setShowDisconnect(false)}
-              variant="paper"
-            >
+            <InkButton onClick={() => setShowDisconnect(false)} variant="paper">
               取消
             </InkButton>
             <InkButton
@@ -285,10 +290,7 @@ export function DirectorySettings() {
               <span className="text-xs font-black tracking-[0.18em] text-emerald-700">
                 同步完成
               </span>
-              <h2
-                className="mt-1 text-2xl font-black"
-                id="sync-result-title"
-              >
+              <h2 className="mt-1 text-2xl font-black" id="sync-result-title">
                 目录连接成功
               </h2>
             </div>
@@ -327,23 +329,6 @@ export function DirectorySettings() {
           </div>
         </div>
       </Modal>
-
-      <div className="mt-8 grid gap-5 md:grid-cols-2">
-        <StickerCard className="p-6">
-          <ShieldCheck className="mb-4 text-[var(--blue)]" size={32} />
-          <h3 className="text-xl font-black">数据不会上传</h3>
-          <p className="mt-2 leading-7 text-black/55">
-            应用没有账号、服务器或云同步，目录读写均发生在当前设备。
-          </p>
-        </StickerCard>
-        <StickerCard className="p-6">
-          <HardDrive className="mb-4 text-[var(--pink)]" size={32} />
-          <h3 className="text-xl font-black">移动端独立保存</h3>
-          <p className="mt-2 leading-7 text-black/55">
-            手机使用 IndexedDB，支持完整编辑，但不会与桌面目录自动互通。
-          </p>
-        </StickerCard>
-      </div>
     </PageContainer>
   );
 }
