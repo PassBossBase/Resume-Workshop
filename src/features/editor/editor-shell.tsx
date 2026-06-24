@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowLeft,
   Download,
   Eye,
   FileText,
@@ -10,6 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { BrandMark, InkButton } from "@/components/anime-ui/ui";
 import { exportResumePdf } from "@/features/pdf-export/export-pdf";
@@ -54,6 +56,7 @@ export function EditorShell({ id }: { id: string }) {
   const directoryRef = useRef<FileSystemDirectoryHandle | undefined>(undefined);
   const fileStampRef = useRef<number | undefined>(undefined);
   const initialLoadRef = useRef(true);
+  const router = useRouter();
   const resize = usePanelResize();
 
   useEffect(() => {
@@ -165,6 +168,19 @@ export function EditorShell({ id }: { id: string }) {
     <div className="h-screen overflow-hidden bg-[#ebe7de]">
       <header className="no-print flex h-19.5 items-center justify-between gap-4 border-b-2 border-black bg-(--paper) px-4 md:px-6">
         <div className="flex min-w-0 items-center gap-3 md:gap-5">
+          <button
+            aria-label="返回"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border-2 border-black bg-white shadow-[2px_2px_0_black] transition active:translate-y-0.5 active:shadow-none"
+            onClick={() => {
+              if (window.history.length > 1) {
+                router.back();
+              } else {
+                router.push("/");
+              }
+            }}
+          >
+            <ArrowLeft size={20} />
+          </button>
           <Link className="hidden md:block" href="/">
             <BrandMark />
           </Link>
