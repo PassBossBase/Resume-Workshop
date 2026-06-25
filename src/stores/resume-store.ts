@@ -11,6 +11,7 @@ import { create } from "zustand";
 import {
   addCustomEntry,
   addCustomModule,
+  applyTemplateLayout,
   moveCustomEntry,
   moveModule,
   removeCustomEntry,
@@ -85,6 +86,7 @@ interface ResumeState {
 
   // 样式
   updateStyle: <K extends StyleKey>(key: K, value: ResumeDocument["styles"][K]) => void;
+  applyTemplateLayout: (templateResume: ResumeDocument) => void;
 
   // v3 新增
   updateLayoutConfig: (patch: Partial<LayoutConfig>) => void;
@@ -293,6 +295,9 @@ export const useResumeStore = create<ResumeState>((set) => {
         ...resume,
         styles: { ...resume.styles, [key]: value },
       })),
+
+    applyTemplateLayout: (templateResume) =>
+      applyResume((resume) => applyTemplateLayout(resume, templateResume)),
 
     // ── v3 新增 ───────────────────────────────
 

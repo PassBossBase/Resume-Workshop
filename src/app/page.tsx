@@ -49,8 +49,8 @@ export default function Home() {
               简历工坊
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 font-medium text-black/62 md:text-lg">
-              纯本地简历编辑器。选模板、填内容、调样式、看 A4 预览，再导出一份的
-              PDF。
+              纯本地简历编辑器。选模板、填内容、调样式 、看 A4
+              预览，再导出一份免费无水印的 PDF。
             </p>
 
             <div className="mt-7 flex flex-wrap gap-4">

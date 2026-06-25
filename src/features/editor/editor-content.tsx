@@ -468,8 +468,10 @@ export function EditorContent() {
                 moveEntry(activeSection.id, item.id, direction)
               }
               onRemove={() => removeEntry(activeSection.id, item.id)}
-              onStyleChange={(style) =>
-                updateEntryStyle(activeSection.id, item.id, style)
+              onStyleChange={
+                resume.templateId === "single_column_timeline_block"
+                  ? (style) => updateEntryStyle(activeSection.id, item.id, style)
+                  : undefined
               }
             />
           ))}

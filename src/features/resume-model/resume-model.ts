@@ -915,6 +915,46 @@ export function updateLayoutConfig(
   });
 }
 
+/** 将当前简历内容套用到另一套模板布局，保留文档 ID 与用户填写内容。 */
+export function applyTemplateLayout(
+  resume: ResumeDocument,
+  templateResume: ResumeDocument,
+): ResumeDocument {
+  const templateModulesByType = new Map(
+    templateResume.modules.map((module) => [module.type, module]),
+  );
+
+  return resumeDocumentSchema.parse(touch({
+    ...resume,
+    templateId: templateResume.templateId,
+    layoutConfig: templateResume.layoutConfig,
+    styles: templateResume.styles,
+    modules: resume.modules.map((module) => {
+      if (module.type === "custom") return module;
+      const templateModule = templateModulesByType.get(module.type);
+      if (!templateModule) return module;
+
+      if (module.type === "basics" && templateModule.type === "basics") {
+        return {
+          ...module,
+          sectionIcon: templateModule.sectionIcon,
+          basics: module.basics
+            ? {
+                ...module.basics,
+                avatarPosition: templateModule.basics?.avatarPosition,
+              }
+            : module.basics,
+        };
+      }
+
+      return {
+        ...module,
+        sectionIcon: templateModule.sectionIcon,
+      };
+    }) as ResumeDocument["modules"],
+  }));
+}
+
 // ──────────────────────────────────────
 // v3 新增：条目样式操作
 // ──────────────────────────────────────

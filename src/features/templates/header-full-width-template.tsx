@@ -82,16 +82,25 @@ export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
       {/* ========== 蓝色全宽头部 ========== */}
       {page.showHeader && (
         <header
-          className="relative px-10 pb-8 pt-8"
-          style={{ background: headerBg, color: "#ffffff" }}
+          className="relative"
+          style={{
+            background: headerBg,
+            color: "#ffffff",
+            padding: resume.styles.pageMargin,
+            paddingBottom: resume.styles.pageMargin * 0.8,
+          }}
         >
           {/* 头像（右上角） */}
           {basics?.avatar && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               alt=""
-              className="absolute right-10 top-8 h-[112px] w-[88px] object-cover"
+              className="absolute h-[112px] w-[88px] object-cover"
               src={basics.avatar}
+              style={{
+                right: resume.styles.pageMargin,
+                top: resume.styles.pageMargin,
+              }}
             />
           )}
 
@@ -113,12 +122,13 @@ export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
 
       {/* ========== 模块内容区 ========== */}
       <main
-        className="px-10"
         style={{
           background: cfg.contentBgColor,
           display: "grid",
           gap: resume.styles.sectionGap,
-          paddingTop: page.showHeader ? resume.styles.sectionGap : 40,
+          paddingLeft: resume.styles.pageMargin,
+          paddingRight: resume.styles.pageMargin,
+          paddingTop: page.showHeader ? resume.styles.sectionGap : resume.styles.pageMargin,
           paddingBottom: resume.styles.sectionGap,
         }}
       >

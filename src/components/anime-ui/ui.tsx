@@ -158,7 +158,7 @@ export function Modal({
 }: {
   open: boolean;
   onClose: () => void;
-  size?: "sm" | "lg";
+  size?: "sm" | "md" | "lg";
   disabled?: boolean;
   className?: string;
   ariaLabelledby?: string;
@@ -168,6 +168,7 @@ export function Modal({
 
   const sizeConfig = {
     sm: { maxWidth: "max-w-lg", backdrop: "bg-black/70" },
+    md: { maxWidth: "max-w-4xl", backdrop: "bg-black/75" },
     lg: { maxWidth: "max-w-5xl", backdrop: "bg-black/75" },
   };
 

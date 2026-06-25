@@ -1,6 +1,13 @@
 "use client";
 
-import { AlertCircle, FileText, Upload, X } from "lucide-react";
+import {
+  AlertCircle,
+  Check,
+  FileText,
+  LayoutTemplate,
+  Upload,
+  X,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ChangeEvent } from "react";
 import { useMemo, useRef, useState } from "react";
@@ -20,6 +27,10 @@ import {
   extractImportedResumeFromPdf,
   type ImportedResumeDraft,
 } from "@/features/dashboard/resume-import";
+import type {
+  ResumeDocument,
+  TemplateId,
+} from "@/features/resume-model/resume-model";
 
 import "@/features/templates/blank-template";
 import "@/features/templates/header-full-width-template";
@@ -32,14 +43,21 @@ type ImportStatus = "idle" | "parsing" | "ready" | "saving" | "error";
 export function ImportResumeModal({
   open,
   onClose,
+  initialTemplateId = "blank",
+  onImportedResume,
+  submitLabel = "导入到模板",
 }: {
   open: boolean;
   onClose: () => void;
+  initialTemplateId?: TemplateId;
+  onImportedResume?: (resume: ResumeDocument) => Promise<void> | void;
+  submitLabel?: string;
 }) {
   const router = useRouter();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [selectedTemplateId, setSelectedTemplateId] = useState("blank");
+  const [selectedTemplateId, setSelectedTemplateId] =
+    useState<TemplateId>(initialTemplateId);
   const [fileName, setFileName] = useState("");
   const [draft, setDraft] = useState<ImportedResumeDraft | null>(null);
   const [status, setStatus] = useState<ImportStatus>("idle");
@@ -121,8 +139,14 @@ export function ImportResumeModal({
     setStatus("saving");
     try {
       const resume = buildResumeFromImport(factory(), draft, fileName);
-      await saveResume(resume);
-      router.push(`/resume/${resume.id}`);
+      if (onImportedResume) {
+        await onImportedResume(resume);
+        reset();
+        onClose();
+      } else {
+        await saveResume(resume);
+        router.push(`/resume/${resume.id}`);
+      }
     } catch (err) {
       setStatus("error");
       setError(err instanceof Error ? err.message : "导入失败，请稍后重试。");
@@ -144,6 +168,12 @@ export function ImportResumeModal({
         ],
       ]
     : [];
+  const glyphWarning =
+    draft?.warnings.find((warning) =>
+      warning.includes("PDF 文本层存在无法识别的字形"),
+    ) ?? "";
+  const secondaryWarnings =
+    draft?.warnings.filter((warning) => warning !== glyphWarning) ?? [];
 
   return (
     <Modal
@@ -163,10 +193,12 @@ export function ImportResumeModal({
             <span className="text-xs font-black tracking-[0.18em] text-(--blue)">
               PDF IMPORT
             </span>
+
             <h2 className="mt-1 text-2xl font-black" id="import-resume-title">
               导入简历
             </h2>
           </div>
+          <div></div>
         </div>
         <button
           aria-label="关闭导入简历弹窗"
@@ -181,31 +213,9 @@ export function ImportResumeModal({
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto bg-(--canvas) p-4 sm:p-6 lg:p-7">
-        <div className="mb-5 grid gap-3 sm:grid-cols-2">
-          <button
-            className="rounded-2xl border-2 border-black bg-(--yellow) px-4 py-3 text-left font-black shadow-[3px_3px_0_black]"
-            type="button"
-          >
-            导入内容到模板
-            <span className="mt-1 block text-sm font-medium text-black/55">
-              读取 PDF 文本，自动填入字段
-            </span>
-          </button>
-          <button
-            className="rounded-2xl border-2 border-black bg-white px-4 py-3 text-left font-black opacity-55"
-            disabled
-            type="button"
-          >
-            导入原有简历样式
-            <span className="mt-1 block text-sm font-medium text-black/55">
-              暂未开放
-            </span>
-          </button>
-        </div>
-
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.35fr)]">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.42fr)]">
           <section className="rounded-3xl border-2 border-black bg-(--paper) p-5 shadow-[4px_4px_0_#d9d1c3]">
-            <h3 className="text-lg font-black">1. 上传 PDF</h3>
+            <h3 className="text-lg font-black">1. 上传 PDF </h3>
             <label className="mt-4 flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-black bg-white p-5 text-center transition hover:bg-[#fff7cc]">
               <FileText className="mb-3" size={36} />
               <span className="font-black">
@@ -241,6 +251,15 @@ export function ImportResumeModal({
                 </div>
               ) : (
                 <div className="mt-3 space-y-2 text-sm">
+                  {glyphWarning ? (
+                    <div className="mb-3 flex gap-2 rounded-xl border-2 border-black bg-[#fff0e6] p-3 text-sm leading-6 text-black/70">
+                      <AlertCircle
+                        className="mt-0.5 shrink-0 text-red-600"
+                        size={17}
+                      />
+                      <span>{glyphWarning}</span>
+                    </div>
+                  ) : null}
                   {parsedSummary.map(([label, value]) => (
                     <div
                       className="flex justify-between gap-3 border-b border-black/10 pb-2 last:border-0 last:pb-0"
@@ -254,43 +273,62 @@ export function ImportResumeModal({
               )}
             </div>
 
-            {draft?.warnings.length ? (
+            {secondaryWarnings.length ? (
               <div className="mt-4 rounded-2xl border-2 border-black bg-[#fff0e6] p-4 text-sm leading-6 text-black/65">
-                {draft.warnings.map((warning) => (
+                {secondaryWarnings.map((warning) => (
                   <p key={warning}>- {warning}</p>
                 ))}
               </div>
             ) : null}
           </section>
 
-          <section className="rounded-3xl border-2 border-black bg-(--paper) p-5 shadow-[4px_4px_0_#d9d1c3]">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-lg font-black">2. 选择目标模板</h3>
-              <select
-                aria-label="选择目标模板"
-                className="max-w-[180px]  border-2 border-black bg-white px-3 py-1.5 text-sm font-black outline-none transition focus:bg-(--yellow)"
-                onChange={(event) => setSelectedTemplateId(event.target.value)}
-                value={selectedTemplateId}
-              >
-                {templatePreviews.map(({ entry }) => (
-                  <option key={entry.id} value={entry.id}>
-                    {entry.name}
-                  </option>
-                ))}
-              </select>
+          <section className="self-start overflow-hidden rounded-3xl border-2 border-black bg-[#dff4ff] shadow-[4px_4px_0_#1f2937] lg:sticky lg:top-0">
+            <div className="border-b-2 border-black bg-white p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div>
+                    <h3 className="text-lg font-black">2. 选择目标模板</h3>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                {templatePreviews.map(({ entry }) => {
+                  const selected = entry.id === selectedTemplateId;
+                  return (
+                    <button
+                      className={[
+                        "group flex items-center justify-between gap-3 rounded-2xl border-2 border-black px-3 py-2.5 text-left transition active:translate-y-0.5",
+                        selected
+                          ? "bg-(--yellow) shadow-[3px_3px_0_black]"
+                          : "bg-white hover:-translate-y-0.5 hover:bg-[#fff7cc] hover:shadow-[2px_2px_0_black]",
+                      ].join(" ")}
+                      key={entry.id}
+                      onClick={() => setSelectedTemplateId(entry.id)}
+                      type="button"
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-black">
+                          {entry.name}
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div className="mt-4 min-h-[300px] overflow-hidden rounded-2xl border-2 border-black bg-[#e7ebf1]">
-              <div className="scrollbar-thin max-h-[300px] overflow-auto p-3 sm:p-4">
+            <div className="bg-[#cfe7f4] p-4 sm:p-5">
+              <div className="scrollbar-thin max-h-[430px] min-h-[420px] overflow-auto rounded-2xl border-2 border-black bg-[#eef6fb] p-3 sm:p-5">
                 {selectedTemplatePreview?.resume &&
                 selectedTemplatePreview.page ? (
                   <div
-                    className="mx-auto shadow-[0_20px_60px_rgb(30_40_60/25%)]"
-                    style={{ height: 606, width: 429 }}
+                    className="mx-auto shadow-[0_20px_60px_rgb(30_40_60/28%)]"
+                    style={{ height: 718, width: 508 }}
                   >
                     <div
                       style={{
                         height: 1123,
-                        transform: "scale(0.54)",
+                        transform: "scale(0.64)",
                         transformOrigin: "left top",
                         width: 794,
                       }}
@@ -339,7 +377,7 @@ export function ImportResumeModal({
             variant="pink"
           >
             <Upload size={17} />
-            {status === "saving" ? "正在生成..." : "导入到模板"}
+            {status === "saving" ? "正在生成..." : submitLabel}
           </InkButton>
         </div>
       </footer>

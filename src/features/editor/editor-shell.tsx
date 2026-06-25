@@ -5,17 +5,28 @@ import {
   Download,
   Eye,
   FileText,
+  FileUp,
   Home,
   LayoutDashboard,
+  LayoutTemplate,
   Palette,
   Sparkles,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { BrandMark, InkButton } from "@/components/anime-ui/ui";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { BrandMark, InkButton, Modal } from "@/components/anime-ui/ui";
+import { useOverlay } from "@/hooks/use-overlay";
+import { ImportResumeModal } from "@/features/dashboard/import-resume-modal";
 import { exportResumePdf } from "@/features/pdf-export/export-pdf";
-import { createDefaultResume } from "@/features/resume-model/resume-model";
+import { builtinTemplateFactories } from "@/features/resume-model/template-presets";
+import {
+  createDefaultResume,
+  type ResumeDocument,
+  type ResumeModule,
+  type TemplateId,
+} from "@/features/resume-model/resume-model";
 import {
   DirectoryConflictError,
   readResumeFile,
@@ -30,11 +41,16 @@ import {
 import { EditorContent } from "./editor-content";
 import { getModuleMeta } from "./module-meta";
 import { useResumeStore } from "@/stores/resume-store";
-import type { ResumeModule } from "@/features/resume-model/resume-model";
 import { StylePanel } from "./style-panel";
 import { ResumePreview } from "@/features/templates/resume-preview";
 import { usePanelResize } from "./use-panel-resize";
 import { ResizeHandle, PanelRestoreButton } from "./resize-handle";
+import { buildResumePages } from "@/features/templates/resume-pages";
+import { ClassicTemplatePage } from "@/features/templates/classic-template";
+import {
+  getTemplate,
+  listTemplates,
+} from "@/features/templates/template-registry";
 
 type MobileTab = "content" | "style" | "preview";
 
@@ -50,7 +66,12 @@ export function EditorShell({ id }: { id: string }) {
   const setSaveState = useResumeStore((state) => state.setSaveState);
   const activeModuleId = useResumeStore((state) => state.activeModuleId);
   const setActiveModule = useResumeStore((state) => state.setActiveModule);
+  const applyTemplateLayout = useResumeStore(
+    (state) => state.applyTemplateLayout,
+  );
   const [mobileTab, setMobileTab] = useState<MobileTab>("content");
+  const [importResumeOpen, setImportResumeOpen] = useState(false);
+  const [templateModalOpen, setTemplateModalOpen] = useState(false);
   const [ready, setReady] = useState(false);
   const pageRefs = useRef<Array<HTMLDivElement | null>>([]);
   const directoryRef = useRef<FileSystemDirectoryHandle | undefined>(undefined);
@@ -154,6 +175,24 @@ export function EditorShell({ id }: { id: string }) {
     await exportResumePdf(pages, resume.title, resume);
   };
 
+  const handleImportedResume = async (importedResume: ResumeDocument) => {
+    if (!resume) return;
+    const replacement: ResumeDocument = {
+      ...importedResume,
+      id: resume.id,
+      createdAt: resume.createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+    load(replacement);
+    await saveResume(replacement);
+    setSaveState("saved");
+  };
+
+  const handleApplyTemplate = (templateResume: ResumeDocument) => {
+    applyTemplateLayout(templateResume);
+    setTemplateModalOpen(false);
+  };
+
   if (!ready || !resume) {
     return (
       <div className="grid min-h-screen place-items-center bg-(--yellow)">
@@ -204,6 +243,24 @@ export function EditorShell({ id }: { id: string }) {
             <MoonStar size={19} />
           </button> */}
           <InkButton
+            variant="blue"
+            className="min-h-11 px-3 md:px-4"
+            onClick={() => setImportResumeOpen(true)}
+          >
+            <FileUp size={18} />
+            <span className="hidden xl:inline">重新导入</span>
+            <span className="xl:hidden">导入</span>
+          </InkButton>
+          <InkButton
+            variant="pink"
+            className="min-h-11 px-3 md:px-4"
+            onClick={() => setTemplateModalOpen(true)}
+          >
+            <LayoutTemplate size={18} />
+            <span className="hidden xl:inline">更换模板</span>
+            <span className="xl:hidden">模板</span>
+          </InkButton>
+          <InkButton
             variant="yellow"
             className="min-h-11 px-3 md:px-5"
             onClick={download}
@@ -214,6 +271,25 @@ export function EditorShell({ id }: { id: string }) {
           </InkButton>
         </div>
       </header>
+
+      {importResumeOpen && (
+        <ImportResumeModal
+          initialTemplateId={resume.templateId}
+          onClose={() => setImportResumeOpen(false)}
+          onImportedResume={handleImportedResume}
+          open={importResumeOpen}
+          submitLabel="替换当前简历"
+        />
+      )}
+
+      {templateModalOpen && (
+        <TemplateSwitchModal
+          currentTemplateId={resume.templateId}
+          onApply={handleApplyTemplate}
+          onClose={() => setTemplateModalOpen(false)}
+          open={templateModalOpen}
+        />
+      )}
 
       <div className="hidden h-[calc(100vh-78px)] lg:flex">
         {/* 左侧样式面板 */}
@@ -427,5 +503,176 @@ function SaveStatus({
       )}
       {labels[state]}
     </span>
+  );
+}
+
+function TemplateSwitchModal({
+  currentTemplateId,
+  open,
+  onApply,
+  onClose,
+}: {
+  currentTemplateId: TemplateId;
+  open: boolean;
+  onApply: (templateResume: ResumeDocument) => void;
+  onClose: () => void;
+}) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  useOverlay(open, {
+    focusRef: closeButtonRef,
+    onClose,
+  });
+
+  const templatePreviews = useMemo(
+    () =>
+      listTemplates().flatMap((entry) => {
+        const resume = builtinTemplateFactories[entry.id]?.();
+        if (!resume) return [];
+        return [{ entry, page: buildResumePages(resume)[0], resume }];
+      }),
+    [],
+  );
+  const availableTemplatePreviews = useMemo(
+    () =>
+      templatePreviews.filter(({ entry }) => entry.id !== currentTemplateId),
+    [currentTemplateId, templatePreviews],
+  );
+  const [selectedTemplateId, setSelectedTemplateId] = useState<TemplateId>(
+    availableTemplatePreviews[0]?.entry.id ?? currentTemplateId,
+  );
+
+  const selectedPreview =
+    availableTemplatePreviews.find(
+      ({ entry }) => entry.id === selectedTemplateId,
+    ) ?? availableTemplatePreviews[0];
+
+  const apply = () => {
+    const factory = builtinTemplateFactories[selectedTemplateId];
+    if (!factory) return;
+    onApply(factory());
+  };
+
+  return (
+    <Modal
+      ariaLabelledby="switch-template-title"
+      className="flex flex-col"
+      onClose={onClose}
+      open={open}
+      size="md"
+    >
+      <div className="comic-dots border-b-2 border-black bg-[#fff7cc] px-6 py-5">
+        <div className="flex items-start gap-4">
+          <span className="grid h-14 w-14 shrink-0 rotate-[-4deg] place-items-center rounded-2xl border-2 border-black bg-(--yellow) shadow-[3px_3px_0_black]">
+            <LayoutTemplate size={28} strokeWidth={2.5} />
+          </span>
+          <div className="min-w-0 pt-1">
+            <span className="text-xs font-black tracking-[0.18em] text-(--blue)">
+              TEMPLATE
+            </span>
+            <h2 className="mt-1 text-2xl font-black" id="switch-template-title">
+              更换模板
+            </h2>
+          </div>
+        </div>
+        <button
+          aria-label="关闭更换模板弹窗"
+          className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-xl border-2 border-black bg-white transition hover:bg-(--yellow)"
+          onClick={onClose}
+          ref={closeButtonRef}
+          type="button"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
+      <div className="bg-(--canvas) p-4 sm:p-5">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)]">
+          <section className="rounded-3xl border-2 border-black bg-(--paper) p-4 shadow-[4px_4px_0_#d9d1c3]">
+            <h3 className="mb-3 text-lg font-black">选择模板</h3>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+              {availableTemplatePreviews.map(({ entry }) => {
+                const active = entry.id === selectedTemplateId;
+                return (
+                  <button
+                    className={`rounded-2xl border-2 px-3 py-2.5 text-left transition ${
+                      active
+                        ? "border-black bg-(--yellow) shadow-[3px_3px_0_black]"
+                        : "border-black/20 bg-white hover:border-black"
+                    }`}
+                    key={entry.id}
+                    onClick={() => setSelectedTemplateId(entry.id)}
+                    type="button"
+                  >
+                    <span className="block font-black">{entry.name}</span>
+                  </button>
+                );
+              })}
+              {availableTemplatePreviews.length === 0 && (
+                <p className="rounded-2xl border-2 border-dashed border-black/20 bg-white px-3 py-4 text-sm font-bold text-black/45">
+                  暂无其他模板
+                </p>
+              )}
+            </div>
+          </section>
+
+          <section className="rounded-3xl border-2 border-black bg-(--paper) p-4 shadow-[4px_4px_0_#d9d1c3]">
+            <h3 className="mb-3 text-lg font-black">模板预览</h3>
+            <div className="grid h-[356px] place-items-center overflow-hidden rounded-2xl border-2 border-black bg-[#e7ebf1] p-3">
+              {selectedPreview?.page && selectedPreview.resume ? (
+                <TemplateSwitchPreview
+                  page={selectedPreview.page}
+                  resume={selectedPreview.resume}
+                />
+              ) : (
+                <div className="grid min-h-72 place-items-center text-sm font-bold text-black/45">
+                  暂无预览
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t-2 border-black bg-(--paper) px-5 py-4">
+        <p className="text-sm font-medium text-black/45">
+          只替换模板布局和样式，当前填写的内容会保留。
+        </p>
+        <div className="flex gap-3">
+          <InkButton onClick={onClose} variant="paper">
+            取消
+          </InkButton>
+          <InkButton onClick={apply} variant="pink">
+            <LayoutTemplate size={17} />
+            应用模板
+          </InkButton>
+        </div>
+      </footer>
+    </Modal>
+  );
+}
+
+function TemplateSwitchPreview({
+  page,
+  resume,
+}: {
+  page: ReturnType<typeof buildResumePages>[number];
+  resume: ResumeDocument;
+}) {
+  const entry = getTemplate(resume.templateId);
+  const Renderer = entry?.component ?? ClassicTemplatePage;
+
+  return (
+    <div className="h-[324px] w-[229px] overflow-hidden shadow-[0_16px_35px_rgb(30_40_60/24%)]">
+      <div
+        style={{
+          height: 1123,
+          transform: "scale(0.288)",
+          transformOrigin: "left top",
+          width: 794,
+        }}
+      >
+        <Renderer page={page} resume={resume} />
+      </div>
+    </div>
   );
 }

@@ -30,6 +30,7 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
   };
 
   const colors = cfg.blockColorList;
+  const pageMargin = resume.styles.pageMargin;
   // 右侧时间轴模块：工作经历 + 项目经历，按 page.modules 顺序排列（支持拖拽换位）
   const rightModules = page.modules.filter((m) => m.type === "work" || m.type === "projects");
   const leftModules = page.modules.filter((m) => m.type !== "work" && m.type !== "projects" && m.type !== "basics");
@@ -47,7 +48,16 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
     >
       {/* ======== 顶部标题区 ======== */}
       {page.showHeader && (
-        <header className="relative px-10 pt-8 pb-4" style={{ background: "#ffffff" }}>
+        <header
+          className="relative"
+          style={{
+            background: "#ffffff",
+            paddingLeft: pageMargin,
+            paddingRight: pageMargin,
+            paddingTop: pageMargin,
+            paddingBottom: Math.max(16, pageMargin * 0.45),
+          }}
+        >
           <div className="flex items-start justify-between">
             <div style={{ maxWidth: 620 }}>
               {basics?.name && (
@@ -69,7 +79,14 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
       )}
 
       {/* ======== 双栏主体 ======== */}
-      <div className="flex px-10">
+      <div
+        className="flex"
+        style={{
+          paddingLeft: pageMargin,
+          paddingRight: pageMargin,
+          paddingBottom: resume.styles.sectionGap,
+        }}
+      >
         {/* 左侧信息栏 */}
         <aside className="shrink-0 pr-6" style={{ width: 320 }}>
           {/* 个人信息组 */}

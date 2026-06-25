@@ -57,10 +57,11 @@ export async function exportResumePdf(
     const scale = canvas.width / width;
     const sliceHeight = Math.round(A4_PAGE_HEIGHT * scale);
     const sliceWidth = Math.round(A4_PAGE_WIDTH * scale);
+    const protectedRanges = collectProtectedRanges(page);
     const slices = calculatePdfSlices(
-      height,
+      getEffectiveContentHeight(height, A4_PAGE_HEIGHT, protectedRanges),
       A4_PAGE_HEIGHT,
-      collectProtectedRanges(page),
+      protectedRanges,
     );
 
     for (const sliceRange of slices) {
@@ -148,6 +149,19 @@ function findSafeBreak(
   }
 
   return idealBreak;
+}
+
+function getEffectiveContentHeight(
+  renderedHeight: number,
+  pageHeight: number,
+  protectedRanges: ProtectedRange[],
+): number {
+  const contentBottom = protectedRanges.reduce(
+    (bottom, range) => Math.max(bottom, range.bottom),
+    0,
+  );
+  if (contentBottom <= 0) return renderedHeight;
+  return Math.min(renderedHeight, Math.max(pageHeight, contentBottom + PAGE_BREAK_GUARD));
 }
 
 function collectProtectedRanges(page: HTMLElement): ProtectedRange[] {

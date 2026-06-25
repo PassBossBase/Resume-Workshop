@@ -29,6 +29,7 @@ export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
   );
   const sidebarBg = cfg.sidebarBgColor;
   const sidebarW = cfg.sidebarWidth;
+  const pageMargin = resume.styles.pageMargin;
   const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
     serif: '"Songti SC", SimSun, serif',
@@ -46,8 +47,13 @@ export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
       }}
     >
       <aside
-        className="shrink-0 px-5 pt-8 pb-6 text-[0.857em]"
-        style={{ width: sidebarW, background: sidebarBg, color: cfg.sidebarTextColor }}
+        className="shrink-0 text-[0.857em]"
+        style={{
+          width: sidebarW,
+          background: sidebarBg,
+          color: cfg.sidebarTextColor,
+          padding: `${pageMargin}px ${Math.max(20, pageMargin * 0.65)}px`,
+        }}
       >
         {basics?.avatar && (
           <div className="mb-6 flex justify-center">
@@ -84,7 +90,10 @@ export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
         </div>
       </aside>
 
-      <main className="flex-1 px-8 py-8" style={{ background: cfg.contentBgColor }}>
+      <main
+        className="flex-1"
+        style={{ background: cfg.contentBgColor, padding: pageMargin }}
+      >
         {page.showHeader && (
           <header className="mb-6 border-b pb-5" style={{ borderColor: resume.styles.accent }}>
             {basics?.name && (
