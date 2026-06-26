@@ -20,7 +20,7 @@ const featureCards = [
   },
   {
     title: "模板开局",
-    copy: "空白模板加 5 套内置模板，点一下就能开始编辑。",
+    copy: "基础模板加 5 套内置模板，点一下就能开始编辑。",
     icon: LayoutTemplate,
     color: "bg-[var(--pink)] text-white",
   },

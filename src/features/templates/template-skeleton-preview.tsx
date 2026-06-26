@@ -20,7 +20,7 @@ const skeletonConfig: Record<TemplateId, SkeletonConfig> = {
   blank: {
     accent: "#1f2937",
     muted: "#d6d9df",
-    title: "空白模板骨架预览",
+    title: "基础模板骨架预览",
     variant: "blank",
   },
   classic: {
@@ -103,7 +103,14 @@ function Section({
   return (
     <g>
       <rect fill={accent} height="14" rx="7" width="118" x={x} y={y} />
-      <rect fill={accent} height="2" opacity="0.42" width={width} x={x} y={y + 26} />
+      <rect
+        fill={accent}
+        height="2"
+        opacity="0.42"
+        width={width}
+        x={x}
+        y={y + 26}
+      />
       <Lines color={muted} count={3} width={width * 0.82} x={x} y={y + 54} />
     </g>
   );
@@ -117,7 +124,15 @@ function ClassicSkeleton({ accent, muted }: SkeletonConfig) {
       <rect fill={accent} height="3" rx="1.5" width="682" x="56" y="56" />
 
       {/* 头像占位（88x112px 比例缩放，左侧） */}
-      <rect fill={muted} height="88" opacity="0.5" rx="4" width="66" x="88" y="88" />
+      <rect
+        fill={muted}
+        height="88"
+        opacity="0.5"
+        rx="4"
+        width="66"
+        x="88"
+        y="88"
+      />
 
       {/* 姓名左侧 accent 竖条（对应 h-14 w-1.5 rounded-full） */}
       <rect fill={accent} height="48" rx="3" width="6" x="172" y="94" />
@@ -139,16 +154,37 @@ function ClassicSkeleton({ accent, muted }: SkeletonConfig) {
       <rect fill={muted} height="9" rx="4.5" width="90" x="278" y="225" />
 
       {/* 头部分隔线（对应 border-b pb-7） */}
-      <rect fill={accent} height="1.5" opacity="0.18" width="618" x="88" y="262" />
+      <rect
+        fill={accent}
+        height="1.5"
+        opacity="0.18"
+        width="618"
+        x="88"
+        y="262"
+      />
 
       {/* 4 个模块区域 */}
       {[302, 472, 642, 812].map((y) => (
         <g key={y}>
           {/* 模块标题：accent 竖条（对应 h-5 w-1.5 rounded-full）+ 标题文字 */}
           <rect fill={accent} height="18" rx="3" width="6" x="88" y={y} />
-          <rect fill={accent} height="13" rx="6.5" width="100" x="106" y={y + 3} />
+          <rect
+            fill={accent}
+            height="13"
+            rx="6.5"
+            width="100"
+            x="106"
+            y={y + 3}
+          />
           {/* 模块底部分隔线 */}
-          <rect fill={accent} height="1.5" opacity="0.18" width="618" x="88" y={y + 30} />
+          <rect
+            fill={accent}
+            height="1.5"
+            opacity="0.18"
+            width="618"
+            x="88"
+            y={y + 30}
+          />
 
           {/* 模块内 2 个条目 */}
           {[0, 1].map((ei) => {
@@ -156,14 +192,49 @@ function ClassicSkeleton({ accent, muted }: SkeletonConfig) {
             return (
               <g key={`entry-${ei}`}>
                 {/* 条目标题（font-black，深色） */}
-                <rect fill="#182235" height="10" rx="5" width="120" x="88" y={ey} />
+                <rect
+                  fill="#182235"
+                  height="10"
+                  rx="5"
+                  width="120"
+                  x="88"
+                  y={ey}
+                />
                 {/* 条目副标题（semibold, 0.857em） */}
-                <rect fill={muted} height="8" rx="4" width="80" x="224" y={ey + 1} />
+                <rect
+                  fill={muted}
+                  height="8"
+                  rx="4"
+                  width="80"
+                  x="224"
+                  y={ey + 1}
+                />
                 {/* 日期 pill（右对齐） */}
-                <rect fill={muted} height="8" rx="4" width="64" x="588" y={ey + 1} />
+                <rect
+                  fill={muted}
+                  height="8"
+                  rx="4"
+                  width="64"
+                  x="588"
+                  y={ey + 1}
+                />
                 {/* 描述行 */}
-                <rect fill={muted} height="8" rx="4" width="468" x="88" y={ey + 20} />
-                <rect fill={muted} height="8" rx="4" width="430" x="88" y={ey + 34} />
+                <rect
+                  fill={muted}
+                  height="8"
+                  rx="4"
+                  width="468"
+                  x="88"
+                  y={ey + 20}
+                />
+                <rect
+                  fill={muted}
+                  height="8"
+                  rx="4"
+                  width="430"
+                  x="88"
+                  y={ey + 34}
+                />
               </g>
             );
           })}
@@ -174,7 +245,7 @@ function ClassicSkeleton({ accent, muted }: SkeletonConfig) {
 }
 
 function BlankSkeleton({ accent, muted }: SkeletonConfig) {
-  // 空白模板特征：居中圆形头像 + 姓名 + 角色 + icon 联系方式行 + 分割线分隔模块
+  // 基础模板特征：居中圆形头像 + 姓名 + 角色 + icon 联系方式行 + 分割线分隔模块
   return (
     <>
       {/* 圆形头像（居中，对应 96x96 rounded-full） */}
@@ -200,9 +271,23 @@ function BlankSkeleton({ accent, muted }: SkeletonConfig) {
           {/* 分割线 + accent 竖条 + 标题文字 */}
           <rect fill={muted} height="1.5" width="616" x="89" y={y} />
           <rect fill={accent} height="14" rx="2" width="5" x="90" y={y + 10} />
-          <rect fill={accent} height="11" rx="5.5" width="96" x="106" y={y + 12} />
+          <rect
+            fill={accent}
+            height="11"
+            rx="5.5"
+            width="96"
+            x="106"
+            y={y + 12}
+          />
           {/* 条目：标题 + 日期（右对齐）+ 副标题 + 描述行 */}
-          <rect fill="#171717" height="10" rx="5" width="110" x="90" y={y + 36} />
+          <rect
+            fill="#171717"
+            height="10"
+            rx="5"
+            width="110"
+            x="90"
+            y={y + 36}
+          />
           <rect fill={muted} height="8" rx="4" width="55" x="590" y={y + 37} />
           <rect fill={muted} height="8" rx="4" width="80" x="90" y={y + 52} />
           <rect fill={muted} height="8" rx="4" width="450" x="90" y={y + 68} />
@@ -220,24 +305,94 @@ function HeaderSkeleton({ accent, muted }: SkeletonConfig) {
       {/* 全宽蓝色头部 */}
       <rect fill={accent} height="200" width="794" x="0" y="0" />
       {/* 头像（右上角绝对定位，对应 88x112px） */}
-      <rect fill="#ffffff" height="70" opacity="0.5" rx="4" width="55" x="660" y="36" />
+      <rect
+        fill="#ffffff"
+        height="70"
+        opacity="0.5"
+        rx="4"
+        width="55"
+        x="660"
+        y="36"
+      />
       {/* 姓名 */}
-      <rect fill="#ffffff" height="30" opacity="0.92" rx="15" width="180" x="78" y="52" />
+      <rect
+        fill="#ffffff"
+        height="30"
+        opacity="0.92"
+        rx="15"
+        width="180"
+        x="78"
+        y="52"
+      />
       {/* 信息行 grid 2 列（label：value 格式） */}
-      <rect fill="#ffffff" height="11" opacity="0.72" rx="5.5" width="180" x="78" y="114" />
-      <rect fill="#ffffff" height="11" opacity="0.54" rx="5.5" width="160" x="340" y="114" />
-      <rect fill="#ffffff" height="11" opacity="0.72" rx="5.5" width="170" x="78" y="138" />
-      <rect fill="#ffffff" height="11" opacity="0.54" rx="5.5" width="150" x="340" y="138" />
-      <rect fill="#ffffff" height="11" opacity="0.48" rx="5.5" width="140" x="78" y="162" />
+      <rect
+        fill="#ffffff"
+        height="11"
+        opacity="0.72"
+        rx="5.5"
+        width="180"
+        x="78"
+        y="114"
+      />
+      <rect
+        fill="#ffffff"
+        height="11"
+        opacity="0.54"
+        rx="5.5"
+        width="160"
+        x="340"
+        y="114"
+      />
+      <rect
+        fill="#ffffff"
+        height="11"
+        opacity="0.72"
+        rx="5.5"
+        width="170"
+        x="78"
+        y="138"
+      />
+      <rect
+        fill="#ffffff"
+        height="11"
+        opacity="0.54"
+        rx="5.5"
+        width="150"
+        x="340"
+        y="138"
+      />
+      <rect
+        fill="#ffffff"
+        height="11"
+        opacity="0.48"
+        rx="5.5"
+        width="140"
+        x="78"
+        y="162"
+      />
       {/* 4 个模块区域（含 icon 圆圈 + 标题 + 底边线 + 条目内容） */}
       {[266, 428, 590, 752].map((y) => (
         <g key={y}>
           {/* 模块标题：icon 圆圈 + 标题文字 + 底边线 */}
           <circle cx="94" cy={y + 7} fill={accent} opacity="0.6" r="7" />
           <rect fill={accent} height="12" rx="6" width="96" x="110" y={y + 2} />
-          <rect fill={accent} height="1.5" opacity="0.28" width="618" x="88" y={y + 24} />
+          <rect
+            fill={accent}
+            height="1.5"
+            opacity="0.28"
+            width="618"
+            x="88"
+            y={y + 24}
+          />
           {/* 条目：标题 + 副标题 + 日期 + 描述 */}
-          <rect fill="#2d3748" height="10" rx="5" width="120" x="88" y={y + 40} />
+          <rect
+            fill="#2d3748"
+            height="10"
+            rx="5"
+            width="120"
+            x="88"
+            y={y + 40}
+          />
           <rect fill={muted} height="8" rx="4" width="70" x="224" y={y + 41} />
           <rect fill={muted} height="8" rx="4" width="55" x="588" y={y + 41} />
           <rect fill={muted} height="8" rx="4" width="460" x="88" y={y + 58} />
@@ -257,31 +412,91 @@ function SidebarSkeleton({ accent, muted }: SkeletonConfig) {
       {/* 圆形头像（居中，对应 80x80 rounded-full） */}
       <circle cx="125" cy="88" fill="#ffffff" opacity="0.88" r="34" />
       {/* 个人信息标题 */}
-      <rect fill="#ffffff" height="12" opacity="0.85" rx="6" width="72" x="88" y="148" />
+      <rect
+        fill="#ffffff"
+        height="12"
+        opacity="0.85"
+        rx="6"
+        width="72"
+        x="88"
+        y="148"
+      />
       {/* 信息行（label: value 格式） */}
       <Lines color="#ffffff" count={4} gap={28} width={150} x={72} y={178} />
       {/* 侧边栏教育模块标题 */}
-      <rect fill="#ffffff" height="11" opacity="0.75" rx="5.5" width="56" x="88" y="320" />
-      <rect fill="#ffffff" height="1" opacity="0.3" width={146} x="88" y="342" />
+      <rect
+        fill="#ffffff"
+        height="11"
+        opacity="0.75"
+        rx="5.5"
+        width="56"
+        x="88"
+        y="320"
+      />
+      <rect
+        fill="#ffffff"
+        height="1"
+        opacity="0.3"
+        width={146}
+        x="88"
+        y="342"
+      />
       <Lines color="#ffffff" count={3} gap={24} width={138} x={72} y={358} />
       {/* 侧边栏第二教育模块 */}
-      <rect fill="#ffffff" height="11" opacity="0.75" rx="5.5" width="56" x="88" y="480" />
-      <rect fill="#ffffff" height="1" opacity="0.3" width={146} x="88" y="502" />
+      <rect
+        fill="#ffffff"
+        height="11"
+        opacity="0.75"
+        rx="5.5"
+        width="56"
+        x="88"
+        y="480"
+      />
+      <rect
+        fill="#ffffff"
+        height="1"
+        opacity="0.3"
+        width={146}
+        x="88"
+        y="502"
+      />
       <Lines color="#ffffff" count={2} gap={24} width={138} x={72} y={518} />
 
       {/* 右侧主内容区 */}
       {/* 姓名 + 底边线（对应 header border-b） */}
       <rect fill={accent} height="28" rx="14" width="160" x="306" y="62" />
-      <rect fill={accent} height="1.5" opacity="0.25" width="420" x="306" y="112" />
+      <rect
+        fill={accent}
+        height="1.5"
+        opacity="0.25"
+        width="420"
+        x="306"
+        y="112"
+      />
       {/* 4 个模块区域（含 accent 竖条 + 标题 + 底边线 + 条目内容） */}
       {[148, 326, 504, 682].map((y) => (
         <g key={y}>
           {/* 模块标题：accent 竖条 + 标题文字 + 底边线 */}
           <rect fill={accent} height="14" rx="2" width="5" x="306" y={y} />
           <rect fill={accent} height="12" rx="6" width="96" x="322" y={y + 1} />
-          <rect fill={accent} height="1.5" opacity="0.25" width="420" x="306" y={y + 22} />
+          <rect
+            fill={accent}
+            height="1.5"
+            opacity="0.25"
+            width="420"
+            x="306"
+            y={y + 22}
+          />
           {/* 条目：标题 + 副标题 + 日期 + 描述 */}
-          <rect fill={accent} height="10" opacity="0.85" rx="5" width="120" x="306" y={y + 38} />
+          <rect
+            fill={accent}
+            height="10"
+            opacity="0.85"
+            rx="5"
+            width="120"
+            x="306"
+            y={y + 38}
+          />
           <rect fill={muted} height="8" rx="4" width="70" x="440" y={y + 39} />
           <rect fill={muted} height="8" rx="4" width="55" x="588" y={y + 39} />
           <rect fill={muted} height="8" rx="4" width="380" x="306" y={y + 56} />
@@ -313,7 +528,15 @@ function TimelineSkeleton({ accent, muted }: SkeletonConfig) {
       {/* 姓名标题条 */}
       <rect fill={accent} height="28" rx="14" width="200" x={leftX} y="80" />
       {/* 头像占位 */}
-      <rect fill={muted} height="88" opacity="0.45" rx="6" width="66" x="634" y="72" />
+      <rect
+        fill={muted}
+        height="88"
+        opacity="0.45"
+        rx="6"
+        width="66"
+        x="634"
+        y="72"
+      />
       {/* 副标题线 */}
       <Lines color={muted} count={1} width={260} x={leftX} y={128} />
       <Lines color={muted} count={1} width={170} x={leftX} y={148} />
@@ -324,22 +547,50 @@ function TimelineSkeleton({ accent, muted }: SkeletonConfig) {
 
       {/* ====== 左侧栏：模块一（技能） ====== */}
       <rect fill={accent} height="12" rx="6" width="72" x={leftX} y="300" />
-      <rect fill={accent} height="1.5" opacity="0.35" width={146} x={leftX} y="324" />
+      <rect
+        fill={accent}
+        height="1.5"
+        opacity="0.35"
+        width={146}
+        x={leftX}
+        y="324"
+      />
       <Lines color={muted} count={3} gap={20} width={210} x={leftX} y={342} />
 
       {/* ====== 左侧栏：模块二（教育） ====== */}
       <rect fill={accent} height="12" rx="6" width="72" x={leftX} y="470" />
-      <rect fill={accent} height="1.5" opacity="0.35" width={146} x={leftX} y="494" />
+      <rect
+        fill={accent}
+        height="1.5"
+        opacity="0.35"
+        width={146}
+        x={leftX}
+        y="494"
+      />
       <Lines color={muted} count={4} gap={18} width={200} x={leftX} y={512} />
 
       {/* ====== 左侧栏：模块三（证书） ====== */}
       <rect fill={accent} height="12" rx="6" width="72" x={leftX} y="650" />
-      <rect fill={accent} height="1.5" opacity="0.35" width={146} x={leftX} y="674" />
+      <rect
+        fill={accent}
+        height="1.5"
+        opacity="0.35"
+        width={146}
+        x={leftX}
+        y="674"
+      />
       <Lines color={muted} count={3} gap={20} width={210} x={leftX} y={692} />
 
       {/* ====== 右侧时间轴：模块标题（工作经历） ====== */}
       <rect fill={accent} height="14" rx="7" width="90" x={rightX} y="190" />
-      <rect fill={accent} height="2" opacity="0.42" width={rightWidth} x={rightX} y="218" />
+      <rect
+        fill={accent}
+        height="2"
+        opacity="0.42"
+        width={rightWidth}
+        x={rightX}
+        y="218"
+      />
 
       {/* ====== 时间轴竖线 ====== */}
       <line
@@ -368,16 +619,62 @@ function TimelineSkeleton({ accent, muted }: SkeletonConfig) {
               strokeWidth="2"
             />
             {/* 日期条 */}
-            <rect fill={muted} height="8" rx="4" width="60" x={cardX} y={y + 4} />
+            <rect
+              fill={muted}
+              height="8"
+              rx="4"
+              width="60"
+              x={cardX}
+              y={y + 4}
+            />
             {/* 色块卡片 */}
-            <rect fill={cardColor} height="66" rx="8" width="290" x={cardX} y={y + 26} />
+            <rect
+              fill={cardColor}
+              height="66"
+              rx="8"
+              width="290"
+              x={cardX}
+              y={y + 26}
+            />
             {/* 卡片内标题 */}
-            <rect fill="#ffffff" height="10" opacity="0.92" rx="5" width="150" x={cardX + 18} y={y + 38} />
+            <rect
+              fill="#ffffff"
+              height="10"
+              opacity="0.92"
+              rx="5"
+              width="150"
+              x={cardX + 18}
+              y={y + 38}
+            />
             {/* 卡片内副标题 */}
-            <rect fill="#ffffff" height="6" opacity="0.55" rx="3" width="210" x={cardX + 18} y={y + 54} />
+            <rect
+              fill="#ffffff"
+              height="6"
+              opacity="0.55"
+              rx="3"
+              width="210"
+              x={cardX + 18}
+              y={y + 54}
+            />
             {/* 卡片内描述行 */}
-            <rect fill="#ffffff" height="6" opacity="0.55" rx="3" width="250" x={cardX + 18} y={y + 66} />
-            <rect fill="#ffffff" height="6" opacity="0.55" rx="3" width="218" x={cardX + 18} y={y + 76} />
+            <rect
+              fill="#ffffff"
+              height="6"
+              opacity="0.55"
+              rx="3"
+              width="250"
+              x={cardX + 18}
+              y={y + 66}
+            />
+            <rect
+              fill="#ffffff"
+              height="6"
+              opacity="0.55"
+              rx="3"
+              width="218"
+              x={cardX + 18}
+              y={y + 76}
+            />
           </g>
         );
       })}
@@ -391,11 +688,35 @@ function LineSkeleton({ accent, muted }: SkeletonConfig) {
     <>
       {/* 顶部：姓名左对齐 + 两个圆形 icon 按钮右对齐 + 分割线 */}
       <rect fill={accent} height="30" rx="15" width="178" x="88" y="72" />
-      <circle cx="616" cy="80" fill="none" r="18" stroke={accent} strokeOpacity="0.55" strokeWidth="2" />
-      <circle cx="666" cy="80" fill="none" r="18" stroke={accent} strokeOpacity="0.55" strokeWidth="2" />
+      <circle
+        cx="616"
+        cy="80"
+        fill="none"
+        r="18"
+        stroke={accent}
+        strokeOpacity="0.55"
+        strokeWidth="2"
+      />
+      <circle
+        cx="666"
+        cy="80"
+        fill="none"
+        r="18"
+        stroke={accent}
+        strokeOpacity="0.55"
+        strokeWidth="2"
+      />
       <rect fill={accent} height="3" width="618" x="88" y="126" />
       {/* 信息网格（2 列 label：value）+ 头像（右上角绝对定位） */}
-      <rect fill={muted} height="60" opacity="0.4" rx="4" width="46" x="660" y="148" />
+      <rect
+        fill={muted}
+        height="60"
+        opacity="0.4"
+        rx="4"
+        width="46"
+        x="660"
+        y="148"
+      />
       <rect fill={muted} height="9" rx="4.5" width="160" x="88" y="156" />
       <rect fill={muted} height="9" rx="4.5" width="170" x="350" y="156" />
       <rect fill={muted} height="9" rx="4.5" width="140" x="88" y="176" />
@@ -405,11 +726,33 @@ function LineSkeleton({ accent, muted }: SkeletonConfig) {
       {[260, 422, 584, 746].map((y) => (
         <g key={y}>
           {/* 分割线 + accent 竖条 + 标题文字 */}
-          <rect fill={accent} height="2" opacity="0.65" width="618" x="88" y={y} />
+          <rect
+            fill={accent}
+            height="2"
+            opacity="0.65"
+            width="618"
+            x="88"
+            y={y}
+          />
           <rect fill={accent} height="14" rx="2" width="5" x="88" y={y + 12} />
-          <rect fill={accent} height="12" rx="6" width="100" x="104" y={y + 13} />
+          <rect
+            fill={accent}
+            height="12"
+            rx="6"
+            width="100"
+            x="104"
+            y={y + 13}
+          />
           {/* 条目：标题 + 副标题 + 日期 + 描述 */}
-          <rect fill={accent} height="10" opacity="0.85" rx="5" width="120" x="88" y={y + 40} />
+          <rect
+            fill={accent}
+            height="10"
+            opacity="0.85"
+            rx="5"
+            width="120"
+            x="88"
+            y={y + 40}
+          />
           <rect fill={muted} height="8" rx="4" width="70" x="224" y={y + 41} />
           <rect fill={muted} height="8" rx="4" width="55" x="588" y={y + 41} />
           <rect fill={muted} height="8" rx="4" width="460" x="88" y={y + 58} />

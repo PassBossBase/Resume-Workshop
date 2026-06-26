@@ -205,7 +205,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               type="button"
               aria-label={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
               aria-expanded={!sidebarCollapsed}
-              className="absolute cursor-pointer left-0 bottom-2 grid h-10 w-full shrink-0 place-items-center border-2 border-black bg-white transition hover:-translate-y-0.5 hover:bg-(--yellow) hover:shadow-[3px_3px_0_black] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue)]"
+              className="absolute rounded-2xl cursor-pointer left-0 bottom-2 grid h-10 w-full shrink-0 place-items-center border-2 border-black bg-white transition hover:-translate-y-0.5 hover:bg-(--yellow) hover:shadow-[3px_3px_0_black] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue)]"
               onClick={toggleSidebar}
               title={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
             >

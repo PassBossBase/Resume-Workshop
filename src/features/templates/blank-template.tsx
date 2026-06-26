@@ -1,5 +1,5 @@
 /**
- * 「空白模板」渲染器。
+ * 「基础模板」渲染器。
  *
  * 布局：居中对齐头部 → 水平分割线划分模块 →
  * 工作经验/项目经历两列表头 → 教育经历三列表头 → 专业技能纯文本
@@ -21,7 +21,10 @@ import type {
 } from "@/features/resume-model/resume-model";
 import { getBasicDisplayItems } from "@/features/resume-model/resume-model";
 import type { ResumePageData } from "./resume-pages";
-import { normalizeRichText, sanitizeRichText } from "@/features/rich-text/rich-text";
+import {
+  normalizeRichText,
+  sanitizeRichText,
+} from "@/features/rich-text/rich-text";
 import { registerTemplate } from "./template-registry";
 
 /** basicDisplayItems key → Lucide 图标映射 */
@@ -95,20 +98,29 @@ export const BlankTemplate = memo(function BlankTemplate({
             </h1>
           )}
           {basics?.role && (
-            <p className="mt-1 text-[1.071em] font-bold" style={{ color: "#171717" }}>
+            <p
+              className="mt-1 text-[1.071em] font-bold"
+              style={{ color: "#171717" }}
+            >
               {basics.role}
             </p>
           )}
           {basicDisplayItems.length > 0 && (
-            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[0.857em]" style={{ color: "#171717" }}>
+            <div
+              className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[0.857em]"
+              style={{ color: "#171717" }}
+            >
               {basicDisplayItems
                 .filter((item) => item.key !== "role")
                 .map((item) => (
-                <span className="inline-flex items-center gap-1" key={item.key}>
-                  <ContactIcon itemKey={item.key} />
-                  <span>{item.value}</span>
-                </span>
-              ))}
+                  <span
+                    className="inline-flex items-center gap-1"
+                    key={item.key}
+                  >
+                    <ContactIcon itemKey={item.key} />
+                    <span>{item.value}</span>
+                  </span>
+                ))}
             </div>
           )}
         </header>
@@ -152,21 +164,12 @@ function BlankSection({
   return (
     <section className="break-inside-avoid">
       {/* 顶部分割线 */}
-      <div
-        className="mb-3"
-        style={{ height: 1, background: separatorColor }}
-      />
+      <div className="mb-3" style={{ height: 1, background: separatorColor }} />
 
       {/* 模块标题 */}
       <div className="mb-3 flex items-center gap-2">
-        <i
-          className="h-3.5 w-1 rounded-full"
-          style={{ background: accent }}
-        />
-        <h2
-          className="text-[1.071em] font-black"
-          style={{ color: titleColor }}
-        >
+        <i className="h-3.5 w-1 rounded-full" style={{ background: accent }} />
+        <h2 className="text-[1.071em] font-black" style={{ color: titleColor }}>
           {module.title}
         </h2>
       </div>
@@ -174,10 +177,7 @@ function BlankSection({
       {/* 条目列表 */}
       <div className="space-y-4">
         {module.items.map((item) => {
-          if (
-            "visible" in item &&
-            !(item as CustomResumeEntry).visible
-          )
+          if ("visible" in item && !(item as CustomResumeEntry).visible)
             return null;
 
           return (
@@ -204,9 +204,7 @@ function BlankItem({
   moduleType: string;
   textColor: string;
 }) {
-  const dateText = [item.startDate, item.endDate]
-    .filter(Boolean)
-    .join(" - ");
+  const dateText = [item.startDate, item.endDate].filter(Boolean).join(" - ");
 
   return (
     <article className="break-inside-avoid">
@@ -292,14 +290,12 @@ function ItemHeader({
 
 /** 空数据占位符（仅用于预览，实际简历中这些字段可能为空） */
 function NoData(): ReactElement {
-  return (
-    <span className="inline-block h-3 w-12 rounded bg-black/10" />
-  );
+  return <span className="inline-block h-3 w-12 rounded bg-black/10" />;
 }
 
 registerTemplate({
   id: "blank",
-  name: "空白模板",
+  name: "基础模板",
   description: "水平分割线划分模块，简洁清晰，从零开始自由填写",
   component: BlankTemplate,
 });
