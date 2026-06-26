@@ -42,10 +42,6 @@ export default function Home() {
         <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-5xl items-center">
           <div className="relative z-10 w-full">
             <h1 className="mt-5 max-w-3xl text-5xl leading-[0.98] font-black tracking-tight md:text-7xl">
-              <span className="relative left-68 top-6 grid h-10 w-10 rotate-[-5deg] place-items-center rounded-[14px] border-2 border-black bg-[var(--yellow)] shadow-[3px_3px_0_black]">
-                <span className="text-xl">R</span>
-                <i className="absolute -right-2 -top-2 h-3 w-3 rounded-full border-2 border-black bg-[var(--pink)]" />
-              </span>
               简历工坊
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 font-medium text-black/62 md:text-lg">

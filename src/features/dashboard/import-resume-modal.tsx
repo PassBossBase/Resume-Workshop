@@ -18,6 +18,7 @@ import { TemplateSkeletonPreview } from "@/features/templates/template-skeleton-
 import {
   IMPORT_PDF_MAX_BYTES,
   buildResumeFromImport,
+  extractImportedResumeFromJson,
   extractImportedResumeFromPdf,
   type ImportedResumeDraft,
 } from "@/features/dashboard/resume-import";
@@ -57,6 +58,7 @@ export function ImportResumeModal({
   const [draft, setDraft] = useState<ImportedResumeDraft | null>(null);
   const [status, setStatus] = useState<ImportStatus>("idle");
   const [error, setError] = useState("");
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const yieldToBrowser = () =>
     new Promise<void>((resolve) => window.setTimeout(resolve, 0));
@@ -91,15 +93,16 @@ export function ImportResumeModal({
     onClose();
   };
 
-  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
+  const processFile = async (file: File) => {
     setFileName(file.name);
     setDraft(null);
     setError("");
 
-    if (file.size > IMPORT_PDF_MAX_BYTES) {
+    const isJson =
+      file.type === "application/json" ||
+      file.name.toLowerCase().endsWith(".json");
+
+    if (!isJson && file.size > IMPORT_PDF_MAX_BYTES) {
       setStatus("error");
       setError("PDF 文件过大，请选择 10MB 以内的文件。");
       return;
@@ -108,15 +111,50 @@ export function ImportResumeModal({
     setStatus("parsing");
     try {
       await yieldToBrowser();
-      const parsed = await extractImportedResumeFromPdf(file);
+      const parsed = isJson
+        ? await extractImportedResumeFromJson(file)
+        : await extractImportedResumeFromPdf(file);
       setDraft(parsed);
       setStatus("ready");
     } catch (err) {
       setStatus("error");
       setError(
-        err instanceof Error ? err.message : "PDF 解析失败，请换一个文件试试。",
+        err instanceof Error ? err.message : "文件解析失败，请换一个文件试试。",
       );
     }
+  };
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    await processFile(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragEnter = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    processFile(file);
   };
 
   const handleImport = async () => {
@@ -145,7 +183,11 @@ export function ImportResumeModal({
     ? [
         [
           "来源",
-          draft.source === "embedded" ? "简历工坊 PDF" : "普通 PDF 文本",
+          draft.source === "embedded"
+            ? "简历工坊 PDF"
+            : draft.source === "json"
+              ? "JSON 文件"
+              : "普通 PDF 文本",
         ],
         ["姓名", draft.basics.name || "未识别"],
         ["岗位", draft.basics.role || "未识别"],
@@ -203,17 +245,32 @@ export function ImportResumeModal({
       <div className="min-h-0 flex-1 overflow-auto bg-(--canvas) p-4 sm:p-6 lg:p-7">
         <div className="grid gap-5 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.42fr)]">
           <section className="rounded-3xl border-2 border-black bg-(--paper) p-5 shadow-[4px_4px_0_#d9d1c3]">
-            <h3 className="text-lg font-black">1. 上传 PDF </h3>
-            <label className="mt-4 flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-black bg-white p-5 text-center transition hover:bg-[#fff7cc]">
+            <h3 className="text-lg font-black">1. 上传文件</h3>
+            <label
+              className={[
+                "mt-4 flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-black p-5 text-center transition",
+                isDragOver
+                  ? "border-solid bg-[#fff7cc]"
+                  : "bg-white hover:bg-[#fff7cc]",
+              ].join(" ")}
+              onDragOver={handleDragOver}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
               <FileText className="mb-3" size={36} />
               <span className="font-black">
-                {fileName || "选择一份 PDF 简历"}
+                {fileName
+                  ? fileName
+                  : isDragOver
+                    ? "松开以导入文件"
+                    : "选择或拖入简历文件"}
               </span>
               <span className="mt-2 text-sm font-medium text-black/50">
-                支持文字型 PDF，扫描件暂不支持
+                支持 PDF 与 JSON 格式，扫描件暂不支持
               </span>
               <input
-                accept="application/pdf,.pdf"
+                accept="application/pdf,.pdf,application/json,.json"
                 className="sr-only"
                 disabled={status === "parsing" || status === "saving"}
                 onChange={handleFileChange}
@@ -230,12 +287,12 @@ export function ImportResumeModal({
                 </p>
               ) : status === "parsing" ? (
                 <p className="mt-2 text-sm font-bold text-(--blue)">
-                  正在读取 PDF 文本...
+                  正在读取文件内容...
                 </p>
               ) : status === "error" ? (
                 <div className="mt-2 flex gap-2 text-sm leading-6 text-red-600">
                   <AlertCircle className="mt-0.5 shrink-0" size={17} />
-                  <span>{error}</span>
+                  <span className="whitespace-pre-wrap">{error}</span>
                 </div>
               ) : (
                 <div className="mt-3 space-y-2 text-sm">

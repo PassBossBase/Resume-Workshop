@@ -1,5 +1,6 @@
 "use client";
 
+import { ZodError } from "zod";
 import {
   normalizeRichText,
   richTextToPlainText,
@@ -7,6 +8,7 @@ import {
 import { extractEmbeddedResumeFromPdfText } from "@/features/pdf-export/pdf-import-payload";
 import {
   DEFAULT_OPTIONAL_BASIC_FIELD_ORDER,
+  parseAndMigrateResume,
   resumeDocumentSchema,
   type CustomResumeModule,
   type FixedResumeModule,
@@ -44,7 +46,7 @@ export type ImportedResumeDraft = {
   recognitionMarkdown: string;
   recognitionOutline: ImportedRecognitionSection[];
   warnings: string[];
-  source: "embedded" | "text";
+  source: "embedded" | "text" | "json";
   embeddedResume?: ResumeDocument;
 };
 
@@ -152,6 +154,72 @@ export async function extractImportedResumeFromPdf(
   }
 
   return { ...draft, warnings };
+}
+
+// ──────────────────────────────────────
+// JSON 文件导入
+// ──────────────────────────────────────
+
+function isJsonFile(file: File): boolean {
+  if (file.type === "application/json") return true;
+  return file.name.toLowerCase().endsWith(".json");
+}
+
+function formatZodError(error: ZodError): string {
+  const lines = error.issues.map((issue) => {
+    const path = issue.path.length > 0 ? issue.path.join(".") : "根";
+    return `  • ${path}: ${issue.message}`;
+  });
+  return `文件内容不符合简历数据格式：\n${lines.join("\n")}`;
+}
+
+export async function extractImportedResumeFromJson(
+  file: File,
+): Promise<ImportedResumeDraft> {
+  if (!isJsonFile(file)) {
+    throw new Error("请上传 JSON 格式的简历文件。");
+  }
+
+  const text = await file.text();
+  if (!text.trim()) {
+    throw new Error("JSON 文件内容为空，请检查文件。");
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch (err) {
+    const detail =
+      err instanceof SyntaxError ? err.message : String(err);
+    throw new Error(`JSON 文件格式错误，无法解析：${detail}`);
+  }
+
+  let resume: ResumeDocument;
+  try {
+    resume = parseAndMigrateResume(parsed);
+  } catch (err) {
+    if (err instanceof ZodError) {
+      throw new Error(formatZodError(err));
+    }
+    // 尝试用 v3 schema 单独校验以获取详细错误
+    const v3Result = resumeDocumentSchema.safeParse(parsed);
+    if (!v3Result.success) {
+      throw new Error(formatZodError(v3Result.error));
+    }
+    throw new Error(
+      `数据校验失败：${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+
+  const draft = buildDraftFromEmbeddedResume(resume, text);
+  return {
+    ...draft,
+    source: "json" as const,
+    recognitionMarkdown: draft.recognitionMarkdown.replace(
+      "# PDF 识别原文",
+      "# JSON 导入数据",
+    ),
+  };
 }
 
 async function extractPdfText(file: File): Promise<ExtractedPdfText> {
