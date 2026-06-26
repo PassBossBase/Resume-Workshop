@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, FilePlus2, Plus, Sparkles, X } from "lucide-react";
+import { Eye, FilePlus2, Sparkles, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import {
@@ -11,11 +11,10 @@ import {
   StickerCard,
 } from "@/components/anime-ui/ui";
 import { useOverlay } from "@/hooks/use-overlay";
-import { createDefaultResume } from "@/features/resume-model/resume-model";
 import { builtinTemplateFactories } from "@/features/resume-model/template-presets";
 import { saveResume } from "@/features/storage/resume-repository";
-import { buildResumePages } from "./resume-pages";
-import { getTemplate, listTemplates } from "./template-registry";
+import { listTemplates } from "./template-registry";
+import { TemplateSkeletonPreview } from "./template-skeleton-preview";
 import { TemplateThumbnail } from "./template-thumbnail";
 
 // 确保所有渲染器模块被加载并注册
@@ -36,17 +35,7 @@ export function TemplateGallery() {
   // 从注册表获取全部模板
   const templateEntries = useMemo(() => listTemplates(), []);
 
-  // 为当前选中的模板构建预览数据
-  const previewResume = useMemo(() => {
-    const entry = templateEntries[selectedIndex];
-    const factory = entry ? builtinTemplateFactories[entry.id] : undefined;
-    if (factory) return factory();
-    return createDefaultResume("preview", "预览简历");
-  }, [selectedIndex, templateEntries]);
-  const previewPage = useMemo(
-    () => buildResumePages(previewResume)[0],
-    [previewResume],
-  );
+  const selectedTemplate = templateEntries[selectedIndex];
 
   useOverlay(previewOpen, {
     focusRef: closeButtonRef,
@@ -95,21 +84,16 @@ export function TemplateGallery() {
         data-testid="template-grid"
       >
         {templateEntries.map((entry, index) => {
-          const resume = (() => {
-            const factory = builtinTemplateFactories[entry.id];
-            return factory
-              ? factory()
-              : createDefaultResume("thumb", entry.name);
-          })();
-          const page = buildResumePages(resume)[0];
-
           return (
             <StickerCard
               className="overflow-hidden"
               data-testid="template-card"
               key={entry.id}
             >
-              <TemplateThumbnail page={page} resume={resume} />
+              <TemplateThumbnail
+                ariaLabel={`${entry.name}模板骨架预览`}
+                templateId={entry.id}
+              />
               <div className="p-5 lg:p-4">
                 <div className="flex items-start justify-between">
                   <div>
@@ -184,16 +168,13 @@ export function TemplateGallery() {
         </header>
 
         <div className="scrollbar-thin min-h-0 flex-1 overflow-auto bg-[#e7ebf1] p-4 sm:p-8">
-          <div className="template-dialog-page mx-auto shadow-[0_20px_60px_rgb(30_40_60/25%)]">
-            <div>
-              {(() => {
-                const entry = getTemplate(previewResume.templateId);
-                const Renderer = entry?.component;
-                if (!Renderer) return null;
-                return <Renderer page={previewPage} resume={previewResume} />;
-              })()}
-            </div>
-          </div>
+          {selectedTemplate ? (
+            <TemplateSkeletonPreview
+              ariaLabel={`${selectedTemplate.name}模板骨架预览`}
+              className="mx-auto h-[696px] w-[492px] shadow-[5px_5px_0_black] max-sm:h-[449px] max-sm:w-[318px]"
+              templateId={selectedTemplate.id}
+            />
+          ) : null}
         </div>
 
         <footer className="shrink-0 border-t-2 border-black bg-(--paper) p-4 sm:p-5">

@@ -28,7 +28,7 @@ import {
   saveResume,
 } from "@/features/storage/resume-repository";
 import { buildResumePages } from "@/features/templates/resume-pages";
-import { TemplateThumbnail } from "@/features/templates/template-thumbnail";
+import { ResumeContentThumbnail } from "@/features/templates/resume-content-thumbnail";
 
 /** 简历列表页：新建 / 复制 / 删除，加载骨架屏与卡片缩略图 */
 export function ResumeDashboard({
@@ -168,7 +168,7 @@ export function ResumeDashboard({
               className="animate-pop overflow-hidden"
               style={{ animationDelay: `${index * 60}ms` }}
             >
-              <TemplateThumbnail
+              <ResumeContentThumbnail
                 ariaLabel={`${resume.title}简历内容预览`}
                 page={resumePageMap.get(resume.id)!}
                 resume={resume}

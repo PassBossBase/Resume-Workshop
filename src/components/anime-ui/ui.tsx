@@ -177,7 +177,7 @@ export function Modal({
   return (
     <div
       className={clsx(
-        "fixed inset-0 z-100 grid place-items-center p-4 backdrop-blur-[2px]",
+        "fixed inset-0 z-100 grid place-items-center p-4",
         config.backdrop,
       )}
       onMouseDown={(event) => {

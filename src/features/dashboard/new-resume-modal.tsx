@@ -9,9 +9,15 @@ import type { ResumeDocument } from "@/features/resume-model/resume-model";
 import { createBlankResume } from "@/features/resume-model/resume-model";
 import { builtinTemplateFactories } from "@/features/resume-model/template-presets";
 import { saveResume } from "@/features/storage/resume-repository";
-import { buildResumePages } from "@/features/templates/resume-pages";
 import { listTemplates } from "@/features/templates/template-registry";
 import { TemplateThumbnail } from "@/features/templates/template-thumbnail";
+
+import "@/features/templates/blank-template";
+import "@/features/templates/classic-template";
+import "@/features/templates/header-full-width-template";
+import "@/features/templates/sidebar-left-template";
+import "@/features/templates/timeline-block-template";
+import "@/features/templates/line-separate-template";
 
 /**
  * 新建简历模板选择弹窗。
@@ -38,18 +44,6 @@ export function NewResumeModal({
   const templateEntries = useMemo(
     () => listTemplates().filter((e) => e.id !== "blank"),
     [],
-  );
-
-  const templatePreviews = useMemo(
-    () =>
-      templateEntries.map((entry) => {
-        const factory = builtinTemplateFactories[entry.id];
-        const resume = factory?.() ?? null;
-        if (!resume) return { entry, resume: null, page: null };
-        const page = buildResumePages(resume)[0];
-        return { entry, resume, page };
-      }),
-    [templateEntries],
   );
 
   const handleSelectTemplate = async (templateId: string) => {
@@ -142,7 +136,7 @@ export function NewResumeModal({
           </div>
 
           {/* 模板卡片 */}
-          {templatePreviews.map(({ entry, resume, page }) => (
+          {templateEntries.map((entry) => (
             <div
               key={entry.id}
               className="animate-pop cursor-pointer overflow-hidden bg-(--paper) transition hover:ring-2 hover:ring-(--yellow)"
@@ -156,17 +150,10 @@ export function NewResumeModal({
               role="button"
               tabIndex={0}
             >
-              {resume && page ? (
-                <TemplateThumbnail
-                  ariaLabel={`${entry.name}模板预览`}
-                  page={page}
-                  resume={resume}
-                />
-              ) : (
-                <div className="flex h-64 items-center justify-center border-b-2 border-black bg-(--paper)">
-                  <span className="text-sm text-black/30">暂无预览</span>
-                </div>
-              )}
+              <TemplateThumbnail
+                ariaLabel={`${entry.name}模板预览`}
+                templateId={entry.id}
+              />
               <div className="py-3.5 text-center">
                 <h3 className="text-[15px] font-black">{entry.name}</h3>
               </div>

@@ -45,12 +45,8 @@ import { StylePanel } from "./style-panel";
 import { ResumePreview } from "@/features/templates/resume-preview";
 import { usePanelResize } from "./use-panel-resize";
 import { ResizeHandle, PanelRestoreButton } from "./resize-handle";
-import { buildResumePages } from "@/features/templates/resume-pages";
-import { ClassicTemplatePage } from "@/features/templates/classic-template";
-import {
-  getTemplate,
-  listTemplates,
-} from "@/features/templates/template-registry";
+import { listTemplates } from "@/features/templates/template-registry";
+import { TemplateSkeletonPreview } from "@/features/templates/template-skeleton-preview";
 
 type MobileTab = "content" | "style" | "preview";
 
@@ -523,28 +519,19 @@ function TemplateSwitchModal({
     onClose,
   });
 
-  const templatePreviews = useMemo(
+  const templateEntries = useMemo(() => listTemplates(), []);
+  const availableTemplateEntries = useMemo(
     () =>
-      listTemplates().flatMap((entry) => {
-        const resume = builtinTemplateFactories[entry.id]?.();
-        if (!resume) return [];
-        return [{ entry, page: buildResumePages(resume)[0], resume }];
-      }),
-    [],
-  );
-  const availableTemplatePreviews = useMemo(
-    () =>
-      templatePreviews.filter(({ entry }) => entry.id !== currentTemplateId),
-    [currentTemplateId, templatePreviews],
+      templateEntries.filter((entry) => entry.id !== currentTemplateId),
+    [currentTemplateId, templateEntries],
   );
   const [selectedTemplateId, setSelectedTemplateId] = useState<TemplateId>(
-    availableTemplatePreviews[0]?.entry.id ?? currentTemplateId,
+    availableTemplateEntries[0]?.id ?? currentTemplateId,
   );
 
-  const selectedPreview =
-    availableTemplatePreviews.find(
-      ({ entry }) => entry.id === selectedTemplateId,
-    ) ?? availableTemplatePreviews[0];
+  const selectedEntry =
+    availableTemplateEntries.find((entry) => entry.id === selectedTemplateId) ??
+    availableTemplateEntries[0];
 
   const apply = () => {
     const factory = builtinTemplateFactories[selectedTemplateId];
@@ -590,7 +577,7 @@ function TemplateSwitchModal({
           <section className="rounded-3xl border-2 border-black bg-(--paper) p-4 shadow-[4px_4px_0_#d9d1c3]">
             <h3 className="mb-3 text-lg font-black">选择模板</h3>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
-              {availableTemplatePreviews.map(({ entry }) => {
+              {availableTemplateEntries.map((entry) => {
                 const active = entry.id === selectedTemplateId;
                 return (
                   <button
@@ -607,7 +594,7 @@ function TemplateSwitchModal({
                   </button>
                 );
               })}
-              {availableTemplatePreviews.length === 0 && (
+              {availableTemplateEntries.length === 0 && (
                 <p className="rounded-2xl border-2 border-dashed border-black/20 bg-white px-3 py-4 text-sm font-bold text-black/45">
                   暂无其他模板
                 </p>
@@ -618,10 +605,11 @@ function TemplateSwitchModal({
           <section className="rounded-3xl border-2 border-black bg-(--paper) p-4 shadow-[4px_4px_0_#d9d1c3]">
             <h3 className="mb-3 text-lg font-black">模板预览</h3>
             <div className="grid h-[356px] place-items-center overflow-hidden rounded-2xl border-2 border-black bg-[#e7ebf1] p-3">
-              {selectedPreview?.page && selectedPreview.resume ? (
-                <TemplateSwitchPreview
-                  page={selectedPreview.page}
-                  resume={selectedPreview.resume}
+              {selectedEntry ? (
+                <TemplateSkeletonPreview
+                  ariaLabel={`${selectedEntry.name}模板骨架预览`}
+                  className="h-[324px] w-[229px] shadow-[4px_4px_0_black]"
+                  templateId={selectedEntry.id}
                 />
               ) : (
                 <div className="grid min-h-72 place-items-center text-sm font-bold text-black/45">
@@ -648,31 +636,5 @@ function TemplateSwitchModal({
         </div>
       </footer>
     </Modal>
-  );
-}
-
-function TemplateSwitchPreview({
-  page,
-  resume,
-}: {
-  page: ReturnType<typeof buildResumePages>[number];
-  resume: ResumeDocument;
-}) {
-  const entry = getTemplate(resume.templateId);
-  const Renderer = entry?.component ?? ClassicTemplatePage;
-
-  return (
-    <div className="h-[324px] w-[229px] overflow-hidden shadow-[0_16px_35px_rgb(30_40_60/24%)]">
-      <div
-        style={{
-          height: 1123,
-          transform: "scale(0.288)",
-          transformOrigin: "left top",
-          width: 794,
-        }}
-      >
-        <Renderer page={page} resume={resume} />
-      </div>
-    </div>
   );
 }

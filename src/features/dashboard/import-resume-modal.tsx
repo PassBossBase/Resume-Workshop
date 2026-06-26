@@ -2,9 +2,7 @@
 
 import {
   AlertCircle,
-  Check,
   FileText,
-  LayoutTemplate,
   Upload,
   X,
 } from "lucide-react";
@@ -15,12 +13,8 @@ import { InkButton, Modal } from "@/components/anime-ui/ui";
 import { useOverlay } from "@/hooks/use-overlay";
 import { builtinTemplateFactories } from "@/features/resume-model/template-presets";
 import { saveResume } from "@/features/storage/resume-repository";
-import { buildResumePages } from "@/features/templates/resume-pages";
-import { ClassicTemplatePage } from "@/features/templates/classic-template";
-import {
-  getTemplate,
-  listTemplates,
-} from "@/features/templates/template-registry";
+import { listTemplates } from "@/features/templates/template-registry";
+import { TemplateSkeletonPreview } from "@/features/templates/template-skeleton-preview";
 import {
   IMPORT_PDF_MAX_BYTES,
   buildResumeFromImport,
@@ -33,6 +27,7 @@ import type {
 } from "@/features/resume-model/resume-model";
 
 import "@/features/templates/blank-template";
+import "@/features/templates/classic-template";
 import "@/features/templates/header-full-width-template";
 import "@/features/templates/sidebar-left-template";
 import "@/features/templates/timeline-block-template";
@@ -63,31 +58,23 @@ export function ImportResumeModal({
   const [status, setStatus] = useState<ImportStatus>("idle");
   const [error, setError] = useState("");
 
+  const yieldToBrowser = () =>
+    new Promise<void>((resolve) => window.setTimeout(resolve, 0));
+
   useOverlay(open, {
     disabled: status === "parsing" || status === "saving",
     focusRef: closeButtonRef,
     onClose,
   });
 
-  const templatePreviews = useMemo(
-    () =>
-      listTemplates().map((entry) => {
-        const resume = builtinTemplateFactories[entry.id]?.();
-        return {
-          entry,
-          page: resume ? buildResumePages(resume)[0] : null,
-          resume: resume ?? null,
-        };
-      }),
-    [],
-  );
+  const templateEntries = useMemo(() => listTemplates(), []);
 
-  const selectedTemplatePreview = useMemo(
+  const selectedTemplateEntry = useMemo(
     () =>
-      templatePreviews.find(({ entry }) => entry.id === selectedTemplateId) ??
-      templatePreviews[0] ??
+      templateEntries.find((entry) => entry.id === selectedTemplateId) ??
+      templateEntries[0] ??
       null,
-    [selectedTemplateId, templatePreviews],
+    [selectedTemplateId, templateEntries],
   );
 
   const reset = () => {
@@ -120,6 +107,7 @@ export function ImportResumeModal({
 
     setStatus("parsing");
     try {
+      await yieldToBrowser();
       const parsed = await extractImportedResumeFromPdf(file);
       setDraft(parsed);
       setStatus("ready");
@@ -293,7 +281,7 @@ export function ImportResumeModal({
               </div>
 
               <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                {templatePreviews.map(({ entry }) => {
+                {templateEntries.map((entry) => {
                   const selected = entry.id === selectedTemplateId;
                   return (
                     <button
@@ -318,36 +306,13 @@ export function ImportResumeModal({
               </div>
             </div>
             <div className="bg-[#cfe7f4] p-4 sm:p-5">
-              <div className="scrollbar-thin max-h-[430px] min-h-[420px] overflow-auto rounded-2xl border-2 border-black bg-[#eef6fb] p-3 sm:p-5">
-                {selectedTemplatePreview?.resume &&
-                selectedTemplatePreview.page ? (
-                  <div
-                    className="mx-auto shadow-[0_20px_60px_rgb(30_40_60/28%)]"
-                    style={{ height: 718, width: 508 }}
-                  >
-                    <div
-                      style={{
-                        height: 1123,
-                        transform: "scale(0.64)",
-                        transformOrigin: "left top",
-                        width: 794,
-                      }}
-                    >
-                      {(() => {
-                        const entry = getTemplate(
-                          selectedTemplatePreview.resume.templateId,
-                        );
-                        const Renderer =
-                          entry?.component ?? ClassicTemplatePage;
-                        return (
-                          <Renderer
-                            page={selectedTemplatePreview.page}
-                            resume={selectedTemplatePreview.resume}
-                          />
-                        );
-                      })()}
-                    </div>
-                  </div>
+              <div className="grid min-h-[420px] place-items-center rounded-2xl border-2 border-black bg-[#eef6fb] p-3 sm:p-5">
+                {selectedTemplateEntry ? (
+                  <TemplateSkeletonPreview
+                    ariaLabel={`${selectedTemplateEntry.name}模板骨架预览`}
+                    className="h-[380px] w-[269px] max-h-full shadow-[4px_4px_0_black]"
+                    templateId={selectedTemplateEntry.id}
+                  />
                 ) : (
                   <div className="grid min-h-80 place-items-center rounded-xl border-2 border-dashed border-black/25 bg-white text-sm font-bold text-black/40">
                     暂无预览
