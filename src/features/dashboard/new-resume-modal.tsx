@@ -21,7 +21,7 @@ import "@/features/templates/line-separate-template";
 
 /**
  * 新建简历模板选择弹窗。
- * 首位展示空白简历（虚线占位），随后展示全部内置模板缩略图。
+ * 首位展示基础简历（虚线占位），随后展示全部内置模板缩略图。
  * 点击即创建并跳转编辑器。
  */
 export function NewResumeModal({
@@ -105,7 +105,7 @@ export function NewResumeModal({
       {/* ======== Body: 卡片网格 ======== */}
       <div className="scrollbar-thin min-h-0 flex-1 overflow-auto bg-(--canvas) p-4 sm:p-6 lg:p-8">
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {/* 空白简历（首位，虚线占位） */}
+          {/* 基础简历（首位，虚线占位） */}
           <div
             className="animate-pop cursor-pointer overflow-hidden bg-(--paper) transition hover:ring-2 hover:ring-(--yellow)"
             onClick={handleCreateBlank}
@@ -131,7 +131,7 @@ export function NewResumeModal({
               </span>
             </div>
             <div className="py-3.5 text-center">
-              <h3 className="text-[15px] font-black">空白简历</h3>
+              <h3 className="text-[15px] font-black">基础简历</h3>
             </div>
           </div>
 

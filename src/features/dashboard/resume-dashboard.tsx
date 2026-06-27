@@ -29,6 +29,7 @@ import {
 } from "@/features/storage/resume-repository";
 import { buildResumePages } from "@/features/templates/resume-pages";
 import { ResumeContentThumbnail } from "@/features/templates/resume-content-thumbnail";
+import { useToastStore } from "@/stores/toast-store";
 
 /** 简历列表页：新建 / 复制 / 删除，加载骨架屏与卡片缩略图 */
 export function ResumeDashboard({
@@ -58,6 +59,8 @@ export function ResumeDashboard({
       .finally(() => setIsLoading(false));
   }, []);
 
+  const addToast = useToastStore((s) => s.addToast);
+
   const duplicate = async (resume: ResumeDocument) => {
     const copy = {
       ...resume,
@@ -68,6 +71,7 @@ export function ResumeDashboard({
     };
     await saveResume(copy);
     setResumes(await listResumes());
+    addToast(`「${resume.title}」复制成功`);
   };
 
   const confirmRemove = async () => {
@@ -78,7 +82,10 @@ export function ResumeDashboard({
       setResumes((current) =>
         current.filter((resume) => resume.id !== pendingDelete.id),
       );
+      addToast(`「${pendingDelete.title}」已删除`, "info");
       setPendingDelete(undefined);
+    } catch {
+      addToast("删除失败，请重试", "error");
     } finally {
       setIsDeleting(false);
     }
@@ -90,8 +97,8 @@ export function ResumeDashboard({
   );
 
   return (
-    <PageContainer>
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
+    <PageContainer className="flex h-full flex-col overflow-hidden">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-5 shrink-0">
         <div>
           <PageHeading
             badge="LOCAL RESUME STUDIO"
@@ -112,10 +119,11 @@ export function ResumeDashboard({
         </div>
       </div>
 
-      {isLoading ? (
+      <div className="flex-1 overflow-y-auto">
+        {isLoading ? (
         <div
           aria-label="正在读取简历"
-          className="grid gap-7 sm:grid-cols-2 xl:grid-cols-3"
+          className="grid gap-7  sm:grid-cols-2 xl:grid-cols-3"
           role="status"
         >
           {[0, 1, 2].map((item) => (
@@ -221,6 +229,7 @@ export function ResumeDashboard({
           ))}
         </div>
       )}
+      </div>
 
       <Modal
         ariaLabelledby="delete-resume-title"

@@ -164,7 +164,9 @@ const basicsSchema = z.object({
   infoItems: z.array(infoItemSchema).default([]),
   hiddenFields: z.array(optionalBasicFieldSchema).default([]),
   removedFields: z.array(optionalBasicFieldSchema).default([]),
-  fieldOrder: z.array(optionalBasicFieldSchema).default(DEFAULT_OPTIONAL_BASIC_FIELD_ORDER),
+  fieldOrder: z
+    .array(optionalBasicFieldSchema)
+    .default(DEFAULT_OPTIONAL_BASIC_FIELD_ORDER),
 });
 
 export type BasicsData = z.infer<typeof basicsSchema>;
@@ -194,16 +196,19 @@ export function getBasicDisplayItems(
   const removedFields = new Set(basics.removedFields);
   const optionalFieldOrder = normalizeOptionalFieldOrder(basics.fieldOrder);
 
-  const fixedItems = coreBasicDisplayFields.slice(0, 2).flatMap(([key, label]) => {
-    // 姓名作为大标题单独展示，此处不再重复渲染
-    if (key === "name") return [];
-    const value = basics[key].trim();
-    return value ? [{ key, label, value, core: true }] : [];
-  });
+  const fixedItems = coreBasicDisplayFields
+    .slice(0, 2)
+    .flatMap(([key, label]) => {
+      // 姓名作为大标题单独展示，此处不再重复渲染
+      if (key === "name") return [];
+      const value = basics[key].trim();
+      return value ? [{ key, label, value, core: true }] : [];
+    });
 
   const optionalItems = optionalFieldOrder.flatMap((key) => {
     if (hiddenFields.has(key) || removedFields.has(key)) return [];
-    const label = coreBasicDisplayFields.find(([field]) => field === key)?.[1] ?? key;
+    const label =
+      coreBasicDisplayFields.find(([field]) => field === key)?.[1] ?? key;
     const value = basics[key].trim();
     return value ? [{ key, label, value, core: true }] : [];
   });
@@ -242,9 +247,7 @@ function normalizeBasicsData(basics: BasicsData): BasicsData {
   };
 }
 
-function isOptionalBasicField(
-  field: string,
-): field is OptionalBasicFieldKey {
+function isOptionalBasicField(field: string): field is OptionalBasicFieldKey {
   return optionalBasicFieldSchema.safeParse(field).success;
 }
 
@@ -352,25 +355,27 @@ const resumeDocumentV1Schema = z.object({
   updatedAt: z.string(),
   templateId: z.literal("classic"),
   styles: stylesSchema,
-  modules: z.array(
-    z.object({
-      id: z.string(),
-      type: z.enum(["basics", "skills", "work", "projects", "education"]),
-      title: z.string(),
-      visible: z.boolean(),
-      basics: basicsSchema.optional(),
-      items: z.array(
-        z.object({
-          id: z.string(),
-          title: z.string(),
-          subtitle: z.string(),
-          startDate: z.string(),
-          endDate: z.string(),
-          description: z.string(),
-        }),
-      ),
-    }),
-  ).length(5),
+  modules: z
+    .array(
+      z.object({
+        id: z.string(),
+        type: z.enum(["basics", "skills", "work", "projects", "education"]),
+        title: z.string(),
+        visible: z.boolean(),
+        basics: basicsSchema.optional(),
+        items: z.array(
+          z.object({
+            id: z.string(),
+            title: z.string(),
+            subtitle: z.string(),
+            startDate: z.string(),
+            endDate: z.string(),
+            description: z.string(),
+          }),
+        ),
+      }),
+    )
+    .length(5),
 });
 
 /** v2 文档 Schema，仅用于迁移旧数据。 */
@@ -390,7 +395,13 @@ const resumeDocumentV2Schema = z.object({
         path: [0, "type"],
       });
     }
-    const fixedTypes = ["basics", "skills", "work", "projects", "education"] as const;
+    const fixedTypes = [
+      "basics",
+      "skills",
+      "work",
+      "projects",
+      "education",
+    ] as const;
     for (const ft of fixedTypes) {
       const count = modules.filter((m) => m.type === ft).length;
       if (count !== 1) {
@@ -405,47 +416,55 @@ const resumeDocumentV2Schema = z.object({
 });
 
 /** v3 文档 Schema —— 当前版本。 */
-export const resumeDocumentSchema = z.object({
-  version: z.literal(3),
-  id: z.string(),
-  title: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  templateId: templateIdSchema,
-  layoutConfig: layoutConfigSchema,
-  styles: stylesSchema,
-  modules: z.array(resumeModuleSchema).superRefine((modules, ctx) => {
-    // basics 必须位于首位
-    if (modules.length === 0 || modules[0]?.type !== "basics") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "基本信息模块必须存在且位于首位",
-        path: [0, "type"],
-      });
-    }
-    // 每个固定模块类型必须恰好出现一次
-    const fixedTypes = ["basics", "skills", "work", "projects", "education"] as const;
-    for (const ft of fixedTypes) {
-      const count = modules.filter((m) => m.type === ft).length;
-      if (count !== 1) {
+export const resumeDocumentSchema = z
+  .object({
+    version: z.literal(3),
+    id: z.string(),
+    title: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    templateId: templateIdSchema,
+    layoutConfig: layoutConfigSchema,
+    styles: stylesSchema,
+    modules: z.array(resumeModuleSchema).superRefine((modules, ctx) => {
+      // basics 必须位于首位
+      if (modules.length === 0 || modules[0]?.type !== "basics") {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `固定模块 "${ft}" 必须恰好出现一次，当前出现 ${count} 次`,
-          path: [],
+          message: "基本信息模块必须存在且位于首位",
+          path: [0, "type"],
         });
       }
+      // 每个固定模块类型必须恰好出现一次
+      const fixedTypes = [
+        "basics",
+        "skills",
+        "work",
+        "projects",
+        "education",
+      ] as const;
+      for (const ft of fixedTypes) {
+        const count = modules.filter((m) => m.type === ft).length;
+        if (count !== 1) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `固定模块 "${ft}" 必须恰好出现一次，当前出现 ${count} 次`,
+            path: [],
+          });
+        }
+      }
+    }),
+  })
+  .superRefine((doc, ctx) => {
+    // templateId 与 layoutConfig.type 必须一致
+    if (doc.templateId !== doc.layoutConfig.type) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `templateId "${doc.templateId}" 与 layoutConfig.type "${doc.layoutConfig.type}" 不一致`,
+        path: ["layoutConfig", "type"],
+      });
     }
-  }),
-}).superRefine((doc, ctx) => {
-  // templateId 与 layoutConfig.type 必须一致
-  if (doc.templateId !== doc.layoutConfig.type) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: `templateId "${doc.templateId}" 与 layoutConfig.type "${doc.layoutConfig.type}" 不一致`,
-      path: ["layoutConfig", "type"],
-    });
-  }
-});
+  });
 
 export type ResumeDocument = z.infer<typeof resumeDocumentSchema>;
 
@@ -682,10 +701,10 @@ export function createDefaultResume(
   };
 }
 
-/** 创建一份完全空白的 v3 简历（经典单栏布局，无示例数据）。 */
+/** 创建一份空白 v3 简历，包含少量占位文本以确保预览区域不为空。 */
 export function createBlankResume(
   id: string,
-  title = "空白简历",
+  title = "基础简历",
 ): ResumeDocument {
   const now = new Date().toISOString();
 
@@ -717,13 +736,13 @@ export function createBlankResume(
         title: "基本信息",
         visible: true,
         basics: {
-          name: "",
-          role: "",
-          status: "",
+          name: "姓名",
+          role: "求职意向",
+          status: "求职中",
           birthday: "",
-          email: "",
-          phone: "",
-          location: "",
+          email: "email@example.com",
+          phone: "138 0000 0000",
+          location: "所在城市",
           website: "",
           avatar: "",
           infoItems: [],
@@ -738,28 +757,64 @@ export function createBlankResume(
         type: "skills",
         title: "专业技能",
         visible: true,
-        items: [],
+        items: [
+          entry(
+            "skill-1",
+            "专业技能",
+            "",
+            "",
+            "",
+            "在此填写你的核心技能、擅长的工具或领域",
+          ),
+        ],
       },
       {
         id: "work",
         type: "work",
         title: "工作经历",
         visible: true,
-        items: [],
+        items: [
+          entry(
+            "work-1",
+            "公司名称",
+            "职位",
+            "2023/01",
+            "至今",
+            "在此描述你的工作职责、成果和贡献",
+          ),
+        ],
       },
       {
         id: "projects",
         type: "projects",
         title: "项目经历",
         visible: true,
-        items: [],
+        items: [
+          entry(
+            "project-1",
+            "项目名称",
+            "担任角色",
+            "2023/01",
+            "2023/12",
+            "在此描述项目内容、你的角色和取得的成果",
+          ),
+        ],
       },
       {
         id: "education",
         type: "education",
         title: "教育经历",
         visible: true,
-        items: [],
+        items: [
+          entry(
+            "education-1",
+            "学校名称",
+            "专业 · 学历",
+            "2019/09",
+            "2023/06",
+            "在此填写学校、专业、学位等信息",
+          ),
+        ],
       },
     ],
   };
@@ -770,10 +825,7 @@ export function createBlankResume(
 // ──────────────────────────────────────
 
 /** 查找模块在 modules 数组中的索引。 */
-function findModuleIndex(
-  resume: ResumeDocument,
-  moduleId: string,
-): number {
+function findModuleIndex(resume: ResumeDocument, moduleId: string): number {
   return resume.modules.findIndex((m) => m.id === moduleId);
 }
 
@@ -823,7 +875,7 @@ export function toggleModule(
   return touch({
     ...resume,
     modules: resume.modules.map((m) =>
-      m.id === moduleId ? { ...m, visible: !m.visible } as ResumeModule : m,
+      m.id === moduleId ? ({ ...m, visible: !m.visible } as ResumeModule) : m,
     ),
   });
 }
@@ -834,9 +886,7 @@ export function addCustomModule(
   id?: string,
   title?: string,
 ): ResumeDocument {
-  const customCount = resume.modules.filter(
-    (m) => m.type === "custom",
-  ).length;
+  const customCount = resume.modules.filter((m) => m.type === "custom").length;
   const newModule: CustomResumeModule = {
     id: id ?? crypto.randomUUID(),
     type: "custom",
@@ -893,7 +943,7 @@ export function updateModuleMeta(
   return touch({
     ...resume,
     modules: resume.modules.map((m) =>
-      m.id === moduleId ? { ...m, ...patch } as ResumeModule : m,
+      m.id === moduleId ? ({ ...m, ...patch } as ResumeModule) : m,
     ),
   });
 }
@@ -924,35 +974,37 @@ export function applyTemplateLayout(
     templateResume.modules.map((module) => [module.type, module]),
   );
 
-  return resumeDocumentSchema.parse(touch({
-    ...resume,
-    templateId: templateResume.templateId,
-    layoutConfig: templateResume.layoutConfig,
-    styles: templateResume.styles,
-    modules: resume.modules.map((module) => {
-      if (module.type === "custom") return module;
-      const templateModule = templateModulesByType.get(module.type);
-      if (!templateModule) return module;
+  return resumeDocumentSchema.parse(
+    touch({
+      ...resume,
+      templateId: templateResume.templateId,
+      layoutConfig: templateResume.layoutConfig,
+      styles: templateResume.styles,
+      modules: resume.modules.map((module) => {
+        if (module.type === "custom") return module;
+        const templateModule = templateModulesByType.get(module.type);
+        if (!templateModule) return module;
 
-      if (module.type === "basics" && templateModule.type === "basics") {
+        if (module.type === "basics" && templateModule.type === "basics") {
+          return {
+            ...module,
+            sectionIcon: templateModule.sectionIcon,
+            basics: module.basics
+              ? {
+                  ...module.basics,
+                  avatarPosition: templateModule.basics?.avatarPosition,
+                }
+              : module.basics,
+          };
+        }
+
         return {
           ...module,
           sectionIcon: templateModule.sectionIcon,
-          basics: module.basics
-            ? {
-                ...module.basics,
-                avatarPosition: templateModule.basics?.avatarPosition,
-              }
-            : module.basics,
         };
-      }
-
-      return {
-        ...module,
-        sectionIcon: templateModule.sectionIcon,
-      };
-    }) as ResumeDocument["modules"],
-  }));
+      }) as ResumeDocument["modules"],
+    }),
+  );
 }
 
 // ──────────────────────────────────────

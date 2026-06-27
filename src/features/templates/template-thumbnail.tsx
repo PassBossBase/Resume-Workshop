@@ -17,11 +17,11 @@ export function TemplateThumbnail({
   return (
     <div
       aria-label={ariaLabel}
-      className="grid h-64 place-items-center overflow-hidden border-b-2 border-black bg-[#e7ebf1] p-4"
+      className="grid h-84 place-items-center overflow-hidden bg-[#e7ebf1] p-2"
     >
       <TemplateSkeletonPreview
         ariaLabel={ariaLabel}
-        className="h-full w-[158px] shadow-[4px_4px_0_black]"
+        className="h-full w-56"
         templateId={templateId}
       />
     </div>
