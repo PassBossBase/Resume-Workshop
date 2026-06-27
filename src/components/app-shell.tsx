@@ -5,10 +5,8 @@ import {
   // FileJson,
   FileText,
   LayoutTemplate,
-  Menu,
   PanelLeftClose,
   PanelLeftOpen,
-  X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -50,30 +48,13 @@ function MobileNavigation({ pathname }: { pathname: string }) {
 
   return (
     <div className="relative z-50">
-      <button
-        type="button"
-        aria-label={open ? "关闭更多菜单" : "打开更多菜单"}
-        aria-expanded={open}
-        aria-controls="mobile-navigation"
-        className="relative z-20 grid h-12 w-12 place-items-center rounded-2xl border-2 border-black bg-white transition hover:-translate-y-0.5 hover:shadow-[3px_3px_0_black] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--blue)"
-        onClick={() => setOpen((current) => !current)}
-      >
-        {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
-      </button>
-
       {open ? (
         <>
-          <button
-            type="button"
-            aria-label="关闭导航菜单"
-            className="fixed inset-0 z-10 cursor-default bg-black/15"
-            onClick={() => setOpen(false)}
-          />
           <nav
             id="mobile-navigation"
             role="menu"
             aria-label="主导航"
-            className="absolute right-0 top-[calc(100%+14px)] z-20 w-64 rotate-[0.5deg] rounded-3xl border-2 border-black bg-(--paper) p-3 shadow-[6px_6px_0_black]"
+            className="absolute right-0 top-[calc(100%+14px)] z-20 w-64 rotate-[0.5deg] rounded-3xl border-2 border-black bg-(--paper) p-3"
           >
             {links.map(({ href, label, icon: Icon }, index) => {
               const active = pathname === href;
@@ -179,7 +160,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     sidebarCollapsed ? "justify-center px-2" : "gap-3 px-4"
                   } ${
                     active
-                      ? "border-black bg-white shadow-[4px_4px_0_black]"
+                      ? "border-black bg-white"
                       : "border-transparent hover:border-black hover:bg-white"
                   }`}
                 >

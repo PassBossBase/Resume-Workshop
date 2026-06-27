@@ -26,6 +26,7 @@ import {
   listResumes,
   saveResume,
 } from "@/features/storage/resume-repository";
+import { syncResumeToDirectoryIfBound, deleteResumeFromDirectoryIfBound } from "@/features/storage/directory-sync";
 import { buildContinuousResumePage } from "@/features/templates/resume-pages";
 import { ResumeContentThumbnail } from "@/features/templates/resume-content-thumbnail";
 import { useToastStore } from "@/stores/toast-store";
@@ -69,6 +70,7 @@ export function ResumeDashboard({
       updatedAt: new Date().toISOString(),
     };
     await saveResume(copy);
+    syncResumeToDirectoryIfBound(copy);
     setResumes(await listResumes());
     addToast(`「${resume.title}」复制成功`);
   };
@@ -78,6 +80,7 @@ export function ResumeDashboard({
     setIsDeleting(true);
     try {
       await deleteResume(pendingDelete.id);
+      deleteResumeFromDirectoryIfBound(pendingDelete.id, pendingDelete.title);
       setResumes((current) =>
         current.filter((resume) => resume.id !== pendingDelete.id),
       );

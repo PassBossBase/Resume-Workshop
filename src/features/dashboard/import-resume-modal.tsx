@@ -13,6 +13,7 @@ import { InkButton, Modal } from "@/components/anime-ui/ui";
 import { useOverlay } from "@/hooks/use-overlay";
 import { builtinTemplateFactories } from "@/features/resume-model/template-presets";
 import { saveResume } from "@/features/storage/resume-repository";
+import { syncResumeToDirectoryIfBound } from "@/features/storage/directory-sync";
 import { listTemplates } from "@/features/templates/template-registry";
 import { TemplateSkeletonPreview } from "@/features/templates/template-skeleton-preview";
 import {
@@ -171,6 +172,7 @@ export function ImportResumeModal({
         onClose();
       } else {
         await saveResume(resume);
+        syncResumeToDirectoryIfBound(resume);
         router.push(`/resume/${resume.id}`);
       }
     } catch (err) {

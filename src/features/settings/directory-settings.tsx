@@ -78,9 +78,10 @@ export function DirectorySettings() {
     setMessage("正在迁移浏览器缓存...");
     const resumes = await listResumes();
     for (const resume of resumes) {
-      const file = await directory.getFileHandle(resumeFileName(resume.id), {
-        create: true,
-      });
+      const file = await directory.getFileHandle(
+        resumeFileName(resume.id, resume.title),
+        { create: true },
+      );
       await writeResumeFile(file, resume);
     }
     const manifest = await directory.getFileHandle("resume-workshop.json", {

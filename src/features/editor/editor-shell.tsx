@@ -31,6 +31,7 @@ import {
   DirectoryConflictError,
   readResumeFile,
   resumeFileName,
+  syncResumeToDirectoryIfBound,
   writeResumeFile,
 } from "@/features/storage/directory-sync";
 import {
@@ -47,6 +48,7 @@ import { usePanelResize } from "./use-panel-resize";
 import { ResizeHandle, PanelRestoreButton } from "./resize-handle";
 import { listTemplates } from "@/features/templates/template-registry";
 import { TemplateSkeletonPreview } from "@/features/templates/template-skeleton-preview";
+import { useToastStore } from "@/stores/toast-store";
 
 type MobileTab = "content" | "style" | "preview";
 
@@ -68,10 +70,12 @@ export function EditorShell({ id }: { id: string }) {
   const [mobileTab, setMobileTab] = useState<MobileTab>("content");
   const [importResumeOpen, setImportResumeOpen] = useState(false);
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
+  const addToast = useToastStore((s) => s.addToast);
   const [ready, setReady] = useState(false);
   const pageRefs = useRef<Array<HTMLDivElement | null>>([]);
   const directoryRef = useRef<FileSystemDirectoryHandle | undefined>(undefined);
   const fileStampRef = useRef<number | undefined>(undefined);
+  const fileNameRef = useRef<string | undefined>(undefined);
   const initialLoadRef = useRef(true);
   const router = useRouter();
   const resize = usePanelResize();
@@ -86,20 +90,31 @@ export function EditorShell({ id }: { id: string }) {
         : await loadSetting<FileSystemDirectoryHandle>("directory-handle");
       directoryRef.current = directory;
 
+      let directoryFile: Awaited<ReturnType<typeof readResumeFile>> | null = null;
       if (directory) {
         try {
           const permission = await directory.queryPermission({
             mode: "readwrite",
           });
           if (permission === "granted") {
-            const handle = await directory.getFileHandle(resumeFileName(id));
-            const fromFile = await readResumeFile(handle);
-            if (!cancelled) {
-              fileStampRef.current = fromFile.lastModified;
-              await saveResume(fromFile.resume);
-              load(fromFile.resume);
-              setReady(true);
-              return;
+            // 先尝试旧格式 resume-{id}.json，再尝试含标题的新格式
+            let handle: FileSystemFileHandle | undefined;
+            try {
+              handle = await directory.getFileHandle(resumeFileName(id));
+            } catch {
+              const cached = await loadResume(id);
+              if (cached) {
+                try {
+                  handle = await directory.getFileHandle(
+                    resumeFileName(id, cached.title),
+                  );
+                } catch {
+                  // 新旧格式都不存在
+                }
+              }
+            }
+            if (handle) {
+              directoryFile = await readResumeFile(handle);
             }
           }
         } catch {
@@ -107,9 +122,23 @@ export function EditorShell({ id }: { id: string }) {
         }
       }
 
+      // 合并目录文件数据，目录优先
       const cached = await loadResume(id);
-      const value = cached ?? createDefaultResume(id, "我的新简历");
-      if (!cached) await saveResume(value);
+      let value: ResumeDocument;
+      if (directoryFile) {
+        value = directoryFile.resume;
+        fileStampRef.current = directoryFile.lastModified;
+        await saveResume(value);
+        fileNameRef.current = resumeFileName(id, value.title);
+      } else {
+        value = cached ?? createDefaultResume(id, "我的新简历");
+        if (!cached) await saveResume(value);
+        // 目录中无文件 → 立即写入
+        if (directoryRef.current) {
+          syncResumeToDirectoryIfBound(value);
+          fileNameRef.current = resumeFileName(id, value.title);
+        }
+      }
       if (!cancelled) {
         load(value);
         setReady(true);
@@ -138,12 +167,26 @@ export function EditorShell({ id }: { id: string }) {
             mode: "readwrite",
           });
           if (permission === "granted") {
-            const handle = await directory.getFileHandle(
-              resumeFileName(resume.id),
-              {
-                create: true,
-              },
-            );
+            const newFileName = resumeFileName(resume.id, resume.title);
+
+            // 标题变更导致文件名变化 → 确认旧文件存在后删除
+            if (
+              fileNameRef.current &&
+              fileNameRef.current !== newFileName
+            ) {
+              try {
+                await directory.getFileHandle(fileNameRef.current);
+                await directory.removeEntry(fileNameRef.current);
+                fileStampRef.current = undefined; // 新文件，重置冲突检测基准
+              } catch {
+                addToast("旧版简历文件无法自动删除，请手动清理", "info");
+              }
+            }
+
+            fileNameRef.current = newFileName;
+            const handle = await directory.getFileHandle(newFileName, {
+              create: true,
+            });
             fileStampRef.current = await writeResumeFile(
               handle,
               resume,
@@ -181,6 +224,7 @@ export function EditorShell({ id }: { id: string }) {
     };
     load(replacement);
     await saveResume(replacement);
+    syncResumeToDirectoryIfBound(replacement);
     setSaveState("saved");
   };
 

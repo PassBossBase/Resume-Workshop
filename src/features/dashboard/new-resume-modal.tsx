@@ -9,6 +9,7 @@ import type { ResumeDocument } from "@/features/resume-model/resume-model";
 import { createBlankResume } from "@/features/resume-model/resume-model";
 import { builtinTemplateFactories } from "@/features/resume-model/template-presets";
 import { saveResume } from "@/features/storage/resume-repository";
+import { syncResumeToDirectoryIfBound } from "@/features/storage/directory-sync";
 import { listTemplates } from "@/features/templates/template-registry";
 import { TemplateThumbnail } from "@/features/templates/template-thumbnail";
 
@@ -63,12 +64,14 @@ export function NewResumeModal({
       updatedAt: now,
     };
     await saveResume(newResume);
+    syncResumeToDirectoryIfBound(newResume);
     router.push(`/resume/${id}`);
   };
 
   const handleCreateBlank = async () => {
     const resume = createBlankResume(crypto.randomUUID(), defaultTitle);
     await saveResume(resume);
+    syncResumeToDirectoryIfBound(resume);
     router.push(`/resume/${resume.id}`);
   };
 
