@@ -4,7 +4,6 @@ import {
   AlertTriangle,
   Copy,
   FilePlus2,
-  Pencil,
   Trash2,
   Upload,
   X,
@@ -27,11 +26,11 @@ import {
   listResumes,
   saveResume,
 } from "@/features/storage/resume-repository";
-import { buildResumePages } from "@/features/templates/resume-pages";
+import { buildContinuousResumePage } from "@/features/templates/resume-pages";
 import { ResumeContentThumbnail } from "@/features/templates/resume-content-thumbnail";
 import { useToastStore } from "@/stores/toast-store";
 
-/** 简历列表页：新建 / 复制 / 删除，加载骨架屏与卡片缩略图 */
+/** 简历列表页：新建 / 复制 / 删除，加载骨架屏与卡片入口 */
 export function ResumeDashboard({
   initialResumes,
 }: {
@@ -92,7 +91,7 @@ export function ResumeDashboard({
   };
 
   const resumePageMap = useMemo(
-    () => new Map(resumes.map((r) => [r.id, buildResumePages(r)[0]])),
+    () => new Map(resumes.map((r) => [r.id, buildContinuousResumePage(r)])),
     [resumes],
   );
 
@@ -121,114 +120,127 @@ export function ResumeDashboard({
 
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
-        <div
-          aria-label="正在读取简历"
-          className="grid gap-7  sm:grid-cols-2 xl:grid-cols-3"
-          role="status"
-        >
-          {[0, 1, 2].map((item) => (
-            <StickerCard
-              aria-hidden="true"
-              className="overflow-hidden"
-              key={item}
-            >
-              <div className="h-64 animate-pulse border-b-2 border-black bg-black/5 p-6">
-                <div className="mx-auto h-full max-w-[180px] rounded bg-white/70 shadow-sm" />
-              </div>
-              <div className="space-y-3 p-5">
-                <div className="h-6 w-2/3 animate-pulse rounded bg-black/10" />
-                <div className="h-4 w-1/2 animate-pulse rounded bg-black/10" />
-                <div className="grid grid-cols-3 gap-2 pt-2">
-                  {[0, 1, 2].map((button) => (
-                    <div
-                      className="h-11 animate-pulse rounded-2xl bg-black/10"
-                      key={button}
-                    />
-                  ))}
-                </div>
-              </div>
-            </StickerCard>
-          ))}
-          <span className="sr-only">正在读取简历</span>
-        </div>
-      ) : resumes.length === 0 ? (
-        <StickerCard className="relative overflow-hidden p-10 text-center md:p-16">
-          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full border-2 border-black bg-[var(--blue)] opacity-90" />
-          <div className="absolute -bottom-8 -left-8 h-28 w-28 rotate-12 border-2 border-black bg-[var(--yellow)]" />
-          <FilePlus2 className="mx-auto mb-5" size={54} />
-          <h2 className="text-3xl font-black">从第一份简历开始</h2>
-          <p className="mx-auto mt-3 max-w-md leading-7 text-black/60">
-            内容自动保存在浏览器。桌面 Chrome 还可以连接本地文件夹。
-          </p>
-          <InkButton
-            className="mt-7"
-            onClick={() => setNewResumeOpen(true)}
-            variant="yellow"
+          <div
+            aria-label="正在读取简历"
+            className="grid gap-7 sm:grid-cols-2 xl:grid-cols-4"
+            role="status"
           >
-            创建第一份简历
-          </InkButton>
-        </StickerCard>
-      ) : (
-        <div className="grid gap-7 sm:grid-cols-2 xl:grid-cols-3">
-          {resumes.map((resume, index) => (
-            <StickerCard
-              key={resume.id}
-              className="animate-pop overflow-hidden"
-              style={{ animationDelay: `${index * 60}ms` }}
+            {[0, 1, 2].map((item) => (
+              <StickerCard
+                aria-hidden="true"
+                className="relative h-84 overflow-hidden border-0 bg-[#242528] shadow-none hover:shadow-none"
+                key={item}
+              >
+                <div className="h-full animate-pulse bg-white/90" />
+                <div className="absolute top-3 right-3 z-10 flex gap-2">
+                  <div className="h-10 w-10 animate-pulse rounded-full bg-white/80" />
+                  <div className="h-10 w-10 animate-pulse rounded-full bg-white/80" />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 space-y-3 p-6">
+                  <div className="h-7 w-2/3 animate-pulse rounded bg-white/75" />
+                  <div className="h-4 w-1/2 animate-pulse rounded bg-white/45" />
+                </div>
+              </StickerCard>
+            ))}
+            <span className="sr-only">正在读取简历</span>
+          </div>
+        ) : resumes.length === 0 ? (
+          <StickerCard className="relative overflow-hidden p-10 text-center md:p-16">
+            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full border-2 border-black bg-[var(--blue)] opacity-90" />
+            <div className="absolute -bottom-8 -left-8 h-28 w-28 rotate-12 border-2 border-black bg-[var(--yellow)]" />
+            <FilePlus2 className="mx-auto mb-5" size={54} />
+            <h2 className="text-3xl font-black">从第一份简历开始</h2>
+            <p className="mx-auto mt-3 max-w-md leading-7 text-black/60">
+              内容自动保存在浏览器。桌面 Chrome 还可以连接本地文件夹。
+            </p>
+            <InkButton
+              className="mt-7"
+              onClick={() => setNewResumeOpen(true)}
+              variant="yellow"
             >
-              <ResumeContentThumbnail
-                ariaLabel={`${resume.title}简历内容预览`}
-                page={resumePageMap.get(resume.id)!}
-                resume={resume}
-              />
-              <div className="p-5">
-                <h2 className="truncate text-xl font-black">{resume.title}</h2>
-                <p className="mt-1 text-sm text-black/50">
-                  更新于 {new Date(resume.updatedAt).toLocaleString("zh-CN")}
-                </p>
-                <div className="mt-5 grid grid-cols-3 gap-2">
-                  <InkButton
-                    aria-label={`编辑 ${resume.title}`}
-                    className="px-2 max-lg:gap-0"
-                    onClick={() => router.push(`/resume/${resume.id}`)}
-                    title="编辑"
-                    variant="yellow"
-                  >
-                    <Pencil size={16} />
-                    <span className="max-lg:sr-only" data-action-label>
-                      编辑
-                    </span>
-                  </InkButton>
-                  <InkButton
+              创建第一份简历
+            </InkButton>
+          </StickerCard>
+        ) : (
+          <div className="grid gap-7 sm:grid-cols-2 xl:grid-cols-4">
+            {resumes.map((resume, index) => (
+              <StickerCard
+                key={resume.id}
+                className="group/card relative h-84 animate-pop cursor-pointer overflow-hidden border-0 bg-[#242528] text-white shadow-none hover:shadow-none focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[var(--blue)]"
+                style={{ animationDelay: `${index * 60}ms` }}
+                role="button"
+                tabIndex={0}
+                aria-label={`编辑 ${resume.title}`}
+                onClick={() => router.push(`/resume/${resume.id}`)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    router.push(`/resume/${resume.id}`);
+                  }
+                }}
+              >
+                <ResumeContentThumbnail
+                  ariaLabel={`${resume.title}简历内容预览`}
+                  className="pointer-events-none"
+                  fitToWidth
+                  page={resumePageMap.get(resume.id)!}
+                  resume={resume}
+                />
+
+                <div className="pointer-events-none absolute bottom-0 left-0 right-0 translate-y-10 bg-[rgba(59,59,203,0.92)] px-5 py-3 opacity-0 transition-all duration-500 ease-out group-hover/card:translate-y-0 group-hover/card:opacity-100 group-focus-visible/card:translate-y-0 group-focus-visible/card:opacity-100">
+                  <h2 className="truncate text-[16px] font-black text-white">
+                    {resume.title}
+                  </h2>
+                  <p className="mt-1 truncate text-xs font-medium text-white/90">
+                    更新于 {new Date(resume.updatedAt).toLocaleString("zh-CN")}
+                  </p>
+                </div>
+
+                {/* 右上角操作按钮 */}
+                <div
+                  className="absolute flex top-3 right-3 z-10 gap-2 opacity-0 group-hover/card:opacity-100 transition-all duration-500 ease-out"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
                     aria-label={`复制 ${resume.title}`}
-                    className="px-2 max-lg:gap-0"
-                    onClick={() => duplicate(resume)}
-                    title="复制"
-                    variant="paper"
+                    className="group/copy relative grid h-10 w-10 place-items-center overflow-hidden rounded-full border-2 border-black bg-white text-[var(--ink)] transition hover:bg-[var(--yellow)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      duplicate(resume);
+                    }}
                   >
-                    <Copy size={16} />
-                    <span className="max-lg:sr-only" data-action-label>
+                    <Copy
+                      size={16}
+                      className="transition-all duration-200 group-hover/copy:scale-75 group-hover/copy:opacity-0 group-focus-visible/copy:scale-75 group-focus-visible/copy:opacity-0"
+                    />
+                    <span className="absolute inset-0 flex scale-75 items-center justify-center text-xs font-black opacity-0 transition-all duration-200 group-hover/copy:scale-100 group-hover/copy:opacity-100 group-focus-visible/copy:scale-100 group-focus-visible/copy:opacity-100">
                       复制
                     </span>
-                  </InkButton>
-                  <InkButton
+                  </button>
+
+                  <button
+                    type="button"
                     aria-label={`删除 ${resume.title}`}
-                    className="px-2 text-red-600 max-lg:gap-0"
-                    onClick={() => setPendingDelete(resume)}
-                    title="删除"
-                    variant="paper"
+                    className="group/del relative grid h-10 w-10 place-items-center overflow-hidden rounded-full border-2 border-black bg-white text-red-600 transition hover:bg-[#ffe1e1] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPendingDelete(resume);
+                    }}
                   >
-                    <Trash2 size={16} />
-                    <span className="max-lg:sr-only" data-action-label>
+                    <Trash2
+                      size={16}
+                      className="transition-all duration-200 group-hover/del:scale-75 group-hover/del:opacity-0 group-focus-visible/del:scale-75 group-focus-visible/del:opacity-0"
+                    />
+                    <span className="absolute inset-0 flex scale-75 items-center justify-center text-xs font-black opacity-0 transition-all duration-200 group-hover/del:scale-100 group-hover/del:opacity-100 group-focus-visible/del:scale-100 group-focus-visible/del:opacity-100">
                       删除
                     </span>
-                  </InkButton>
+                  </button>
                 </div>
-              </div>
-            </StickerCard>
-          ))}
-        </div>
-      )}
+              </StickerCard>
+            ))}
+          </div>
+        )}
       </div>
 
       <Modal

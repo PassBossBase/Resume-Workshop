@@ -59,39 +59,39 @@ export function TemplateGallery() {
           className="mt-8 grid gap-7 sm:grid-cols-2 xl:grid-cols-4"
           data-testid="template-grid"
         >
-        {templateEntries.map((entry, index) => {
-          return (
-            <div
-              className="group relative animate-pop cursor-pointer overflow-hidden rounded-[26px] border-2 transition"
-              data-testid="template-card"
-              key={entry.id}
-              onClick={() => applyTemplate(index)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  applyTemplate(index);
-                }
-              }}
-              role="button"
-              tabIndex={0}
-            >
-              <TemplateThumbnail
-                ariaLabel={`${entry.name}模板骨架预览`}
-                templateId={entry.id}
-              />
-              <div className="pointer-events-none absolute bottom-0 left-0 right-0 text-center">
-                <h2 className="text-[16px] p-2 font-black bg-white border-t-2">
-                  {entry.name}
-                </h2>
+          {templateEntries.map((entry, index) => {
+            return (
+              <div
+                className="group relative animate-pop cursor-pointer overflow-hidden rounded-[26px] border-2 transition"
+                data-testid="template-card"
+                key={entry.id}
+                onClick={() => applyTemplate(index)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    applyTemplate(index);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+              >
+                <TemplateThumbnail
+                  ariaLabel={`${entry.name}模板骨架预览`}
+                  templateId={entry.id}
+                />
+                <div className="pointer-events-none absolute bottom-0 left-0 right-0 text-center">
+                  <h2 className="text-[16px] p-2 font-black bg-[rgba(59,59,203,0.92)] text-white border-t-2">
+                    {entry.name}
+                  </h2>
+                </div>
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100">
+                  <span className="rounded-full bg-white px-5 py-2 text-sm font-black text-black">
+                    使用模板
+                  </span>
+                </div>
               </div>
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100">
-                <span className="rounded-full bg-white px-5 py-2 text-sm font-black text-black">
-                  使用模板
-                </span>
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
         </div>
       </div>
     </PageContainer>
