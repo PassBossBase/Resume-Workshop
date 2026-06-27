@@ -3,7 +3,7 @@
 import { FilePlus2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef } from "react";
-import { Modal } from "@/components/anime-ui/ui";
+import { Modal, StickerCard } from "@/components/anime-ui/ui";
 import { useOverlay } from "@/hooks/use-overlay";
 import type { ResumeDocument } from "@/features/resume-model/resume-model";
 import { createBlankResume } from "@/features/resume-model/resume-model";
@@ -43,6 +43,10 @@ export function NewResumeModal({
 
   const templateEntries = useMemo(
     () => listTemplates().filter((e) => e.id !== "blank"),
+    [],
+  );
+  const blankTemplate = useMemo(
+    () => listTemplates().find((entry) => entry.id === "blank"),
     [],
   );
 
@@ -105,9 +109,10 @@ export function NewResumeModal({
       {/* ======== Body: 卡片网格 ======== */}
       <div className="scrollbar-thin min-h-0 flex-1 overflow-auto bg-(--canvas) p-4 sm:p-6 lg:p-8">
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {/* 基础简历（首位，虚线占位） */}
-          <div
-            className="animate-pop cursor-pointer overflow-hidden bg-(--paper) transition hover:ring-2 hover:ring-(--yellow)"
+          {/* 基础简历（首位，使用空白模板骨架） */}
+          <StickerCard
+            aria-label="从基础简历创建"
+            className="group/card relative h-84 animate-pop cursor-pointer overflow-hidden border-0 bg-[#242528] text-white shadow-none hover:shadow-none focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[var(--blue)]"
             onClick={handleCreateBlank}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
@@ -118,28 +123,28 @@ export function NewResumeModal({
             role="button"
             tabIndex={0}
           >
-            <div className="flex h-64 flex-col items-center justify-center gap-4 border-b-2 border-dashed border-black/20 bg-(--paper)">
-              <span className="grid h-16 w-16 rotate-[-3deg] place-items-center rounded-2xl border-2 border-dashed border-black/25 bg-white">
-                <FilePlus2
-                  size={32}
-                  className="text-black/25"
-                  strokeWidth={1.5}
-                />
-              </span>
-              <span className="text-base font-black text-black/30">
-                从空白开始
-              </span>
+            <TemplateThumbnail
+              ariaLabel="基础简历模板骨架预览"
+              className="pointer-events-none h-full"
+              templateId="blank"
+            />
+
+            <div className="pointer-events-none absolute bottom-0 left-0 right-0 translate-y-10 bg-[rgba(59,59,203,0.92)] px-5 py-3 opacity-0 transition-all duration-500 ease-out group-hover/card:translate-y-0 group-hover/card:opacity-100 group-focus-visible/card:translate-y-0 group-focus-visible/card:opacity-100">
+              <h3 className="truncate text-[16px] font-black text-white">
+                基础简历
+              </h3>
+              <p className="mt-1 truncate text-xs font-medium text-white/90">
+                {blankTemplate?.description ?? "从空白开始，自由填写内容和模块"}
+              </p>
             </div>
-            <div className="py-3.5 text-center">
-              <h3 className="text-[15px] font-black">基础简历</h3>
-            </div>
-          </div>
+          </StickerCard>
 
           {/* 模板卡片 */}
           {templateEntries.map((entry) => (
-            <div
+            <StickerCard
               key={entry.id}
-              className="animate-pop cursor-pointer overflow-hidden bg-(--paper) transition hover:ring-2 hover:ring-(--yellow)"
+              aria-label={`使用${entry.name}模板创建简历`}
+              className="group/card relative h-84 animate-pop cursor-pointer overflow-hidden border-0 bg-[#242528] text-white shadow-none hover:shadow-none focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[var(--blue)]"
               onClick={() => handleSelectTemplate(entry.id)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -152,12 +157,19 @@ export function NewResumeModal({
             >
               <TemplateThumbnail
                 ariaLabel={`${entry.name}模板预览`}
+                className="pointer-events-none h-full"
                 templateId={entry.id}
               />
-              <div className="py-3.5 text-center">
-                <h3 className="text-[15px] font-black">{entry.name}</h3>
+
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 translate-y-10 bg-[rgba(59,59,203,0.92)] px-5 py-3 opacity-0 transition-all duration-500 ease-out group-hover/card:translate-y-0 group-hover/card:opacity-100 group-focus-visible/card:translate-y-0 group-focus-visible/card:opacity-100">
+                <h3 className="truncate text-[16px] font-black text-white">
+                  {entry.name}
+                </h3>
+                <p className="mt-1 truncate text-xs font-medium text-white/90">
+                  {entry.description}
+                </p>
               </div>
-            </div>
+            </StickerCard>
           ))}
         </div>
       </div>

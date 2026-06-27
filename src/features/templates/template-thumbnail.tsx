@@ -1,5 +1,6 @@
 "use client";
 
+import { clsx } from "clsx";
 import type { TemplateId } from "@/features/resume-model/resume-model";
 import { TemplateSkeletonPreview } from "./template-skeleton-preview";
 
@@ -10,18 +11,20 @@ import { TemplateSkeletonPreview } from "./template-skeleton-preview";
 export function TemplateThumbnail({
   templateId,
   ariaLabel,
+  className,
 }: {
   templateId: TemplateId;
   ariaLabel?: string;
+  className?: string;
 }) {
   return (
     <div
       aria-label={ariaLabel}
-      className="grid h-84 place-items-center overflow-hidden bg-[#e7ebf1] p-2"
+      className={clsx("relative h-84 overflow-hidden bg-white", className)}
     >
       <TemplateSkeletonPreview
         ariaLabel={ariaLabel}
-        className="h-full w-56"
+        className="w-full"
         templateId={templateId}
       />
     </div>

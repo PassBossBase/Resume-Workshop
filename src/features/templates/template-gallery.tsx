@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
-import { PageContainer, PageHeading } from "@/components/anime-ui/ui";
+import { PageContainer, PageHeading, StickerCard } from "@/components/anime-ui/ui";
 import { builtinTemplateFactories } from "@/features/resume-model/template-presets";
 import { saveResume } from "@/features/storage/resume-repository";
 import { listTemplates } from "./template-registry";
@@ -59,39 +59,39 @@ export function TemplateGallery() {
           className="mt-8 grid gap-7 sm:grid-cols-2 xl:grid-cols-4"
           data-testid="template-grid"
         >
-          {templateEntries.map((entry, index) => {
-            return (
-              <div
-                className="group relative animate-pop cursor-pointer overflow-hidden rounded-[26px] border-2 transition"
-                data-testid="template-card"
-                key={entry.id}
-                onClick={() => applyTemplate(index)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    applyTemplate(index);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-              >
-                <TemplateThumbnail
-                  ariaLabel={`${entry.name}模板骨架预览`}
-                  templateId={entry.id}
-                />
-                <div className="pointer-events-none absolute bottom-0 left-0 right-0 text-center">
-                  <h2 className="text-[16px] p-2 font-black bg-[rgba(59,59,203,0.92)] text-white border-t-2">
-                    {entry.name}
-                  </h2>
-                </div>
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100">
-                  <span className="rounded-full bg-white px-5 py-2 text-sm font-black text-black">
-                    使用模板
-                  </span>
-                </div>
+          {templateEntries.map((entry, index) => (
+            <StickerCard
+              aria-label={`使用${entry.name}模板创建简历`}
+              className="group/card relative h-84 animate-pop cursor-pointer overflow-hidden border-0 bg-[#242528] text-white shadow-none hover:shadow-none focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[var(--blue)]"
+              data-testid="template-card"
+              key={entry.id}
+              onClick={() => applyTemplate(index)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  applyTemplate(index);
+                }
+              }}
+              role="button"
+              style={{ animationDelay: `${index * 60}ms` }}
+              tabIndex={0}
+            >
+              <TemplateThumbnail
+                ariaLabel={`${entry.name}模板骨架预览`}
+                className="pointer-events-none h-full"
+                templateId={entry.id}
+              />
+
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 translate-y-10 bg-[rgba(59,59,203,0.92)] px-5 py-3 opacity-0 transition-all duration-500 ease-out group-hover/card:translate-y-0 group-hover/card:opacity-100 group-focus-visible/card:translate-y-0 group-focus-visible/card:opacity-100">
+                <h2 className="truncate text-[16px] font-black text-white">
+                  {entry.name}
+                </h2>
+                <p className="mt-1 truncate text-xs font-medium text-white/90">
+                  {entry.description}
+                </p>
               </div>
-            );
-          })}
+            </StickerCard>
+          ))}
         </div>
       </div>
     </PageContainer>
