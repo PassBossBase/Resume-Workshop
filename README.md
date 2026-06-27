@@ -57,7 +57,8 @@
 
 - IndexedDB 浏览器本地缓存，所有数据仅存于当前设备
 - 桌面 Chrome 支持 File System Access API 连接本地目录
-- 简历同步为 `resume-{id}.json` 文件，带 `lastModified` 冲突检测
+- 简历同步为 `{标题}-{id}.json` 文件，带 `lastModified` 冲突检测
+- 新建/导入/复制后实时写入目录；删除后同步清理目录文件；标题变更时自动重命名
 - 目录断开不删除已有文件
 
 ### 响应式
