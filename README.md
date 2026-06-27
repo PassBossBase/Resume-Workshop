@@ -11,7 +11,7 @@
 - **导入范围确认**：PDF 文本会先整理成内部 Markdown 大纲，按标题顺序确认每个模块的内容范围，再填入表单和模板预览，避免正文续行被误当成新模块或新项目
 - **导入结果预览**：导入弹窗中选择目标模板后，会直接预览“识别内容套入当前模板”的效果；若 PDF 文本层存在不可识别字形，会在识别结果顶部提示人工核对日期、邮箱或编号
 - 创建、复制、编辑和删除多份简历
-- 仪表盘卡片列表，带模板缩略图预览和骨架屏加载
+- 仪表盘卡片列表，使用连续简历内容生成封面式预览，带骨架屏加载
 
 ### 内容编辑
 
@@ -40,9 +40,10 @@
   - 深色侧边栏双栏 —— 左侧深色信息栏 + 右侧主内容
   - 时间轴色块 —— 左侧信息列 + 右侧时间线色块
   - 复古分割线 —— 分段线分隔模块，适合传统行业
-- 模板缩略图实时预览
+- 所有模板的默认姓名、联系方式、经历等预设信息统一参考基础模板，只保留各自的布局与样式差异
+- 模板缩略图使用轻量骨架预览；模板库与新建简历弹窗统一为暗色封面卡，hover/focus 时从底部滑出模板标题和描述
 - 编辑页支持更换当前简历模板，只替换布局与样式，保留已填写内容
-- `/templates` 模板库页面，支持预览和一键使用
+- `/templates` 模板库页面，支持封面式骨架预览和一键使用
 
 ### 预览与导出
 
@@ -85,7 +86,7 @@ npm run typecheck # TypeScript 类型检查 (tsc --noEmit)
 
 ## 技术栈
 
-Next.js 16 (App Router) / React 19 / TypeScript / Tailwind CSS 4 / Zustand 5 / Zod 4 / Tiptap 3 / idb / jsPDF + html-to-image / Lucide React / Vitest
+Next.js 16 (App Router) / React 19 / TypeScript / Tailwind CSS 4 / Zustand 5 / Zod 4 / Tiptap 3 / idb / jsPDF + html-to-image / Lucide React
 
 ## 兼容性
 
