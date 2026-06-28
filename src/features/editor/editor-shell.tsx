@@ -17,6 +17,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BrandMark, InkButton, Modal } from "@/components/anime-ui/ui";
+import { DirectoryAuthPrompt } from "@/components/directory-auth-prompt";
+import { useDirectoryAuth } from "@/hooks/use-directory-auth";
 import { useOverlay } from "@/hooks/use-overlay";
 import { ImportResumeModal } from "@/features/dashboard/import-resume-modal";
 import { exportResumePdf } from "@/features/pdf-export/export-pdf";
@@ -79,6 +81,16 @@ export function EditorShell({ id }: { id: string }) {
   const initialLoadRef = useRef(true);
   const router = useRouter();
   const resize = usePanelResize();
+  const {
+    handle: directoryHandle,
+    permission: directoryPermission,
+    reauthorize,
+  } = useDirectoryAuth();
+
+  // 当 useDirectoryAuth 获取/更新目录句柄时同步到 directoryRef
+  useEffect(() => {
+    directoryRef.current = directoryHandle;
+  }, [directoryHandle]);
 
   useEffect(() => {
     let cancelled = false;
@@ -311,6 +323,11 @@ export function EditorShell({ id }: { id: string }) {
           </InkButton>
         </div>
       </header>
+
+      <DirectoryAuthPrompt
+        permission={directoryPermission}
+        reauthorize={reauthorize}
+      />
 
       {importResumeOpen && (
         <ImportResumeModal

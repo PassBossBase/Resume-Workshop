@@ -17,6 +17,8 @@ import {
   PageHeading,
   StickerCard,
 } from "@/components/anime-ui/ui";
+import { DirectoryAuthPrompt } from "@/components/directory-auth-prompt";
+import { useDirectoryAuth } from "@/hooks/use-directory-auth";
 import { useOverlay } from "@/hooks/use-overlay";
 import { ImportResumeModal } from "@/features/dashboard/import-resume-modal";
 import { NewResumeModal } from "@/features/dashboard/new-resume-modal";
@@ -60,6 +62,7 @@ export function ResumeDashboard({
   }, []);
 
   const addToast = useToastStore((s) => s.addToast);
+  const { permission: directoryPermission, reauthorize } = useDirectoryAuth();
 
   const duplicate = async (resume: ResumeDocument) => {
     const copy = {
@@ -100,6 +103,10 @@ export function ResumeDashboard({
 
   return (
     <PageContainer className="flex h-full flex-col overflow-hidden">
+      <DirectoryAuthPrompt
+        permission={directoryPermission}
+        reauthorize={reauthorize}
+      />
       <div className="mb-8 flex flex-wrap items-end justify-between gap-5 shrink-0">
         <div>
           <PageHeading

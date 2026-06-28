@@ -134,10 +134,25 @@ export function DirectorySettings() {
 
   const reconnect = async () => {
     if (!handle) return choose();
-    const permission = await handle.requestPermission({ mode: "readwrite" });
-    if (permission === "granted") {
-      const count = await syncCachedResumes(handle);
-      setSyncResult({ directoryName: handle.name, resumeCount: count });
+    // 优先使用 showDirectoryPicker({ id }) —— Chrome 会利用已关联的 id
+    // 自动返回之前选择的目录且不弹窗，同时恢复读写权限
+    try {
+      const directory = await window.showDirectoryPicker({
+        id: "resume-workshop",
+        mode: "readwrite",
+      });
+      await saveSetting("directory-handle", directory);
+      setHandle(directory);
+      const count = await syncCachedResumes(directory);
+      setSyncResult({ directoryName: directory.name, resumeCount: count });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      // showDirectoryPicker 不可用时回退到 requestPermission
+      const permission = await handle.requestPermission({ mode: "readwrite" });
+      if (permission === "granted") {
+        const count = await syncCachedResumes(handle);
+        setSyncResult({ directoryName: handle.name, resumeCount: count });
+      }
     }
   };
 
