@@ -12,6 +12,9 @@
 AGENTS.md
 CLAUDE.md
 custom.md
+.agents/
+.claude/
+.codex/
 
 
 # testing

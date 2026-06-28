@@ -5,8 +5,10 @@ import {
   // FileJson,
   FileText,
   LayoutTemplate,
+  Menu,
   PanelLeftClose,
   PanelLeftOpen,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -48,57 +50,69 @@ function MobileNavigation({ pathname }: { pathname: string }) {
 
   return (
     <div className="relative z-50">
+      <button
+        type="button"
+        aria-controls="mobile-navigation"
+        aria-expanded={open}
+        aria-label={open ? "关闭主导航" : "打开主导航"}
+        className="grid h-11 w-11 place-items-center rounded-2xl border-2 border-black bg-white shadow-[3px_3px_0_black] transition hover:-translate-y-0.5 hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-(--blue) active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+        onClick={() => setOpen((current) => !current)}
+      >
+        {open ? (
+          <X aria-hidden="true" size={21} strokeWidth={2.7} />
+        ) : (
+          <Menu aria-hidden="true" size={21} strokeWidth={2.7} />
+        )}
+      </button>
       {open ? (
-        <>
-          <nav
-            id="mobile-navigation"
-            role="menu"
-            aria-label="主导航"
-            className="absolute right-0 top-[calc(100%+14px)] z-20 w-64 rotate-[0.5deg] rounded-3xl border-2 border-black bg-(--paper) p-3"
-          >
-            {links.map(({ href, label, icon: Icon }, index) => {
-              const active = pathname === href;
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  role="menuitem"
-                  aria-current={active ? "page" : undefined}
-                  onClick={() => setOpen(false)}
-                  className={`flex items-center gap-3 rounded-2xl border-2 px-3 py-3 font-bold transition ${
-                    active
-                      ? "border-black bg-(--yellow)"
-                      : "border-transparent hover:border-black hover:bg-white"
+        <nav
+          id="mobile-navigation"
+          role="menu"
+          aria-label="主导航"
+          className="absolute right-0 top-[calc(100%+14px)] z-20 w-64 rotate-[0.5deg] rounded-3xl border-2 border-black bg-(--paper) p-3 shadow-[5px_5px_0_black]"
+        >
+          {links.map(({ href, label, icon: Icon }, index) => {
+            const active = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                role="menuitem"
+                aria-current={active ? "page" : undefined}
+                onClick={() => setOpen(false)}
+                className={`flex items-center gap-3 rounded-2xl border-2 px-3 py-3 font-bold transition ${
+                  active
+                    ? "border-black bg-(--yellow)"
+                    : "border-transparent hover:border-black hover:bg-white"
+                }`}
+              >
+                <span
+                  className={`grid h-9 w-9 place-items-center rounded-xl border-2 border-black ${
+                    [
+                      "bg-(--blue)",
+                      "bg-(--pink)",
+                      "bg-(--mint)",
+                      "bg-(--purple)",
+                    ][index]
                   }`}
                 >
-                  <span
-                    className={`grid h-9 w-9 place-items-center rounded-xl border-2 border-black ${
-                      [
-                        "bg-(--blue)",
-                        "bg-(--pink)",
-                        "bg-(--mint)",
-                        "bg-(--purple)",
-                      ][index]
-                    }`}
-                  >
-                    <Icon
-                      aria-hidden="true"
-                      size={18}
-                      color="white"
-                      strokeWidth={2.6}
-                    />
+                  <Icon
+                    aria-hidden="true"
+                    size={18}
+                    color="white"
+                    strokeWidth={2.6}
+                  />
+                </span>
+                {label}
+                {active ? (
+                  <span className="ml-auto rounded-full border border-black bg-white px-2 py-0.5 text-xs">
+                    当前
                   </span>
-                  {label}
-                  {active ? (
-                    <span className="ml-auto rounded-full border border-black bg-white px-2 py-0.5 text-xs">
-                      当前
-                    </span>
-                  ) : null}
-                </Link>
-              );
-            })}
-          </nav>
-        </>
+                ) : null}
+              </Link>
+            );
+          })}
+        </nav>
       ) : null}
     </div>
   );
