@@ -115,7 +115,7 @@ export function NewResumeModal({
           {/* 基础简历（首位，使用空白模板骨架） */}
           <StickerCard
             aria-label="从基础简历创建"
-            className="group/card relative h-84 animate-pop cursor-pointer overflow-hidden border-0 bg-[#242528] text-white shadow-none hover:shadow-none focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[var(--blue)]"
+            className="group/card relative h-84 animate-pop cursor-pointer overflow-hidden border-0 bg-[#242528] text-white shadow-none hover:shadow-none focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-(--blue)"
             onClick={handleCreateBlank}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
@@ -147,7 +147,7 @@ export function NewResumeModal({
             <StickerCard
               key={entry.id}
               aria-label={`使用${entry.name}模板创建简历`}
-              className="group/card relative h-84 animate-pop cursor-pointer overflow-hidden border-0 bg-[#242528] text-white shadow-none hover:shadow-none focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[var(--blue)]"
+              className="group/card relative h-84 animate-pop cursor-pointer overflow-hidden border-0 bg-[#242528] text-white shadow-none hover:shadow-none focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-(--blue)"
               onClick={() => handleSelectTemplate(entry.id)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {

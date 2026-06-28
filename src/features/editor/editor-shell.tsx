@@ -102,7 +102,8 @@ export function EditorShell({ id }: { id: string }) {
         : await loadSetting<FileSystemDirectoryHandle>("directory-handle");
       directoryRef.current = directory;
 
-      let directoryFile: Awaited<ReturnType<typeof readResumeFile>> | null = null;
+      let directoryFile: Awaited<ReturnType<typeof readResumeFile>> | null =
+        null;
       if (directory) {
         try {
           const permission = await directory.queryPermission({
@@ -182,10 +183,7 @@ export function EditorShell({ id }: { id: string }) {
             const newFileName = resumeFileName(resume.id, resume.title);
 
             // 标题变更导致文件名变化 → 确认旧文件存在后删除
-            if (
-              fileNameRef.current &&
-              fileNameRef.current !== newFileName
-            ) {
+            if (fileNameRef.current && fileNameRef.current !== newFileName) {
               try {
                 await directory.getFileHandle(fileNameRef.current);
                 await directory.removeEntry(fileNameRef.current);
@@ -288,12 +286,6 @@ export function EditorShell({ id }: { id: string }) {
           <SaveStatus state={saveState} />
         </div>
         <div className="flex items-center gap-2">
-          {/* <button
-            aria-label="切换主题"
-            className="hidden h-11 w-11 place-items-center rounded-2xl border-2 border-black bg-white shadow-[2px_2px_0_black] md:grid"
-          >
-            <MoonStar size={19} />
-          </button> */}
           <InkButton
             variant="blue"
             className="min-h-11 px-3 md:px-4"
@@ -323,11 +315,6 @@ export function EditorShell({ id }: { id: string }) {
           </InkButton>
         </div>
       </header>
-
-      <DirectoryAuthPrompt
-        permission={directoryPermission}
-        reauthorize={reauthorize}
-      />
 
       {importResumeOpen && (
         <ImportResumeModal
@@ -394,6 +381,10 @@ export function EditorShell({ id }: { id: string }) {
             />
           ) : (
             <section className="scrollbar-thin h-full overflow-y-auto">
+              <DirectoryAuthPrompt
+                permission={directoryPermission}
+                reauthorize={reauthorize}
+              />
               <EditorContent />
             </section>
           )}
@@ -582,8 +573,7 @@ function TemplateSwitchModal({
 
   const templateEntries = useMemo(() => listTemplates(), []);
   const availableTemplateEntries = useMemo(
-    () =>
-      templateEntries.filter((entry) => entry.id !== currentTemplateId),
+    () => templateEntries.filter((entry) => entry.id !== currentTemplateId),
     [currentTemplateId, templateEntries],
   );
   const [selectedTemplateId, setSelectedTemplateId] = useState<TemplateId>(

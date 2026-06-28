@@ -110,7 +110,7 @@ export function ResumeDashboard({
         <div>
           <PageHeading
             badge="LOCAL RESUME STUDIO"
-            badgeColor="bg-[var(--yellow)]"
+            badgeColor="bg-(--yellow)"
             badgeRotation="rotate-[-2deg]"
             title={"我的简历"}
             subtitle="把经历整理成一份清晰、专业又属于你的简历。"
@@ -160,8 +160,8 @@ export function ResumeDashboard({
           </div>
         ) : resumes.length === 0 ? (
           <StickerCard className="relative overflow-hidden p-10 text-center md:p-16">
-            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full border-2 border-black bg-[var(--blue)] opacity-90" />
-            <div className="absolute -bottom-8 -left-8 h-28 w-28 rotate-12 border-2 border-black bg-[var(--yellow)]" />
+            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full border-2 border-black bg-(--blue) opacity-90" />
+            <div className="absolute -bottom-8 -left-8 h-28 w-28 rotate-12 border-2 border-black bg-(--yellow)" />
             <FilePlus2 className="mx-auto mb-5" size={54} />
             <h2 className="text-3xl font-black">从第一份简历开始</h2>
             <p className="mx-auto mt-3 max-w-md leading-7 text-black/60">
@@ -180,7 +180,7 @@ export function ResumeDashboard({
             {resumes.map((resume, index) => (
               <StickerCard
                 key={resume.id}
-                className="group/card relative h-84 animate-pop cursor-pointer overflow-hidden border-0 bg-[#242528] text-white shadow-none hover:shadow-none focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[var(--blue)]"
+                className="group/card relative h-84 animate-pop cursor-pointer overflow-hidden border-0 bg-[#242528] text-white shadow-none hover:shadow-none focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-(--blue)"
                 style={{ animationDelay: `${index * 60}ms` }}
                 role="button"
                 tabIndex={0}
@@ -218,7 +218,7 @@ export function ResumeDashboard({
                   <button
                     type="button"
                     aria-label={`复制 ${resume.title}`}
-                    className="group/copy relative grid h-10 w-10 place-items-center overflow-hidden rounded-full border-2 border-black bg-white text-[var(--ink)] transition hover:bg-[var(--yellow)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    className="group/copy relative grid h-10 w-10 place-items-center overflow-hidden rounded-full border-2 border-black bg-white text-(--ink) transition hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
                     onClick={(e) => {
                       e.stopPropagation();
                       duplicate(resume);

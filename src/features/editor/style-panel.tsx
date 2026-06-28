@@ -205,9 +205,9 @@ export function StylePanel() {
           isDragging
             ? "opacity-50"
             : isDropTarget
-              ? "border-black border-dashed bg-[var(--yellow)]/30"
+              ? "border-black border-dashed bg-(--yellow)/30"
               : active
-                ? "border-black bg-[var(--yellow)] shadow-[3px_3px_0_black]"
+                ? "border-black bg-(--yellow) shadow-[3px_3px_0_black]"
                 : "border-black/15 bg-white"
         }`}
         onDragStart={() => handleDragStart(index)}
@@ -274,7 +274,7 @@ export function StylePanel() {
           {/* 添加自定义模块按钮 */}
           <button
             onClick={addCustomModule}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black/25 bg-white/50 py-3 text-sm font-bold text-black/50 transition hover:border-black hover:text-black hover:bg-[var(--yellow)]/10"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black/25 bg-white/50 py-3 text-sm font-bold text-black/50 transition hover:border-black hover:text-black hover:bg-(--yellow)/10"
           >
             <Plus size={16} />
             添加模块
@@ -299,7 +299,7 @@ export function StylePanel() {
               key={color}
               className={`h-9 w-9 cursor-pointer rounded-full border-2 border-black transition hover:scale-110 ${
                 resume.styles.accent === color
-                  ? "ring-4 ring-[var(--yellow)] ring-offset-2"
+                  ? "ring-4 ring-(--yellow) ring-offset-2"
                   : ""
               }`}
               style={{ background: color }}
@@ -491,7 +491,7 @@ function ThemeColorPicker({
         title="自定义主题色"
         aria-expanded={open}
         aria-label="自定义主题色"
-        className="grid h-9 w-9 cursor-pointer place-items-center rounded-full border-2 border-black bg-white transition hover:bg-[var(--yellow)] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue)]"
+        className="grid h-9 w-9 cursor-pointer place-items-center rounded-full border-2 border-black bg-white transition hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--blue)"
         onClick={() => {
           if (open) commitAndClose();
           else openPicker();

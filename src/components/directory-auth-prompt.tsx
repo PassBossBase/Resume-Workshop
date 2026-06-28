@@ -34,10 +34,10 @@ export function DirectoryAuthPrompt({
   return (
     <div className="flex items-center justify-between gap-3 rounded-2xl border bg-[#fff0e6] px-4 py-2.5 md:px-6">
       <div className="flex min-w-0 items-center gap-2.5">
-        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border-2 border-[var(--line)] bg-[var(--orange)] text-white">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border-2 border-(--line) bg-(--orange) text-white">
           <Unplug size={16} />
         </span>
-        <span className="truncate text-sm font-bold text-[var(--ink)]">
+        <span className="truncate text-sm font-bold text-(--ink)">
           目录同步已断开，编辑内容仅保存在浏览器缓存中
         </span>
       </div>
@@ -52,7 +52,7 @@ export function DirectoryAuthPrompt({
         </InkButton>
         <button
           aria-label="关闭目录同步提示"
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border-2 border-transparent text-[var(--ink)]/45 transition hover:border-[var(--line)] hover:text-[var(--ink)]"
+          className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border-2 border-transparent text-(--ink)/45 transition hover:border-(--line) hover:text-(--ink)"
           onClick={() => setDismissed(true)}
           type="button"
         >

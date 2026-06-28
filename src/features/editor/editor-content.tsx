@@ -145,7 +145,7 @@ export function EditorContent() {
   }
 
   return (
-    <div className="min-h-full bg-[var(--paper)] p-5 md:p-7 xl:p-9">
+    <div className="min-h-full bg-(--paper) p-5 md:p-7 xl:p-9">
       <SectionCard
         className="mb-8 flex items-center gap-3 px-5 py-4"
         variant="white"
@@ -201,7 +201,7 @@ export function EditorContent() {
               <section>
                 <h3 className="mb-3 text-lg font-black">头像</h3>
                 <label className="flex cursor-pointer items-center gap-4 rounded-3xl border-2 border-dashed border-black bg-[#f7f4ec] p-4">
-                  <span className="grid h-20 w-20 place-items-center overflow-hidden rounded-2xl border-2 border-black bg-[var(--yellow)]">
+                  <span className="grid h-20 w-20 place-items-center overflow-hidden rounded-2xl border-2 border-black bg-(--yellow)">
                     {basics.avatar ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -416,7 +416,7 @@ export function EditorContent() {
                     />
                   ))}
                   <button
-                    className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black/25 bg-[var(--yellow)]/50 py-3 font-bold transition hover:border-black hover:bg-[var(--yellow)]"
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black/25 bg-(--yellow)/50 py-3 font-bold transition hover:border-black hover:bg-(--yellow)"
                     onClick={() => {
                       const next = [
                         ...basics.infoItems,
@@ -476,7 +476,7 @@ export function EditorContent() {
             />
           ))}
           <button
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black bg-[var(--yellow)] py-4 font-black transition hover:-translate-y-0.5"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black bg-(--yellow) py-4 font-black transition hover:-translate-y-0.5"
             onClick={() => addEntry(activeSection.id)}
           >
             <Plus size={19} />
@@ -531,7 +531,7 @@ function BasicFieldRow({
         isDragging
           ? "opacity-50"
           : isDropTarget
-            ? "border-black border-dashed bg-[var(--yellow)]/30"
+            ? "border-black border-dashed bg-(--yellow)/30"
             : fixed
               ? ""
               : "border-transparent",
@@ -633,7 +633,7 @@ function CustomBasicFieldRow({
         isDragging
           ? "opacity-50"
           : isDropTarget
-            ? "border-black border-dashed bg-[var(--yellow)]/30"
+            ? "border-black border-dashed bg-(--yellow)/30"
             : "border-black/10",
         hidden ? "opacity-55" : "",
       ].join(" ")}
@@ -707,7 +707,7 @@ function EntryEditor({
   return (
     <SectionCard variant="beige" className="p-5">
       <div className="mb-5 flex items-center justify-between">
-        <span className="rounded-full border-2 border-black bg-[var(--yellow)] px-3 py-1 text-xs font-black">
+        <span className="rounded-full border-2 border-black bg-(--yellow) px-3 py-1 text-xs font-black">
           条目 {index + 1}
         </span>
         <div className="flex gap-2">

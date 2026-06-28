@@ -82,7 +82,7 @@ export function ResumeContentThumbnail({
     <div
       aria-label={ariaLabel}
       className={clsx(
-        "relative h-64 overflow-y-auto scrollbar-none bg-[#e7ebf1]",
+        "relative h-64 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden bg-[#e7ebf1]",
         className,
       )}
     >

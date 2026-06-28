@@ -244,7 +244,7 @@ function ToolButton({
       aria-pressed={active}
       className={`grid h-9 w-9 place-items-center rounded-xl border-2 border-black transition ${
         active
-          ? "bg-[var(--yellow)] shadow-[2px_2px_0_black]"
+          ? "bg-(--yellow) shadow-[2px_2px_0_black]"
           : "bg-white hover:bg-[#fff8d4]"
       } disabled:cursor-not-allowed disabled:opacity-35`}
       disabled={disabled}

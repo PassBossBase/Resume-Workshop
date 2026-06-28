@@ -69,7 +69,7 @@ export function CustomModuleEditor({ module: customModule }: { module: CustomRes
   };
 
   return (
-    <div className="min-h-full bg-[var(--paper)] p-5 md:p-7 xl:p-9">
+    <div className="min-h-full bg-(--paper) p-5 md:p-7 xl:p-9">
       {/* 模块名称区域 */}
       <SectionCard className="mb-8 flex items-center gap-3 px-5 py-4" variant="white">
         <span className="grid h-11 w-11 place-items-center rounded-2xl border-2 border-black bg-[#6366f1]">
@@ -116,7 +116,7 @@ export function CustomModuleEditor({ module: customModule }: { module: CustomRes
           </p>
           <button
             onClick={() => addCustomEntry(moduleId)}
-            className="inline-flex items-center gap-2 rounded-2xl border-2 border-black bg-[var(--yellow)] px-6 py-3 font-black transition hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 rounded-2xl border-2 border-black bg-(--yellow) px-6 py-3 font-black transition hover:-translate-y-0.5"
           >
             <Plus size={19} />
             添加项目
@@ -145,7 +145,7 @@ export function CustomModuleEditor({ module: customModule }: { module: CustomRes
           })}
           <button
             onClick={() => addCustomEntry(moduleId)}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black bg-[var(--yellow)] py-4 font-black transition hover:-translate-y-0.5"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black bg-(--yellow) py-4 font-black transition hover:-translate-y-0.5"
           >
             <Plus size={19} />
             添加项目
@@ -198,7 +198,7 @@ function CustomEntryCard({
           <span
             className={`rounded-full border-2 px-3 py-1 text-xs font-black ${
               entry.visible
-                ? "border-black bg-[var(--yellow)]"
+                ? "border-black bg-(--yellow)"
                 : "border-black/25 bg-white text-black/35"
             }`}
           >

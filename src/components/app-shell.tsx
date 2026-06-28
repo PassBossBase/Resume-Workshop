@@ -135,7 +135,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             <Link
               aria-label="返回首页"
-              className="rounded-2xl focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[var(--blue)]"
+              className="rounded-2xl focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-(--blue)"
               href="/"
             >
               <BrandMark compact={sidebarCollapsed} />
@@ -186,7 +186,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               type="button"
               aria-label={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
               aria-expanded={!sidebarCollapsed}
-              className="absolute rounded-2xl cursor-pointer left-0 bottom-2 grid h-10 w-full shrink-0 place-items-center border-2 border-black bg-white transition hover:-translate-y-0.5 hover:bg-(--yellow) hover:shadow-[3px_3px_0_black] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[var(--blue)]"
+              className="absolute rounded-2xl cursor-pointer left-0 bottom-2 grid h-10 w-full shrink-0 place-items-center border-2 border-black bg-white transition hover:-translate-y-0.5 hover:bg-(--yellow) hover:shadow-[3px_3px_0_black] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--blue)"
               onClick={toggleSidebar}
               title={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
             >
@@ -208,7 +208,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <header className="no-print relative z-40 flex h-20 items-center justify-between border-b-2 border-black bg-(--paper) px-5 lg:hidden">
             <Link
               aria-label="返回首页"
-              className="rounded-2xl focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[var(--blue)]"
+              className="rounded-2xl focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-(--blue)"
               href="/"
             >
               <BrandMark />

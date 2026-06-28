@@ -167,7 +167,7 @@ export function DirectorySettings() {
     <PageContainer>
       <PageHeading
         badge="PRIVATE BY DEFAULT"
-        badgeColor="bg-[var(--mint)]"
+        badgeColor="bg-(--mint)"
         badgeRotation="rotate-1"
         title="通用设置"
         subtitle="桌面 Chrome 可以把本地目录作为权威数据源；手机始终使用浏览器缓存。"
@@ -175,7 +175,7 @@ export function DirectorySettings() {
 
       <StickerCard className="mt-9 overflow-hidden">
         <div className="flex flex-wrap items-center gap-4 border-b-2 border-black bg-[#fff0e6] p-6">
-          <span className="grid h-14 w-14 place-items-center rounded-2xl border-2 border-black bg-[var(--orange)] text-white shadow-[3px_3px_0_black]">
+          <span className="grid h-14 w-14 place-items-center rounded-2xl border-2 border-black bg-(--orange) text-white shadow-[3px_3px_0_black]">
             <FolderOpen />
           </span>
           <div>

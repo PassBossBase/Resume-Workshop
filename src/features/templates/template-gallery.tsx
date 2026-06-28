@@ -62,7 +62,7 @@ export function TemplateGallery() {
           {templateEntries.map((entry, index) => (
             <StickerCard
               aria-label={`使用${entry.name}模板创建简历`}
-              className="group/card relative h-84 animate-pop cursor-pointer overflow-hidden border-0 bg-[#242528] text-white shadow-none hover:shadow-none focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[var(--blue)]"
+              className="group/card relative h-84 animate-pop cursor-pointer overflow-hidden border-0 bg-[#242528] text-white shadow-none hover:shadow-none focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-(--blue)"
               data-testid="template-card"
               key={entry.id}
               onClick={() => applyTemplate(index)}
