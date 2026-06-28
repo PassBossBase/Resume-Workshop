@@ -409,7 +409,7 @@ function ThemeColorPicker({
     const rect = buttonRef.current?.getBoundingClientRect();
     if (!rect) return;
     setPosition({
-      left: Math.min(rect.right - 320, window.innerWidth - 336),
+      left: Math.min(rect.right - 256, window.innerWidth - 272),
       top: rect.bottom + 10,
     });
   }, []);
@@ -506,7 +506,7 @@ function ThemeColorPicker({
       {open && typeof document !== "undefined"
         ? createPortal(
             <div
-              className="fixed z-100 w-80 rounded-xl border border-black/10 bg-white p-2 shadow-[0_12px_32px_rgb(0_0_0/18%)]"
+              className="fixed z-100 w-64 rounded-xl border border-black/10 bg-white p-2 shadow-[0_12px_32px_rgb(0_0_0/18%)]"
               onBlurCapture={() => {
                 window.setTimeout(() => {
                   const active = document.activeElement;
@@ -530,7 +530,7 @@ function ThemeColorPicker({
             >
               <div
                 aria-label="选择颜色深浅"
-                className="relative h-64 cursor-crosshair overflow-hidden rounded-t-xl"
+                className="relative h-48 cursor-crosshair overflow-hidden rounded-t-xl"
                 onPointerDown={(event) => {
                   event.currentTarget.setPointerCapture(event.pointerId);
                   updateSaturationValue(event);
@@ -545,7 +545,7 @@ function ThemeColorPicker({
               >
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute h-11 w-11 rounded-full border-3 border-white shadow-[0_1px_4px_rgb(0_0_0/45%)]"
+                  className="pointer-events-none absolute h-8 w-8 rounded-full border-3 border-white shadow-[0_1px_4px_rgb(0_0_0/45%)]"
                   style={{
                     left: `${hsv.s * 100}%`,
                     top: `${(1 - hsv.v) * 100}%`,
@@ -556,7 +556,7 @@ function ThemeColorPicker({
 
               <div
                 aria-label="选择颜色"
-                className="relative h-9 cursor-pointer rounded-b-xl"
+                className="relative h-7 cursor-pointer rounded-b-xl"
                 onPointerDown={(event) => {
                   event.currentTarget.setPointerCapture(event.pointerId);
                   updateHue(event);
@@ -572,7 +572,7 @@ function ThemeColorPicker({
               >
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute top-1/2 h-10 w-10 rounded-full border-3 border-white shadow-[0_1px_5px_rgb(0_0_0/45%)]"
+                  className="pointer-events-none absolute top-1/2 h-7 w-7 rounded-full border-3 border-white shadow-[0_1px_5px_rgb(0_0_0/45%)]"
                   style={{
                     background: `hsl(${hsv.h} 100% 50%)`,
                     left: `${(hsv.h / 360) * 100}%`,
