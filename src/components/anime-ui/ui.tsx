@@ -121,7 +121,7 @@ export function PageHeading({
   badgeColor?: string;
   badgeTextColor?: string;
   badgeRotation?: string;
-  title: string;
+  title: string | React.ReactNode;
   subtitle: string;
 }) {
   return (

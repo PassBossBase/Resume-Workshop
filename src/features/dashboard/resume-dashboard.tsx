@@ -28,7 +28,10 @@ import {
   listResumes,
   saveResume,
 } from "@/features/storage/resume-repository";
-import { syncResumeToDirectoryIfBound, deleteResumeFromDirectoryIfBound } from "@/features/storage/directory-sync";
+import {
+  syncResumeToDirectoryIfBound,
+  deleteResumeFromDirectoryIfBound,
+} from "@/features/storage/directory-sync";
 import { buildContinuousResumePage } from "@/features/templates/resume-pages";
 import { ResumeContentThumbnail } from "@/features/templates/resume-content-thumbnail";
 import { useToastStore } from "@/stores/toast-store";
@@ -103,17 +106,13 @@ export function ResumeDashboard({
 
   return (
     <PageContainer className="flex h-full flex-col overflow-hidden">
-      <DirectoryAuthPrompt
-        permission={directoryPermission}
-        reauthorize={reauthorize}
-      />
       <div className="mb-8 flex flex-wrap items-end justify-between gap-5 shrink-0">
         <div>
           <PageHeading
             badge="LOCAL RESUME STUDIO"
             badgeColor="bg-[var(--yellow)]"
             badgeRotation="rotate-[-2deg]"
-            title="我的简历"
+            title={"我的简历"}
             subtitle="把经历整理成一份清晰、专业又属于你的简历。"
           />
         </div>
@@ -127,7 +126,12 @@ export function ResumeDashboard({
           </InkButton>
         </div>
       </div>
-
+      <div className="my-4">
+        <DirectoryAuthPrompt
+          permission={directoryPermission}
+          reauthorize={reauthorize}
+        />
+      </div>
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div
