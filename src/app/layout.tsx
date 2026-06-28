@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AppRuntime } from "@/components/app-runtime";
 import { ToastContainer } from "@/components/anime-ui/toast";
 import "./globals.css";
 
@@ -17,6 +18,7 @@ export default function RootLayout({
     <html lang="zh-CN" suppressHydrationWarning>
       <body>
         {children}
+        <AppRuntime />
         <ToastContainer />
       </body>
     </html>

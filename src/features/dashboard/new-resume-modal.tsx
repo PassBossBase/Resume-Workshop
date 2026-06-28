@@ -9,9 +9,9 @@ import type { ResumeDocument } from "@/features/resume-model/resume-model";
 import { createBlankResume } from "@/features/resume-model/resume-model";
 import { builtinTemplateFactories } from "@/features/resume-model/template-presets";
 import { saveResume } from "@/features/storage/resume-repository";
-import { syncResumeToDirectoryIfBound } from "@/features/storage/directory-sync";
 import { listTemplates } from "@/features/templates/template-registry";
 import { TemplateThumbnail } from "@/features/templates/template-thumbnail";
+import { useDirectorySyncStore } from "@/stores/directory-sync-store";
 
 import "@/features/templates/blank-template";
 import "@/features/templates/classic-template";
@@ -36,6 +36,7 @@ export function NewResumeModal({
 }) {
   const router = useRouter();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const syncResumeToDirectory = useDirectorySyncStore((s) => s.syncResume);
 
   useOverlay(open, {
     focusRef: closeButtonRef,
@@ -64,14 +65,14 @@ export function NewResumeModal({
       updatedAt: now,
     };
     await saveResume(newResume);
-    syncResumeToDirectoryIfBound(newResume);
+    await syncResumeToDirectory(newResume);
     router.push(`/resume/${id}`);
   };
 
   const handleCreateBlank = async () => {
     const resume = createBlankResume(crypto.randomUUID(), defaultTitle);
     await saveResume(resume);
-    syncResumeToDirectoryIfBound(resume);
+    await syncResumeToDirectory(resume);
     router.push(`/resume/${resume.id}`);
   };
 

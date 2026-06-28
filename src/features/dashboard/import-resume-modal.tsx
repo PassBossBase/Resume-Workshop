@@ -13,9 +13,9 @@ import { InkButton, Modal } from "@/components/anime-ui/ui";
 import { useOverlay } from "@/hooks/use-overlay";
 import { builtinTemplateFactories } from "@/features/resume-model/template-presets";
 import { saveResume } from "@/features/storage/resume-repository";
-import { syncResumeToDirectoryIfBound } from "@/features/storage/directory-sync";
 import { listTemplates } from "@/features/templates/template-registry";
 import { TemplateSkeletonPreview } from "@/features/templates/template-skeleton-preview";
+import { useDirectorySyncStore } from "@/stores/directory-sync-store";
 import {
   IMPORT_PDF_MAX_BYTES,
   buildResumeFromImport,
@@ -60,6 +60,7 @@ export function ImportResumeModal({
   const [status, setStatus] = useState<ImportStatus>("idle");
   const [error, setError] = useState("");
   const [isDragOver, setIsDragOver] = useState(false);
+  const syncResumeToDirectory = useDirectorySyncStore((s) => s.syncResume);
 
   const yieldToBrowser = () =>
     new Promise<void>((resolve) => window.setTimeout(resolve, 0));
@@ -172,7 +173,7 @@ export function ImportResumeModal({
         onClose();
       } else {
         await saveResume(resume);
-        syncResumeToDirectoryIfBound(resume);
+        await syncResumeToDirectory(resume);
         router.push(`/resume/${resume.id}`);
       }
     } catch (err) {

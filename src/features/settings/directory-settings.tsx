@@ -18,22 +18,26 @@ import {
   StickerCard,
 } from "@/components/anime-ui/ui";
 import { useOverlay } from "@/hooks/use-overlay";
-import {
-  resumeFileName,
-  writeResumeFile,
-} from "@/features/storage/directory-sync";
-import {
-  listResumes,
-  loadSetting,
-  saveSetting,
-} from "@/features/storage/resume-repository";
+import { useDirectorySyncStore } from "@/stores/directory-sync-store";
 
-type Status = "unsupported" | "idle" | "granted" | "denied" | "syncing";
+const statusText = {
+  synced: "已同步",
+  unsynced: "未同步",
+  checking: "正在检测同步状态...",
+};
+
+const reasonText = {
+  unbound: "尚未连接同步目录",
+  permission: "目录需要重新授权",
+  mobile: "移动端暂不支持本地目录同步",
+  unsupported: "当前浏览器不支持目录同步，请使用桌面版 Chrome",
+  error: "目录同步失败，请重新选择目录",
+  conflict: "目录文件有外部修改，请处理冲突后再同步",
+  disconnected: "已断开目录，之后将继续保存到浏览器缓存",
+  unknown: "选择一个文件夹保存和备份简历",
+};
 
 export function DirectorySettings() {
-  const [handle, setHandle] = useState<FileSystemDirectoryHandle>();
-  const [status, setStatus] = useState<Status>("idle");
-  const [message, setMessage] = useState("尚未连接同步目录");
   const [showDisconnect, setShowDisconnect] = useState(false);
   const closeDisconnectRef = useRef<HTMLButtonElement>(null);
   const [syncResult, setSyncResult] = useState<{
@@ -41,6 +45,19 @@ export function DirectorySettings() {
     resumeCount: number;
   } | null>(null);
   const closeSyncResultRef = useRef<HTMLButtonElement>(null);
+  const status = useDirectorySyncStore((state) => state.status);
+  const reason = useDirectorySyncStore((state) => state.reason);
+  const handle = useDirectorySyncStore((state) => state.handle);
+  const directoryName = useDirectorySyncStore((state) => state.directoryName);
+  const isSupported = useDirectorySyncStore((state) => state.isSupported);
+  const isSyncing = useDirectorySyncStore((state) => state.isSyncing);
+  const initialize = useDirectorySyncStore((state) => state.initialize);
+  const connectDirectory = useDirectorySyncStore(
+    (state) => state.connectDirectory,
+  );
+  const disconnectDirectory = useDirectorySyncStore(
+    (state) => state.disconnectDirectory,
+  );
 
   useOverlay(showDisconnect, {
     focusRef: closeDisconnectRef,
@@ -52,116 +69,23 @@ export function DirectorySettings() {
   });
 
   useEffect(() => {
-    const restore = async () => {
-      if (!("showDirectoryPicker" in window)) {
-        setStatus("unsupported");
-        setMessage("当前浏览器不支持目录同步，请使用桌面版 Chrome");
-        return;
-      }
-      const stored =
-        await loadSetting<FileSystemDirectoryHandle>("directory-handle");
-      if (!stored) return;
-      setHandle(stored);
-      const permission = await stored.queryPermission({ mode: "readwrite" });
-      setStatus(permission === "granted" ? "granted" : "denied");
-      setMessage(
-        permission === "granted"
-          ? `已连接：${stored.name}`
-          : `需要重新授权：${stored.name}`,
-      );
-    };
-    restore().catch(() => setStatus("denied"));
-  }, []);
+    initialize();
+  }, [initialize]);
 
-  const syncCachedResumes = async (directory: FileSystemDirectoryHandle) => {
-    setStatus("syncing");
-    setMessage("正在迁移浏览器缓存...");
-    const resumes = await listResumes();
-    for (const resume of resumes) {
-      const file = await directory.getFileHandle(
-        resumeFileName(resume.id, resume.title),
-        { create: true },
-      );
-      await writeResumeFile(file, resume);
-    }
-    const manifest = await directory.getFileHandle("resume-workshop.json", {
-      create: true,
+  const connect = async () => {
+    const result = await connectDirectory();
+    if (!result.ok || result.cancelled) return;
+    setSyncResult({
+      directoryName: result.directoryName ?? "同步目录",
+      resumeCount: result.resumeCount ?? 0,
     });
-    const writer = await manifest.createWritable();
-    await writer.write(
-      JSON.stringify(
-        {
-          version: 1,
-          updatedAt: new Date().toISOString(),
-          resumes: resumes.map(({ id, title, updatedAt }) => ({
-            id,
-            title,
-            updatedAt,
-          })),
-        },
-        null,
-        2,
-      ),
-    );
-    await writer.close();
-    setStatus("granted");
-    setMessage(`已连接：${directory.name}，迁移 ${resumes.length} 份简历`);
-    return resumes.length;
   };
 
-  const choose = async () => {
-    let directory: FileSystemDirectoryHandle;
-    try {
-      directory = await window.showDirectoryPicker({
-        id: "resume-workshop",
-        mode: "readwrite",
-      });
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
-      throw error;
-    }
-    const permission = await directory.requestPermission({ mode: "readwrite" });
-    if (permission !== "granted") {
-      setStatus("denied");
-      setMessage("目录授权未完成");
-      return;
-    }
-    await saveSetting("directory-handle", directory);
-    setHandle(directory);
-    const count = await syncCachedResumes(directory);
-    setSyncResult({ directoryName: directory.name, resumeCount: count });
-  };
-
-  const reconnect = async () => {
-    if (!handle) return choose();
-    // 优先使用 showDirectoryPicker({ id }) —— Chrome 会利用已关联的 id
-    // 自动返回之前选择的目录且不弹窗，同时恢复读写权限
-    try {
-      const directory = await window.showDirectoryPicker({
-        id: "resume-workshop",
-        mode: "readwrite",
-      });
-      await saveSetting("directory-handle", directory);
-      setHandle(directory);
-      const count = await syncCachedResumes(directory);
-      setSyncResult({ directoryName: directory.name, resumeCount: count });
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
-      // showDirectoryPicker 不可用时回退到 requestPermission
-      const permission = await handle.requestPermission({ mode: "readwrite" });
-      if (permission === "granted") {
-        const count = await syncCachedResumes(handle);
-        setSyncResult({ directoryName: handle.name, resumeCount: count });
-      }
-    }
-  };
-
-  const disconnect = async () => {
-    await saveSetting("directory-handle", null);
-    setHandle(undefined);
-    setStatus("idle");
-    setMessage("已断开目录，之后将继续保存到浏览器缓存");
-  };
+  const statusLabel = statusText[status];
+  const detailLabel =
+    status === "synced" && directoryName
+      ? `已连接：${directoryName}`
+      : reasonText[reason];
 
   return (
     <PageContainer>
@@ -186,17 +110,20 @@ export function DirectorySettings() {
         <div className="p-6">
           <div
             className={`flex flex-wrap items-center justify-between gap-5 rounded-2xl border-2 border-dashed border-black p-5 ${
-              status === "granted" ? "bg-emerald-50" : "bg-white"
+              status === "synced" ? "bg-emerald-50" : "bg-white"
             }`}
           >
             <div className="flex items-center gap-4">
-              {status === "granted" ? (
+              {status === "synced" ? (
                 <CheckCircle2 className="text-emerald-600" size={28} />
               ) : (
                 <HardDrive size={28} />
               )}
               <div>
-                <strong className="block">{message}</strong>
+                <strong className="block">{statusLabel}</strong>
+                <span className="mt-1 block text-sm font-bold text-black/55">
+                  {detailLabel}
+                </span>
                 <small className="text-black/45">
                   简历文件名使用内部 ID，避免重名覆盖。
                 </small>
@@ -204,16 +131,16 @@ export function DirectorySettings() {
             </div>
             <div className="flex flex-wrap gap-3">
               <InkButton
-                disabled={status === "unsupported" || status === "syncing"}
-                onClick={status === "denied" ? reconnect : choose}
+                disabled={!isSupported || isSyncing || reason === "mobile"}
+                onClick={connect}
                 variant="yellow"
               >
-                {status === "denied" ? (
+                {handle ? (
                   <RefreshCcw size={17} />
                 ) : (
                   <FolderOpen size={17} />
                 )}
-                {status === "denied" ? "重新授权" : "选择文件夹"}
+                {isSyncing ? "同步中..." : handle ? "重新授权" : "选择文件夹"}
               </InkButton>
               {handle && (
                 <InkButton
@@ -279,7 +206,7 @@ export function DirectorySettings() {
               aria-label="确认断开"
               className="bg-orange-500 text-white"
               onClick={() => {
-                disconnect();
+                disconnectDirectory();
                 setShowDisconnect(false);
               }}
               variant="pink"

@@ -5,6 +5,26 @@ import {
 } from "@/features/resume-model/resume-model";
 import { loadSetting } from "@/features/storage/resume-repository";
 
+export type DirectorySyncIssue =
+  | "unbound"
+  | "mobile"
+  | "permission"
+  | "conflict"
+  | "error";
+
+export type DirectorySyncResult =
+  | {
+      status: "synced";
+      directoryName: string;
+      fileName?: string;
+      lastModified?: number;
+    }
+  | {
+      status: "unsynced";
+      issue: DirectorySyncIssue;
+      error?: unknown;
+    };
+
 export interface ResumeFileHandle {
   getFile(): Promise<{
     lastModified: number;
@@ -99,23 +119,27 @@ export function resumeFileName(id: string, title?: string): string {
  */
 export async function syncResumeToDirectoryIfBound(
   resume: ResumeDocument,
-): Promise<void> {
+): Promise<DirectorySyncResult> {
   try {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined") {
+      return { status: "unsynced", issue: "unbound" };
+    }
     const mobile =
       window.matchMedia?.("(max-width: 1023px)").matches ?? false;
-    if (mobile) return;
+    if (mobile) return { status: "unsynced", issue: "mobile" };
 
     const directory =
       await loadSetting<FileSystemDirectoryHandle>("directory-handle");
-    if (!directory) return;
+    if (!directory) return { status: "unsynced", issue: "unbound" };
 
     const permission = await directory.queryPermission({ mode: "readwrite" });
-    if (permission !== "granted") return;
+    if (permission !== "granted") {
+      return { status: "unsynced", issue: "permission" };
+    }
 
     const newFileName = resumeFileName(resume.id, resume.title);
     const handle = await directory.getFileHandle(newFileName, { create: true });
-    await writeResumeFile(handle, resume);
+    const lastModified = await writeResumeFile(handle, resume);
 
     // 清理旧格式 resume-{id}.json 残留（如果存在）
     try {
@@ -124,8 +148,15 @@ export async function syncResumeToDirectoryIfBound(
     } catch {
       // 旧文件不存在或无法删除时忽略
     }
+    return {
+      status: "synced",
+      directoryName: directory.name,
+      fileName: newFileName,
+      lastModified,
+    };
   } catch {
-    // 目录写入失败时静默忽略，IndexedDB 已作为主存储兜底。
+    // 目录写入失败时交由调用方展示为“未同步”，IndexedDB 仍兜底。
+    return { status: "unsynced", issue: "error" };
   }
 }
 
@@ -136,19 +167,23 @@ export async function syncResumeToDirectoryIfBound(
 export async function deleteResumeFromDirectoryIfBound(
   id: string,
   title?: string,
-): Promise<void> {
+): Promise<DirectorySyncResult> {
   try {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined") {
+      return { status: "unsynced", issue: "unbound" };
+    }
     const mobile =
       window.matchMedia?.("(max-width: 1023px)").matches ?? false;
-    if (mobile) return;
+    if (mobile) return { status: "unsynced", issue: "mobile" };
 
     const directory =
       await loadSetting<FileSystemDirectoryHandle>("directory-handle");
-    if (!directory) return;
+    if (!directory) return { status: "unsynced", issue: "unbound" };
 
     const permission = await directory.queryPermission({ mode: "readwrite" });
-    if (permission !== "granted") return;
+    if (permission !== "granted") {
+      return { status: "unsynced", issue: "permission" };
+    }
 
     // 尝试删除新格式 {title}-{id}.json
     if (title) {
@@ -167,7 +202,9 @@ export async function deleteResumeFromDirectoryIfBound(
     } catch {
       // 文件不存在时忽略
     }
+    return { status: "synced", directoryName: directory.name };
   } catch {
-    // 目录删除失败时静默忽略
+    // 目录删除失败时交由调用方展示为“未同步”。
+    return { status: "unsynced", issue: "error" };
   }
 }

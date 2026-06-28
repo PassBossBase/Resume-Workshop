@@ -17,8 +17,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BrandMark, InkButton, Modal } from "@/components/anime-ui/ui";
-import { DirectoryAuthPrompt } from "@/components/directory-auth-prompt";
-import { useDirectoryAuth } from "@/hooks/use-directory-auth";
 import { useOverlay } from "@/hooks/use-overlay";
 import { ImportResumeModal } from "@/features/dashboard/import-resume-modal";
 import { exportResumePdf } from "@/features/pdf-export/export-pdf";
@@ -33,7 +31,6 @@ import {
   DirectoryConflictError,
   readResumeFile,
   resumeFileName,
-  syncResumeToDirectoryIfBound,
   writeResumeFile,
 } from "@/features/storage/directory-sync";
 import {
@@ -51,6 +48,7 @@ import { ResizeHandle, PanelRestoreButton } from "./resize-handle";
 import { listTemplates } from "@/features/templates/template-registry";
 import { TemplateSkeletonPreview } from "@/features/templates/template-skeleton-preview";
 import { useToastStore } from "@/stores/toast-store";
+import { useDirectorySyncStore } from "@/stores/directory-sync-store";
 
 type MobileTab = "content" | "style" | "preview";
 
@@ -79,15 +77,27 @@ export function EditorShell({ id }: { id: string }) {
   const fileStampRef = useRef<number | undefined>(undefined);
   const fileNameRef = useRef<string | undefined>(undefined);
   const initialLoadRef = useRef(true);
+  const lastSaveNoticeRef = useRef("");
   const router = useRouter();
   const resize = usePanelResize();
-  const {
-    handle: directoryHandle,
-    permission: directoryPermission,
-    reauthorize,
-  } = useDirectoryAuth();
+  const directoryHandle = useDirectorySyncStore((state) => state.handle);
+  const directorySyncStatus = useDirectorySyncStore((state) => state.status);
+  const initializeDirectorySync = useDirectorySyncStore(
+    (state) => state.initialize,
+  );
+  const markDirectorySynced = useDirectorySyncStore((state) => state.markSynced);
+  const markDirectoryUnsynced = useDirectorySyncStore(
+    (state) => state.markUnsynced,
+  );
+  const syncResumeToDirectory = useDirectorySyncStore(
+    (state) => state.syncResume,
+  );
 
-  // 当 useDirectoryAuth 获取/更新目录句柄时同步到 directoryRef
+  useEffect(() => {
+    initializeDirectorySync();
+  }, [initializeDirectorySync]);
+
+  // 当全局目录状态获取/更新目录句柄时同步到 directoryRef
   useEffect(() => {
     directoryRef.current = directoryHandle;
   }, [directoryHandle]);
@@ -138,22 +148,46 @@ export function EditorShell({ id }: { id: string }) {
       // 合并目录文件数据，目录优先
       const cached = await loadResume(id);
       let value: ResumeDocument;
+      let currentResumeSynced = false;
       if (directoryFile) {
         value = directoryFile.resume;
         fileStampRef.current = directoryFile.lastModified;
         await saveResume(value);
         fileNameRef.current = resumeFileName(id, value.title);
+        currentResumeSynced = true;
+        if (directory) markDirectorySynced(directory);
       } else {
         value = cached ?? createDefaultResume(id, "我的新简历");
         if (!cached) await saveResume(value);
         // 目录中无文件 → 立即写入
         if (directoryRef.current) {
-          syncResumeToDirectoryIfBound(value);
-          fileNameRef.current = resumeFileName(id, value.title);
+          try {
+            const permission = await directoryRef.current.queryPermission({
+              mode: "readwrite",
+            });
+            if (permission === "granted") {
+              const fileName = resumeFileName(id, value.title);
+              const handle = await directoryRef.current.getFileHandle(
+                fileName,
+                { create: true },
+              );
+              fileStampRef.current = await writeResumeFile(handle, value);
+              fileNameRef.current = fileName;
+              currentResumeSynced = true;
+              markDirectorySynced(directoryRef.current);
+            } else {
+              markDirectoryUnsynced("permission");
+            }
+          } catch {
+            markDirectoryUnsynced("error");
+          }
+        } else {
+          markDirectoryUnsynced("unbound");
         }
       }
       if (!cancelled) {
         load(value);
+        setSaveState(currentResumeSynced ? "synced" : "unsynced");
         setReady(true);
       }
     };
@@ -161,7 +195,13 @@ export function EditorShell({ id }: { id: string }) {
     return () => {
       cancelled = true;
     };
-  }, [id, load]);
+  }, [
+    id,
+    load,
+    markDirectorySynced,
+    markDirectoryUnsynced,
+    setSaveState,
+  ]);
 
   useEffect(() => {
     if (!resume || !ready) return;
@@ -169,12 +209,12 @@ export function EditorShell({ id }: { id: string }) {
       initialLoadRef.current = false;
       return;
     }
-    setSaveState("saving");
     const timer = window.setTimeout(async () => {
       try {
         const directory = directoryRef.current;
         const mobile =
           window.matchMedia?.("(max-width: 1023px)").matches ?? false;
+        let currentResumeSynced = false;
         if (directory && !mobile) {
           const permission = await directory.queryPermission({
             mode: "readwrite",
@@ -202,19 +242,42 @@ export function EditorShell({ id }: { id: string }) {
               resume,
               fileStampRef.current,
             );
+            currentResumeSynced = true;
+            markDirectorySynced(directory);
+          } else {
+            markDirectoryUnsynced("permission");
           }
+        } else {
+          markDirectoryUnsynced(mobile ? "mobile" : "unbound");
         }
         await saveResume(resume);
-        setSaveState("saved");
+        setSaveState(currentResumeSynced ? "synced" : "unsynced");
+        lastSaveNoticeRef.current = "";
       } catch (error) {
         await saveResume(resume);
-        setSaveState(
+        const message =
+          error instanceof DirectoryConflictError
+            ? "本地目录文件有外部修改，当前简历未同步"
+            : "目录同步失败，当前简历已保存到浏览器缓存";
+        markDirectoryUnsynced(
           error instanceof DirectoryConflictError ? "conflict" : "error",
         );
+        setSaveState("unsynced");
+        if (lastSaveNoticeRef.current !== message) {
+          addToast(message, error instanceof DirectoryConflictError ? "error" : "info");
+          lastSaveNoticeRef.current = message;
+        }
       }
     }, 650);
     return () => window.clearTimeout(timer);
-  }, [ready, resume, setSaveState]);
+  }, [
+    addToast,
+    markDirectorySynced,
+    markDirectoryUnsynced,
+    ready,
+    resume,
+    setSaveState,
+  ]);
 
   const download = async () => {
     const pages = pageRefs.current.filter((page): page is HTMLDivElement =>
@@ -234,9 +297,49 @@ export function EditorShell({ id }: { id: string }) {
     };
     load(replacement);
     await saveResume(replacement);
-    syncResumeToDirectoryIfBound(replacement);
-    setSaveState("saved");
+    const syncResult = await syncResumeToDirectory(replacement);
+    if (syncResult.status === "synced") {
+      fileStampRef.current = syncResult.lastModified;
+      fileNameRef.current = syncResult.fileName;
+    }
+    setSaveState(syncResult.status === "synced" ? "synced" : "unsynced");
   };
+
+  useEffect(() => {
+    if (
+      !ready ||
+      !resume ||
+      directorySyncStatus !== "synced" ||
+      saveState === "synced"
+    ) {
+      return;
+    }
+
+    let cancelled = false;
+    const syncCurrentResume = async () => {
+      const syncResult = await syncResumeToDirectory(resume);
+      if (cancelled) return;
+      if (syncResult.status === "synced") {
+        fileStampRef.current = syncResult.lastModified;
+        fileNameRef.current = syncResult.fileName;
+        lastSaveNoticeRef.current = "";
+        setSaveState("synced");
+      } else {
+        setSaveState("unsynced");
+      }
+    };
+    syncCurrentResume();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    directorySyncStatus,
+    ready,
+    resume,
+    saveState,
+    setSaveState,
+    syncResumeToDirectory,
+  ]);
 
   const handleApplyTemplate = (templateResume: ResumeDocument) => {
     applyTemplateLayout(templateResume);
@@ -381,10 +484,6 @@ export function EditorShell({ id }: { id: string }) {
             />
           ) : (
             <section className="scrollbar-thin h-full overflow-y-auto">
-              <DirectoryAuthPrompt
-                permission={directoryPermission}
-                reauthorize={reauthorize}
-              />
               <EditorContent />
             </section>
           )}
@@ -530,25 +629,18 @@ function SaveStatus({
   state: ReturnType<typeof useResumeStore.getState>["saveState"];
 }) {
   const labels = {
-    idle: "本地缓存",
-    saving: "保存中...",
-    saved: "已保存",
-    error: "保存失败",
-    conflict: "文件有冲突",
+    synced: "已同步",
+    unsynced: "未同步",
   };
   return (
     <span
       className={`hidden items-center gap-1.5 rounded-full px-3 py-1 text-xs font-black sm:inline-flex ${
-        state === "error" || state === "conflict"
-          ? "bg-red-100 text-red-700"
-          : "bg-emerald-100 text-emerald-700"
+        state === "synced"
+          ? "bg-emerald-100 text-emerald-700"
+          : "bg-red-100 text-red-700"
       }`}
     >
-      {state === "saving" ? (
-        <Sparkles size={12} />
-      ) : (
-        <LayoutDashboard size={12} />
-      )}
+      {state === "synced" ? <LayoutDashboard size={12} /> : <Sparkles size={12} />}
       {labels[state]}
     </span>
   );

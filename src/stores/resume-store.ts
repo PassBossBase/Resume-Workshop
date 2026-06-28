@@ -49,7 +49,7 @@ interface ResumeState {
   resume?: ResumeDocument;
   /** 当前活动模块 ID，默认 "basics"。 */
   activeModuleId: string;
-  saveState: "idle" | "saving" | "saved" | "error" | "conflict";
+  saveState: "synced" | "unsynced";
 
   // 文档级
   load: (resume: ResumeDocument) => void;
@@ -108,9 +108,10 @@ export const useResumeStore = create<ResumeState>((set) => {
 
   return {
     activeModuleId: "basics",
-    saveState: "idle",
+    saveState: "unsynced",
 
-    load: (resume) => set({ resume, activeModuleId: "basics", saveState: "idle" }),
+    load: (resume) =>
+      set({ resume, activeModuleId: "basics", saveState: "unsynced" }),
     setActiveModule: (activeModuleId) => set({ activeModuleId }),
     setSaveState: (saveState) => set({ saveState }),
 

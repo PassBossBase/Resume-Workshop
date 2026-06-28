@@ -17,8 +17,6 @@ import {
   PageHeading,
   StickerCard,
 } from "@/components/anime-ui/ui";
-import { DirectoryAuthPrompt } from "@/components/directory-auth-prompt";
-import { useDirectoryAuth } from "@/hooks/use-directory-auth";
 import { useOverlay } from "@/hooks/use-overlay";
 import { ImportResumeModal } from "@/features/dashboard/import-resume-modal";
 import { NewResumeModal } from "@/features/dashboard/new-resume-modal";
@@ -28,13 +26,10 @@ import {
   listResumes,
   saveResume,
 } from "@/features/storage/resume-repository";
-import {
-  syncResumeToDirectoryIfBound,
-  deleteResumeFromDirectoryIfBound,
-} from "@/features/storage/directory-sync";
 import { buildContinuousResumePage } from "@/features/templates/resume-pages";
 import { ResumeContentThumbnail } from "@/features/templates/resume-content-thumbnail";
 import { useToastStore } from "@/stores/toast-store";
+import { useDirectorySyncStore } from "@/stores/directory-sync-store";
 
 /** 简历列表页：新建 / 复制 / 删除，加载骨架屏与卡片入口 */
 export function ResumeDashboard({
@@ -65,7 +60,8 @@ export function ResumeDashboard({
   }, []);
 
   const addToast = useToastStore((s) => s.addToast);
-  const { permission: directoryPermission, reauthorize } = useDirectoryAuth();
+  const syncResumeToDirectory = useDirectorySyncStore((s) => s.syncResume);
+  const deleteResumeFromDirectory = useDirectorySyncStore((s) => s.deleteResume);
 
   const duplicate = async (resume: ResumeDocument) => {
     const copy = {
@@ -76,9 +72,12 @@ export function ResumeDashboard({
       updatedAt: new Date().toISOString(),
     };
     await saveResume(copy);
-    syncResumeToDirectoryIfBound(copy);
+    const syncResult = await syncResumeToDirectory(copy);
     setResumes(await listResumes());
     addToast(`「${resume.title}」复制成功`);
+    if (syncResult.status === "unsynced" && syncResult.issue === "error") {
+      addToast("目录未同步，副本已保存到浏览器缓存", "info");
+    }
   };
 
   const confirmRemove = async () => {
@@ -86,11 +85,17 @@ export function ResumeDashboard({
     setIsDeleting(true);
     try {
       await deleteResume(pendingDelete.id);
-      deleteResumeFromDirectoryIfBound(pendingDelete.id, pendingDelete.title);
+      const syncResult = await deleteResumeFromDirectory(
+        pendingDelete.id,
+        pendingDelete.title,
+      );
       setResumes((current) =>
         current.filter((resume) => resume.id !== pendingDelete.id),
       );
       addToast(`「${pendingDelete.title}」已删除`, "info");
+      if (syncResult.status === "unsynced" && syncResult.issue === "error") {
+        addToast("目录文件未能同步删除，请稍后手动检查", "info");
+      }
       setPendingDelete(undefined);
     } catch {
       addToast("删除失败，请重试", "error");
@@ -125,12 +130,6 @@ export function ResumeDashboard({
             新建简历
           </InkButton>
         </div>
-      </div>
-      <div className="my-4">
-        <DirectoryAuthPrompt
-          permission={directoryPermission}
-          reauthorize={reauthorize}
-        />
       </div>
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
