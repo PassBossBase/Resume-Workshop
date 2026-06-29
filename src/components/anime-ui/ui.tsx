@@ -75,13 +75,13 @@ export function ColorTag({
 
 export function BrandMark({ compact = false }: { compact?: boolean }) {
   return (
-    <div className="flex items-center gap-3 font-black">
+    <div className="flex shrink-0 items-center gap-3 font-black">
       <span className="relative grid h-10 w-10 rotate-[-5deg] place-items-center rounded-[14px] border-2 border-black bg-(--yellow) shadow-[3px_3px_0_black]">
         <span className="text-xl">R</span>
         <i className="absolute -right-2 -top-2 h-3 w-3 rounded-full border-2 border-black bg-(--pink)" />
       </span>
       {!compact && (
-        <span className="text-xl tracking-tight">
+        <span className="whitespace-nowrap text-xl tracking-tight">
           简历<span className="text-(--blue)">工坊</span>
         </span>
       )}

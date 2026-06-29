@@ -27,6 +27,8 @@ const colors = [
   "#b41f3f",
 ];
 
+const headingTextColors = ["#ffffff", "#171717", "#394084", "#b41f3f"];
+
 type HsvColor = {
   h: number;
   s: number;
@@ -140,12 +142,20 @@ export function StylePanel() {
     (state) => state.removeCustomModule,
   );
   const updateStyle = useResumeStore((state) => state.updateStyle);
+  const updateLayoutConfig = useResumeStore(
+    (state) => state.updateLayoutConfig,
+  );
 
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dropTarget, setDropTarget] = useState<number | null>(null);
   const [deletingModuleId, setDeletingModuleId] = useState<string | null>(null);
 
   if (!resume) return null;
+
+  const sectionBannerConfig =
+    resume.layoutConfig.type === "single_column_section_banner"
+      ? resume.layoutConfig
+      : null;
 
   const handleDragStart = (index: number) => {
     setDragIndex(index);
@@ -308,6 +318,35 @@ export function StylePanel() {
           ))}
         </div>
       </Panel>
+
+      {sectionBannerConfig && (
+        <Panel
+          title="标题文字颜色"
+          icon={<Palette size={18} />}
+          action={
+            <ThemeColorPicker
+              value={sectionBannerConfig.headingTextColor}
+              onCommit={(color) => updateLayoutConfig({ headingTextColor: color })}
+            />
+          }
+        >
+          <div className="flex flex-wrap gap-3">
+            {headingTextColors.map((color) => (
+              <button
+                aria-label={`标题文字颜色 ${color}`}
+                key={color}
+                className={`h-9 w-9 cursor-pointer rounded-full border-2 border-black transition hover:scale-110 ${
+                  sectionBannerConfig.headingTextColor === color
+                    ? "ring-4 ring-(--yellow) ring-offset-2"
+                    : ""
+                }`}
+                style={{ background: color }}
+                onClick={() => updateLayoutConfig({ headingTextColor: color })}
+              />
+            ))}
+          </div>
+        </Panel>
+      )}
 
       <Panel title="排版" icon={<SlidersHorizontal size={18} />}>
         <Control label="正文字号" value={`${resume.styles.fontSize}px`}>

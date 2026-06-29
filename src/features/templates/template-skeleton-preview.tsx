@@ -7,7 +7,8 @@ type SkeletonVariant =
   | "header"
   | "sidebar"
   | "timeline"
-  | "line";
+  | "line"
+  | "banner";
 
 interface SkeletonConfig {
   accent: string;
@@ -53,6 +54,12 @@ const skeletonConfig: Record<TemplateId, SkeletonConfig> = {
     title: "分割线模板骨架预览",
     variant: "line",
   },
+  single_column_section_banner: {
+    accent: "#394084",
+    muted: "#e3e7eb",
+    title: "自定义标题背景模板骨架预览",
+    variant: "banner",
+  },
 };
 
 function Lines({
@@ -84,35 +91,6 @@ function Lines({
         />
       ))}
     </>
-  );
-}
-
-function Section({
-  accent,
-  muted,
-  x = 88,
-  y,
-  width = 618,
-}: {
-  accent: string;
-  muted: string;
-  x?: number;
-  y: number;
-  width?: number;
-}) {
-  return (
-    <g>
-      <rect fill={accent} height="14" rx="7" width="118" x={x} y={y} />
-      <rect
-        fill={accent}
-        height="2"
-        opacity="0.42"
-        width={width}
-        x={x}
-        y={y + 26}
-      />
-      <Lines color={muted} count={3} width={width * 0.82} x={x} y={y + 54} />
-    </g>
   );
 }
 
@@ -513,7 +491,6 @@ function TimelineSkeleton({ accent, muted }: SkeletonConfig) {
   const timelineLineOpacity = "0.38";
   // 左侧栏内容区 x 起点
   const leftX = 88;
-  const leftWidth = 230;
   // 右侧时间轴 x 起点
   const rightX = 358;
   const rightWidth = 348;
@@ -763,6 +740,154 @@ function LineSkeleton({ accent, muted }: SkeletonConfig) {
   );
 }
 
+function BannerSkeleton({ accent, muted }: SkeletonConfig) {
+  // 自定义标题背景：顶部主题色信息横幅 + 模块整条标题背景 + 日期右侧
+  return (
+    <>
+      {/* 顶部信息横幅 */}
+      <rect fill={accent} height="188" width="794" x="0" y="0" />
+      <rect
+        fill="#ffffff"
+        height="28"
+        opacity="0.94"
+        rx="14"
+        width="170"
+        x="88"
+        y="54"
+      />
+      <rect
+        fill="#ffffff"
+        height="10"
+        opacity="0.68"
+        rx="5"
+        width="128"
+        x="88"
+        y="100"
+      />
+      <rect
+        fill="#ffffff"
+        height="9"
+        opacity="0.72"
+        rx="4.5"
+        width="150"
+        x="88"
+        y="134"
+      />
+      <rect
+        fill="#ffffff"
+        height="9"
+        opacity="0.55"
+        rx="4.5"
+        width="160"
+        x="324"
+        y="134"
+      />
+      <rect
+        fill="#ffffff"
+        height="9"
+        opacity="0.72"
+        rx="4.5"
+        width="132"
+        x="88"
+        y="156"
+      />
+      <rect
+        fill="#ffffff"
+        height="9"
+        opacity="0.55"
+        rx="4.5"
+        width="118"
+        x="324"
+        y="156"
+      />
+      <rect
+        fill="#ffffff"
+        height="82"
+        opacity="0.48"
+        rx="4"
+        width="64"
+        x="642"
+        y="52"
+      />
+
+      {[244, 410, 576, 742].map((y, index) => (
+        <g key={y}>
+          {/* 整条模块标题背景 */}
+          <rect fill={accent} height="30" rx="2" width="618" x="88" y={y} />
+          <rect
+            fill="#ffffff"
+            height="30"
+            opacity="0.12"
+            width="30"
+            x="88"
+            y={y}
+          />
+          <circle cx="103" cy={y + 15} fill="#ffffff" opacity="0.86" r="6" />
+          <rect
+            fill="#ffffff"
+            height="10"
+            opacity="0.92"
+            rx="5"
+            width={index === 0 ? "92" : "108"}
+            x="130"
+            y={y + 10}
+          />
+
+          {/* 条目：日期左列 + 内容右列 */}
+          {[0, 1].map((entryIndex) => {
+            const rowY = y + 54 + entryIndex * 58;
+            return (
+              <g key={`${y}-${entryIndex}`}>
+                <rect
+                  fill="#333333"
+                  height="10"
+                  rx="5"
+                  width="132"
+                  x="88"
+                  y={rowY}
+                />
+                <rect
+                  fill={muted}
+                  height="8"
+                  rx="4"
+                  width="86"
+                  x="234"
+                  y={rowY + 1}
+                />
+                <rect
+                  fill="#545454"
+                  height="8"
+                  opacity="0.58"
+                  rx="4"
+                  width="72"
+                  x="584"
+                  y={rowY + 2}
+                />
+                <rect
+                  fill={muted}
+                  height="8"
+                  rx="4"
+                  width="450"
+                  x="88"
+                  y={rowY + 20}
+                />
+                <rect
+                  fill={muted}
+                  height="8"
+                  rx="4"
+                  width="398"
+                  x="88"
+                  y={rowY + 34}
+                />
+              </g>
+            );
+          })}
+        </g>
+      ))}
+    </>
+  );
+}
+
 function renderSkeleton(config: SkeletonConfig): ReactNode {
   switch (config.variant) {
     case "blank":
@@ -775,6 +900,8 @@ function renderSkeleton(config: SkeletonConfig): ReactNode {
       return <TimelineSkeleton {...config} />;
     case "line":
       return <LineSkeleton {...config} />;
+    case "banner":
+      return <BannerSkeleton {...config} />;
     default:
       return <ClassicSkeleton {...config} />;
   }

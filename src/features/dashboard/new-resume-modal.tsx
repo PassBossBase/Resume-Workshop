@@ -19,6 +19,7 @@ import "@/features/templates/header-full-width-template";
 import "@/features/templates/sidebar-left-template";
 import "@/features/templates/timeline-block-template";
 import "@/features/templates/line-separate-template";
+import "@/features/templates/section-banner-template";
 
 /**
  * 新建简历模板选择弹窗。

@@ -373,7 +373,10 @@ export function EditorShell({ id }: { id: string }) {
           >
             <ArrowLeft size={20} />
           </button>
-          <Link className="hidden md:block" href="/">
+          <Link className="hidden md:block xl:hidden" href="/">
+            <BrandMark compact />
+          </Link>
+          <Link className="hidden xl:block" href="/">
             <BrandMark />
           </Link>
           <Link className="md:hidden" href="/">

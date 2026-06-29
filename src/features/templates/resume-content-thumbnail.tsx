@@ -13,6 +13,7 @@ import "./header-full-width-template";
 import "./sidebar-left-template";
 import "./timeline-block-template";
 import "./line-separate-template";
+import "./section-banner-template";
 
 /**
  * Real resume content thumbnail for the dashboard resume list.

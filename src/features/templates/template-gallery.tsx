@@ -15,6 +15,7 @@ import "./header-full-width-template";
 import "./sidebar-left-template";
 import "./timeline-block-template";
 import "./line-separate-template";
+import "./section-banner-template";
 
 /** 模板选择页：展示可用模板，点击卡片即可使用模板创建简历 */
 export function TemplateGallery() {

@@ -12,6 +12,7 @@ import "./header-full-width-template";
 import "./sidebar-left-template";
 import "./timeline-block-template";
 import "./line-separate-template";
+import "./section-banner-template";
 
 /** 实时预览面板，将连续简历按不同断点缩放渲染，并用红线标记分页位置 */
 export const ResumePreview = memo(function ResumePreview({

@@ -136,6 +136,26 @@ export function createLineSeparateTemplate(): ResumeDocument {
   );
 }
 
+export function createSectionBannerTemplate(): ResumeDocument {
+  return createTemplateFromBlank(
+    "自定义标题背景",
+    "single_column_section_banner",
+    {
+      type: "single_column_section_banner",
+      headingTextColor: "#ffffff",
+      textColor: "#333333",
+    },
+    {
+      accent: "#394084",
+      fontFamily: "sans",
+      fontSize: 13,
+      lineHeight: 1.5,
+      pageMargin: 38,
+      sectionGap: 24,
+    },
+  );
+}
+
 export const builtinTemplateFactories: Record<string, () => ResumeDocument> = {
   blank: () => createBlankResume(crypto.randomUUID(), "基础简历"),
   classic: createClassicTemplate,
@@ -143,4 +163,5 @@ export const builtinTemplateFactories: Record<string, () => ResumeDocument> = {
   two_column_sidebar_left: createSidebarLeftTemplate,
   single_column_timeline_block: createTimelineBlockTemplate,
   single_column_line_separate: createLineSeparateTemplate,
+  single_column_section_banner: createSectionBannerTemplate,
 };
