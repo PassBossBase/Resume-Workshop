@@ -84,9 +84,10 @@ export const SectionBannerTemplate = memo(function SectionBannerTemplate({
     >
       {page.showHeader && (
         <header
-          className="relative text-white"
+          className="relative"
           style={{
             background: accent,
+            color: cfg.headingTextColor,
             paddingBottom: Math.max(26, resume.styles.pageMargin * 0.72),
             paddingLeft: resume.styles.pageMargin,
             paddingRight: resume.styles.pageMargin,

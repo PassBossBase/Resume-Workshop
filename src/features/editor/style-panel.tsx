@@ -27,7 +27,7 @@ const colors = [
   "#b41f3f",
 ];
 
-const headingTextColors = ["#ffffff", "#171717", "#394084", "#b41f3f"];
+const headingTextColors = ["#ffffff", "#171717"];
 
 type HsvColor = {
   h: number;
@@ -326,7 +326,9 @@ export function StylePanel() {
           action={
             <ThemeColorPicker
               value={sectionBannerConfig.headingTextColor}
-              onCommit={(color) => updateLayoutConfig({ headingTextColor: color })}
+              onCommit={(color) =>
+                updateLayoutConfig({ headingTextColor: color })
+              }
             />
           }
         >
