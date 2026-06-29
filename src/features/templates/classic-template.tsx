@@ -126,23 +126,41 @@ function ResumeSection({
           if ("visible" in item && !(item as CustomResumeEntry).visible) return null;
           return (
             <article className="break-inside-avoid" key={item.id}>
-              <div className="flex items-start justify-between gap-5">
-                <div className="flex flex-wrap items-baseline gap-x-3">
-                  {module.type !== "skills" && (
-                    <h3 className="font-black">{item.title}</h3>
-                  )}
-                  {item.subtitle && (
-                    <span className="text-[0.857em] font-semibold text-black">
-                      {item.subtitle}
+              {module.type === "education" ? (
+                <div className="grid grid-cols-3 items-start gap-4">
+                  <h3 className="font-black">{item.title}</h3>
+                  <span className="text-center text-[0.857em] font-semibold text-black">
+                    {item.subtitle}
+                  </span>
+                  {(item.startDate || item.endDate) && (
+                    <span className="shrink-0 px-2 py-1 text-right text-[0.714em] font-bold text-black">
+                      {[item.startDate, item.endDate]
+                        .filter(Boolean)
+                        .join(" - ")}
                     </span>
                   )}
                 </div>
-                {(item.startDate || item.endDate) && (
-                  <span className="shrink-0 px-2 py-1 text-[0.714em] font-bold text-black">
-                    {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
-                  </span>
-                )}
-              </div>
+              ) : (
+                <div className="flex items-start justify-between gap-5">
+                  <div className="flex flex-wrap items-baseline gap-x-3">
+                    {module.type !== "skills" && (
+                      <h3 className="font-black">{item.title}</h3>
+                    )}
+                    {item.subtitle && (
+                      <span className="text-[0.857em] font-semibold text-black">
+                        {item.subtitle}
+                      </span>
+                    )}
+                  </div>
+                  {(item.startDate || item.endDate) && (
+                    <span className="shrink-0 px-2 py-1 text-[0.714em] font-bold text-black">
+                      {[item.startDate, item.endDate]
+                        .filter(Boolean)
+                        .join(" - ")}
+                    </span>
+                  )}
+                </div>
+              )}
               {item.description && (
                 <div
                   className="rich-text-content resume-rich-text mt-2 text-[0.857em] text-black"

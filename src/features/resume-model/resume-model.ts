@@ -42,6 +42,7 @@ export const templateIdSchema = z.enum([
   "two_column_sidebar_left",
   "single_column_timeline_block",
   "single_column_line_separate",
+  "single_column_section_banner",
 ]);
 
 export type TemplateId = z.infer<typeof templateIdSchema>;
@@ -140,6 +141,11 @@ export const layoutConfigSchema = z.discriminatedUnion("type", [
     headerLineColor: z.string().default("#6b8ba4"),
     sectionSeparateLineColor: z.string().default("#334155"),
     titleColor: z.string().default("#223344"),
+    textColor: z.string().default("#333333"),
+  }),
+  z.object({
+    type: z.literal("single_column_section_banner"),
+    headingTextColor: z.string().default("#ffffff"),
     textColor: z.string().default("#333333"),
   }),
 ]);
