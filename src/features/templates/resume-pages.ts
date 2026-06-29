@@ -32,9 +32,9 @@ function estimateEntryHeight(entry: EntryLike): number {
   return 58 + Math.max(lines, 1) * 21;
 }
 
-/** 判断条目是否可见：固定条目始终可见，自定义条目检查 visible 字段 */
+/** 判断条目是否可见：未声明 visible 的旧固定条目按可见处理 */
 function isEntryVisible(entry: ResumeEntry | CustomResumeEntry): boolean {
-  return !("visible" in entry) || entry.visible;
+  return !("visible" in entry) || entry.visible !== false;
 }
 
 function buildVisibleModules(resume: ResumeDocument): ResumeModule[] {

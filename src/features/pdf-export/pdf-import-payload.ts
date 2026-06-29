@@ -112,8 +112,10 @@ function pruneFixedModule(module: FixedResumeModule): FixedResumeModule {
 
   return {
     ...module,
-    visible: module.items.length > 0,
-    items: module.items.map((item) => ({ ...item })),
+    visible: module.items.some((item) => item.visible !== false),
+    items: module.items
+      .filter((item) => item.visible !== false)
+      .map((item) => ({ ...item, visible: true })),
   };
 }
 

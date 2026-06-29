@@ -283,6 +283,7 @@ const entrySchema = z.object({
   startDate: z.string(),
   endDate: z.string(),
   description: z.string(),
+  visible: z.boolean().optional(),
   entryStyle: entryStyleSchema.optional(),
 });
 

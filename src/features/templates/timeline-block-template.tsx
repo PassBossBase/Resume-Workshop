@@ -126,7 +126,9 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
                     style={{ width: 2, background: cfg.timelineLineColor }}
                   />
                   <div className="space-y-5">
-                    {mod.items.map((item, i) => (
+                    {mod.items
+                      .filter((item) => item.visible !== false)
+                      .map((item, i) => (
                       <div className="relative pl-8 overflow-hidden" key={item.id}>
                         {/* 圆点 */}
                         <span

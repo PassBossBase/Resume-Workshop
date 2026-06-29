@@ -461,6 +461,7 @@ export function EditorContent() {
               key={item.id}
               index={index}
               item={item}
+              moduleType={activeSection.type}
               onChange={(patch) =>
                 updateEntry(activeSection.id, item.id, patch)
               }
@@ -692,6 +693,7 @@ function CustomBasicFieldRow({
 function EntryEditor({
   item,
   index,
+  moduleType,
   onChange,
   onMove,
   onRemove,
@@ -699,17 +701,30 @@ function EntryEditor({
 }: {
   item: ResumeEntry;
   index: number;
+  moduleType: string;
   onChange: (patch: Partial<ResumeEntry>) => void;
   onMove: (direction: -1 | 1) => void;
   onRemove: () => void;
   onStyleChange?: (style: { bgColor?: string } | undefined) => void;
 }) {
+  const canToggleVisibility = moduleType === "projects";
+  const hidden = item.visible === false;
+  const entryLabel = item.title.trim() || `条目 ${index + 1}`;
+
   return (
-    <SectionCard variant="beige" className="p-5">
+    <SectionCard
+      variant="beige"
+      className={["p-5", hidden ? "opacity-55" : ""].join(" ")}
+    >
       <div className="mb-5 flex items-center justify-between">
-        <span className="rounded-full border-2 border-black bg-(--yellow) px-3 py-1 text-xs font-black">
-          条目 {index + 1}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full border-2 border-black bg-(--yellow) px-3 py-1 text-xs font-black">
+            条目 {index + 1}
+          </span>
+          {hidden && (
+            <span className="text-xs font-bold text-black/35">已隐藏</span>
+          )}
+        </div>
         <div className="flex gap-2">
           <button
             aria-label="上移"
@@ -725,6 +740,15 @@ function EntryEditor({
           >
             <ArrowDown size={16} />
           </button>
+          {canToggleVisibility && (
+            <button
+              aria-label={`${hidden ? "显示" : "隐藏"}${entryLabel}`}
+              className="rounded-xl border-2 border-black p-2"
+              onClick={() => onChange({ visible: hidden })}
+            >
+              {hidden ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          )}
           <button
             aria-label="删除条目"
             className="rounded-xl border-2 border-black p-2 text-red-600"
