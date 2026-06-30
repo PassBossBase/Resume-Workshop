@@ -138,6 +138,9 @@ export function EditorContent() {
   if (!activeSection) return null;
   const meta = getModuleMeta(activeSection);
   const Icon = meta.icon;
+  const canEditSectionIcon =
+    resume.templateId === "single_column_header_full_width" &&
+    ["work", "projects", "education"].includes(activeSection.type);
 
   // 自定义模块使用独立编辑器
   if (activeSection.type === "custom") {
@@ -164,7 +167,7 @@ export function EditorContent() {
         </div>
       </SectionCard>
 
-      {activeSection.type !== "basics" && (
+      {canEditSectionIcon && (
         <div className="mb-8">
           <label className="grid gap-1">
             <span className="text-sm font-bold">模块图标</span>
@@ -707,7 +710,9 @@ function EntryEditor({
   onRemove: () => void;
   onStyleChange?: (style: { bgColor?: string } | undefined) => void;
 }) {
-  const canToggleVisibility = moduleType === "projects";
+  const canToggleVisibility = ["work", "projects", "education"].includes(
+    moduleType,
+  );
   const hidden = item.visible === false;
   const entryLabel = item.title.trim() || `条目 ${index + 1}`;
 
