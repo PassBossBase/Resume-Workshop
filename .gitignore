@@ -22,6 +22,8 @@ custom.md
 
 # next.js
 /.next/
+/.open-next/
+/.wrangler/
 /out/
 
 # production

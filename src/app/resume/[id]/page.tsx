@@ -1,4 +1,4 @@
-import { EditorShell } from "@/features/editor/editor-shell";
+import { EditorShellLoader } from "@/features/editor/editor-shell-loader";
 
 export default async function ResumePage({
   params,
@@ -6,5 +6,5 @@ export default async function ResumePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <EditorShell id={id} />;
+  return <EditorShellLoader id={id} />;
 }
