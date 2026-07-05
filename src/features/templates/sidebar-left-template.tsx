@@ -4,14 +4,23 @@
  * 布局：左侧深色侧边栏（头像+信息）+ 右侧主体内容区
  */
 import { memo } from "react";
-import type { CustomResumeEntry, ResumeDocument, ResumeModule } from "@/features/resume-model/resume-model";
+import type {
+  CustomResumeEntry,
+  ResumeDocument,
+  ResumeModule,
+} from "@/features/resume-model/resume-model";
 import { getBasicDisplayItems } from "@/features/resume-model/resume-model";
 import type { ResumePageData } from "./resume-pages";
-import { normalizeRichText, sanitizeRichText } from "@/features/rich-text/rich-text";
+import {
+  normalizeRichText,
+  sanitizeRichText,
+} from "@/features/rich-text/rich-text";
 import { registerTemplate } from "./template-registry";
 
 export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
-  resume, page, pageRef,
+  resume,
+  page,
+  pageRef,
 }: {
   resume: ResumeDocument;
   page: ResumePageData;
@@ -21,9 +30,12 @@ export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
   if (cfg.type !== "two_column_sidebar_left") return null;
 
   const firstModule = resume.modules[0];
-  const basics = firstModule?.type === "basics" ? firstModule.basics : undefined;
+  const basics =
+    firstModule?.type === "basics" ? firstModule.basics : undefined;
   const basicDisplayItems = getBasicDisplayItems(basics);
-  const sidebarModules = page.modules.filter((module) => module.type === "education");
+  const sidebarModules = page.modules.filter(
+    (module) => module.type === "education",
+  );
   const mainModules = page.modules.filter(
     (module) => module.type !== "basics" && module.type !== "education",
   );
@@ -95,9 +107,15 @@ export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
         style={{ background: cfg.contentBgColor, padding: pageMargin }}
       >
         {page.showHeader && (
-          <header className="mb-6 border-b pb-5" style={{ borderColor: resume.styles.accent }}>
+          <header
+            className="mb-6 border-b pb-5"
+            style={{ borderColor: resume.styles.accent }}
+          >
             {basics?.name && (
-              <h1 className="text-[1.857em] font-black" style={{ color: cfg.titleColor }}>
+              <h1
+                className="text-[1.857em] font-black"
+                style={{ color: cfg.titleColor }}
+              >
                 {basics.name}
               </h1>
             )}
@@ -121,29 +139,58 @@ export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
 });
 
 function SidebarSection({
-  module, accent, titleColor, textColor,
+  module,
+  accent,
+  titleColor,
+  textColor,
 }: {
-  module: ResumeModule; accent: string; titleColor: string; textColor: string;
+  module: ResumeModule;
+  accent: string;
+  titleColor: string;
+  textColor: string;
 }) {
   return (
     <section className="break-inside-avoid">
-      <div className="mb-3 flex items-center gap-2 border-b pb-1.5" style={{ borderColor: accent }}>
+      <div
+        className="mb-3 flex items-center gap-2 border-b pb-1.5"
+        style={{ borderColor: accent }}
+      >
         <i className="h-3.5 w-1 rounded-full" style={{ background: accent }} />
-        <h2 className="text-[1.071em] font-black" style={{ color: titleColor }}>{module.title}</h2>
+        <h2 className="text-[1.071em] font-black" style={{ color: titleColor }}>
+          {module.title}
+        </h2>
       </div>
 
       <div className="space-y-4">
         {module.items.map((item) => {
-          if ("visible" in item && !(item as CustomResumeEntry).visible) return null;
+          if ("visible" in item && !(item as CustomResumeEntry).visible)
+            return null;
           return (
             <article className="break-inside-avoid" key={item.id}>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  {module.type !== "skills" && <h3 className="font-black text-[1em]" style={{ color: textColor }}>{item.title}</h3>}
-                  {item.subtitle && <span className="text-[0.857em]" style={{ color: textColor }}>{item.subtitle}</span>}
+                  {module.type !== "skills" && (
+                    <h3
+                      className="font-black text-[1em]"
+                      style={{ color: textColor }}
+                    >
+                      {item.title}
+                    </h3>
+                  )}
+                  {item.subtitle && (
+                    <span
+                      className="text-[0.857em]"
+                      style={{ color: textColor }}
+                    >
+                      {item.subtitle}
+                    </span>
+                  )}
                 </div>
                 {(item.startDate || item.endDate) && (
-                  <span className="shrink-0 text-[0.786em] font-bold" style={{ color: textColor }}>
+                  <span
+                    className="shrink-0 text-[0.786em] font-bold"
+                    style={{ color: textColor }}
+                  >
                     {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
                   </span>
                 )}
@@ -152,7 +199,11 @@ function SidebarSection({
                 <div
                   className="rich-text-content resume-rich-text mt-1.5 text-[0.857em]"
                   style={{ color: textColor }}
-                  dangerouslySetInnerHTML={{ __html: sanitizeRichText(normalizeRichText(item.description)) }}
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeRichText(
+                      normalizeRichText(item.description),
+                    ),
+                  }}
                 />
               )}
             </article>
@@ -166,6 +217,6 @@ function SidebarSection({
 registerTemplate({
   id: "two_column_sidebar_left",
   name: "深色侧边栏双栏",
-  description: "左侧深色侧边栏+右侧主体，适合应届生/实习生",
+  description: "左侧深色侧边栏+右侧主体",
   component: SidebarLeftTemplate,
 });

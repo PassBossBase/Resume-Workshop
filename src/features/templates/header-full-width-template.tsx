@@ -38,7 +38,15 @@ const ICON_MAP: Record<string, typeof Award> = {
   user: UserRound,
 };
 
-function ModuleIcon({ iconName, size = 16, style }: { iconName?: string; size?: number; style?: React.CSSProperties }) {
+function ModuleIcon({
+  iconName,
+  size = 16,
+  style,
+}: {
+  iconName?: string;
+  size?: number;
+  style?: React.CSSProperties;
+}) {
   if (!iconName) return null;
   const IconComponent = ICON_MAP[iconName];
   if (!IconComponent) return null;
@@ -60,7 +68,8 @@ export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
   if (cfg.type !== "single_column_header_full_width") return null;
 
   const firstModule = resume.modules[0];
-  const basics = firstModule?.type === "basics" ? firstModule.basics : undefined;
+  const basics =
+    firstModule?.type === "basics" ? firstModule.basics : undefined;
   const basicDisplayItems = getBasicDisplayItems(basics);
   const headerBg = cfg.headerBgColor;
   const fontFamilies: Record<string, string> = {
@@ -128,7 +137,9 @@ export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
           gap: resume.styles.sectionGap,
           paddingLeft: resume.styles.pageMargin,
           paddingRight: resume.styles.pageMargin,
-          paddingTop: page.showHeader ? resume.styles.sectionGap : resume.styles.pageMargin,
+          paddingTop: page.showHeader
+            ? resume.styles.sectionGap
+            : resume.styles.pageMargin,
           paddingBottom: resume.styles.sectionGap,
         }}
       >
@@ -164,8 +175,15 @@ function HeaderFullWidthSection({
   return (
     <section className="break-inside-avoid">
       {/* 模块标题 */}
-      <div className="mb-3 flex items-center gap-2 border-b pb-2" style={{ borderColor: accent }}>
-        <ModuleIcon iconName={module.sectionIcon} size={16} style={{ color: accent }} />
+      <div
+        className="mb-3 flex items-center gap-2 border-b pb-2"
+        style={{ borderColor: accent }}
+      >
+        <ModuleIcon
+          iconName={module.sectionIcon}
+          size={16}
+          style={{ color: accent }}
+        />
         <h2 className="text-[1.143em] font-black" style={{ color: titleColor }}>
           {module.title}
         </h2>
@@ -174,7 +192,8 @@ function HeaderFullWidthSection({
       {/* 条目列表 */}
       <div className="space-y-4">
         {module.items.map((item) => {
-          if ("visible" in item && !(item as CustomResumeEntry).visible) return null;
+          if ("visible" in item && !(item as CustomResumeEntry).visible)
+            return null;
           return (
             <article className="break-inside-avoid" key={item.id}>
               {module.type === "education" ? (
@@ -220,7 +239,9 @@ function HeaderFullWidthSection({
                 <div
                   className="rich-text-content resume-rich-text mt-2 text-[0.929em] text-black"
                   dangerouslySetInnerHTML={{
-                    __html: sanitizeRichText(normalizeRichText(item.description)),
+                    __html: sanitizeRichText(
+                      normalizeRichText(item.description),
+                    ),
                   }}
                 />
               )}
@@ -236,6 +257,6 @@ function HeaderFullWidthSection({
 registerTemplate({
   id: "single_column_header_full_width",
   name: "蓝色头部单栏",
-  description: "全宽蓝色头部通栏，适合产品/技术岗位",
+  description: "全宽蓝色头部通栏",
   component: HeaderFullWidthTemplate,
 });

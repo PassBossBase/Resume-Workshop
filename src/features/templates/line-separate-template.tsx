@@ -5,14 +5,23 @@
  */
 import { GraduationCap, BriefcaseBusiness } from "lucide-react";
 import { memo } from "react";
-import type { CustomResumeEntry, ResumeDocument, ResumeModule } from "@/features/resume-model/resume-model";
+import type {
+  CustomResumeEntry,
+  ResumeDocument,
+  ResumeModule,
+} from "@/features/resume-model/resume-model";
 import { getBasicDisplayItems } from "@/features/resume-model/resume-model";
 import type { ResumePageData } from "./resume-pages";
-import { normalizeRichText, sanitizeRichText } from "@/features/rich-text/rich-text";
+import {
+  normalizeRichText,
+  sanitizeRichText,
+} from "@/features/rich-text/rich-text";
 import { registerTemplate } from "./template-registry";
 
 export const LineSeparateTemplate = memo(function LineSeparateTemplate({
-  resume, page, pageRef,
+  resume,
+  page,
+  pageRef,
 }: {
   resume: ResumeDocument;
   page: ResumePageData;
@@ -22,7 +31,8 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
   if (cfg.type !== "single_column_line_separate") return null;
 
   const firstModule = resume.modules[0];
-  const basics = firstModule?.type === "basics" ? firstModule.basics : undefined;
+  const basics =
+    firstModule?.type === "basics" ? firstModule.basics : undefined;
   const basicDisplayItems = getBasicDisplayItems(basics);
   const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
@@ -48,7 +58,10 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
           <div className="flex items-center justify-between">
             <div>
               {basics?.name && (
-                <h1 className="text-[2em] font-black tracking-wide" style={{ color: cfg.titleColor }}>
+                <h1
+                  className="text-[2em] font-black tracking-wide"
+                  style={{ color: cfg.titleColor }}
+                >
                   {basics.name}
                 </h1>
               )}
@@ -63,7 +76,10 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
             </div>
           </div>
           {/* 分割线 - 跟随主题色 */}
-          <div className="mt-4" style={{ height: 3, background: resume.styles.accent }} />
+          <div
+            className="mt-4"
+            style={{ height: 3, background: resume.styles.accent }}
+          />
         </header>
       )}
 
@@ -88,16 +104,18 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
 
       {/* ======== 分段线模块区 ======== */}
       <main style={{ display: "grid", gap: resume.styles.sectionGap }}>
-        {page.modules.filter((m) => m.type !== "basics").map((mod) => (
-          <LineSeparateSection
-            accent={resume.styles.accent}
-            key={mod.id}
-            module={mod}
-            titleColor={cfg.titleColor}
-            textColor={cfg.textColor}
-            separateColor={resume.styles.accent}
-          />
-        ))}
+        {page.modules
+          .filter((m) => m.type !== "basics")
+          .map((mod) => (
+            <LineSeparateSection
+              accent={resume.styles.accent}
+              key={mod.id}
+              module={mod}
+              titleColor={cfg.titleColor}
+              textColor={cfg.textColor}
+              separateColor={resume.styles.accent}
+            />
+          ))}
       </main>
     </div>
   );
@@ -114,9 +132,17 @@ function InfoRow({ label, value }: { label: string; value?: string }) {
 }
 
 function LineSeparateSection({
-  module, accent, titleColor, textColor, separateColor,
+  module,
+  accent,
+  titleColor,
+  textColor,
+  separateColor,
 }: {
-  module: ResumeModule; accent: string; titleColor: string; textColor: string; separateColor: string;
+  module: ResumeModule;
+  accent: string;
+  titleColor: string;
+  textColor: string;
+  separateColor: string;
 }) {
   return (
     <section className="break-inside-avoid">
@@ -125,21 +151,33 @@ function LineSeparateSection({
 
       <div className="mb-2 flex items-center gap-2">
         <i className="h-3.5 w-1 rounded-full" style={{ background: accent }} />
-        <h2 className="text-[1.071em] font-black" style={{ color: titleColor }}>{module.title}</h2>
+        <h2 className="text-[1.071em] font-black" style={{ color: titleColor }}>
+          {module.title}
+        </h2>
       </div>
 
       <div className="space-y-4">
         {module.items.map((item) => {
-          if ("visible" in item && !(item as CustomResumeEntry).visible) return null;
+          if ("visible" in item && !(item as CustomResumeEntry).visible)
+            return null;
           return (
             <article className="break-inside-avoid" key={item.id}>
               {module.type === "education" ? (
                 <div className="grid grid-cols-3 items-start gap-3">
-                  <h3 className="text-[1em] font-black" style={{ color: textColor }}>{item.title}</h3>
-                  <span className="text-center text-[0.857em] text-black">{item.subtitle}</span>
+                  <h3
+                    className="text-[1em] font-black"
+                    style={{ color: textColor }}
+                  >
+                    {item.title}
+                  </h3>
+                  <span className="text-center text-[0.857em] text-black">
+                    {item.subtitle}
+                  </span>
                   {(item.startDate || item.endDate) && (
                     <span className="shrink-0 text-right text-[0.786em] font-bold text-black">
-                      {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
+                      {[item.startDate, item.endDate]
+                        .filter(Boolean)
+                        .join(" - ")}
                     </span>
                   )}
                 </div>
@@ -147,13 +185,24 @@ function LineSeparateSection({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     {module.type !== "skills" && (
-                      <h3 className="font-black text-[1em]" style={{ color: textColor }}>{item.title}</h3>
+                      <h3
+                        className="font-black text-[1em]"
+                        style={{ color: textColor }}
+                      >
+                        {item.title}
+                      </h3>
                     )}
-                    {item.subtitle && <span className="text-[0.857em] text-black">{item.subtitle}</span>}
+                    {item.subtitle && (
+                      <span className="text-[0.857em] text-black">
+                        {item.subtitle}
+                      </span>
+                    )}
                   </div>
                   {(item.startDate || item.endDate) && (
                     <span className="shrink-0 text-[0.786em] font-bold text-black">
-                      {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
+                      {[item.startDate, item.endDate]
+                        .filter(Boolean)
+                        .join(" - ")}
                     </span>
                   )}
                 </div>
@@ -161,7 +210,11 @@ function LineSeparateSection({
               {item.description && (
                 <div
                   className="rich-text-content resume-rich-text mt-1.5 text-[0.857em] text-black"
-                  dangerouslySetInnerHTML={{ __html: sanitizeRichText(normalizeRichText(item.description)) }}
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeRichText(
+                      normalizeRichText(item.description),
+                    ),
+                  }}
                 />
               )}
             </article>
@@ -175,6 +228,6 @@ function LineSeparateSection({
 registerTemplate({
   id: "single_column_line_separate",
   name: "复古分割线",
-  description: "顶部双标题+分段线分隔，清晰稳重，适合传统行业",
+  description: "顶部双标题+分段线分隔，清晰稳重",
   component: LineSeparateTemplate,
 });

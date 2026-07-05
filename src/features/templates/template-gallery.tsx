@@ -2,7 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
-import { PageContainer, PageHeading, StickerCard } from "@/components/anime-ui/ui";
+import {
+  PageContainer,
+  PageHeading,
+  StickerCard,
+} from "@/components/anime-ui/ui";
 import { builtinTemplateFactories } from "@/features/resume-model/template-presets";
 import { saveResume } from "@/features/storage/resume-repository";
 import { listTemplates } from "./template-registry";
@@ -37,7 +41,7 @@ export function TemplateGallery() {
   };
 
   return (
-    <PageContainer className="flex h-full flex-col overflow-hidden">
+    <PageContainer className="flex h-full flex-col overflow-hidden gap-4">
       <div className="flex flex-wrap items-end justify-between gap-5 shrink-0">
         <div>
           <PageHeading
@@ -49,15 +53,11 @@ export function TemplateGallery() {
             subtitle="选择一套模板作为起点，快速生成你的简历。"
           />
         </div>
-        {/* <InkButton variant="paper">
-          <Plus size={18} />
-          添加模板
-        </InkButton> */}
       </div>
 
       <div className="flex-1 overflow-y-auto">
         <div
-          className="mt-8 grid gap-7 sm:grid-cols-2 xl:grid-cols-4"
+          className="grid gap-7 sm:grid-cols-2 xl:grid-cols-4"
           data-testid="template-grid"
         >
           {templateEntries.map((entry, index) => (

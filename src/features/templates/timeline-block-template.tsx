@@ -4,14 +4,23 @@
  * 布局：顶部标题+头像+简介 → 左侧信息栏+右侧时间轴色块经历
  */
 import { memo } from "react";
-import type { CustomResumeEntry, ResumeDocument, ResumeModule } from "@/features/resume-model/resume-model";
+import type {
+  CustomResumeEntry,
+  ResumeDocument,
+  ResumeModule,
+} from "@/features/resume-model/resume-model";
 import { getBasicDisplayItems } from "@/features/resume-model/resume-model";
 import type { ResumePageData } from "./resume-pages";
-import { normalizeRichText, sanitizeRichText } from "@/features/rich-text/rich-text";
+import {
+  normalizeRichText,
+  sanitizeRichText,
+} from "@/features/rich-text/rich-text";
 import { registerTemplate } from "./template-registry";
 
 export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
-  resume, page, pageRef,
+  resume,
+  page,
+  pageRef,
 }: {
   resume: ResumeDocument;
   page: ResumePageData;
@@ -21,7 +30,8 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
   if (cfg.type !== "single_column_timeline_block") return null;
 
   const firstModule = resume.modules[0];
-  const basics = firstModule?.type === "basics" ? firstModule.basics : undefined;
+  const basics =
+    firstModule?.type === "basics" ? firstModule.basics : undefined;
   const basicDisplayItems = getBasicDisplayItems(basics);
   const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
@@ -32,8 +42,12 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
   const colors = cfg.blockColorList;
   const pageMargin = resume.styles.pageMargin;
   // 右侧时间轴模块：工作经历 + 项目经历，按 page.modules 顺序排列（支持拖拽换位）
-  const rightModules = page.modules.filter((m) => m.type === "work" || m.type === "projects");
-  const leftModules = page.modules.filter((m) => m.type !== "work" && m.type !== "projects" && m.type !== "basics");
+  const rightModules = page.modules.filter(
+    (m) => m.type === "work" || m.type === "projects",
+  );
+  const leftModules = page.modules.filter(
+    (m) => m.type !== "work" && m.type !== "projects" && m.type !== "basics",
+  );
 
   return (
     <div
@@ -61,7 +75,10 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
           <div className="flex items-start justify-between">
             <div style={{ maxWidth: 620 }}>
               {basics?.name && (
-                <h1 className="text-[1.857em] font-black" style={{ color: cfg.titleColor }}>
+                <h1
+                  className="text-[1.857em] font-black"
+                  style={{ color: cfg.titleColor }}
+                >
                   {basics.name}
                 </h1>
               )}
@@ -92,10 +109,17 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
           {/* 个人信息组 */}
           {basicDisplayItems.length > 0 && (
             <section className="mb-5">
-              <h3 className="mb-2 text-[1em] font-black" style={{ color: cfg.titleColor }}>个人信息</h3>
+              <h3
+                className="mb-2 text-[1em] font-black"
+                style={{ color: cfg.titleColor }}
+              >
+                个人信息
+              </h3>
               <div className="space-y-1 text-[0.857em]">
                 {basicDisplayItems.map((item) => (
-                  <p key={item.key}>{item.label}：{item.value}</p>
+                  <p key={item.key}>
+                    {item.label}：{item.value}
+                  </p>
                 ))}
               </div>
             </section>
@@ -116,7 +140,10 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
             if (mod.items.length === 0) return null;
             return (
               <section key={mod.id} className={modIdx > 0 ? "mt-6" : ""}>
-                <h3 className="mb-5 text-[1em] font-black" style={{ color: cfg.titleColor }}>
+                <h3
+                  className="mb-5 text-[1em] font-black"
+                  style={{ color: cfg.titleColor }}
+                >
                   {mod.title}
                 </h3>
                 <div className="relative">
@@ -129,37 +156,58 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
                     {mod.items
                       .filter((item) => item.visible !== false)
                       .map((item, i) => (
-                      <div className="relative pl-8 overflow-hidden" key={item.id}>
-                        {/* 圆点 */}
-                        <span
-                          className="absolute left-[4px] top-1.5 block rounded-full border-2 bg-white"
-                          style={{
-                            width: 14, height: 14,
-                            borderColor: cfg.timelineLineColor,
-                          }}
-                        />
-                        {/* 日期 */}
-                        {(item.startDate || item.endDate) && (
-                          <span className="text-[0.786em] font-bold text-black wrap-break-word">
-                            {[item.startDate, item.endDate].filter(Boolean).join(" - ")}
-                          </span>
-                        )}
-                        {/* 色块卡片 */}
                         <div
-                          className="mt-1 rounded-lg px-4 py-3 text-white"
-                          style={{ background: item.entryStyle?.bgColor ?? colors[i % colors.length] ?? cfg.titleColor }}
+                          className="relative pl-8 overflow-hidden"
+                          key={item.id}
                         >
-                          <h4 className="font-black text-[1em] wrap-break-word">{item.title}</h4>
-                          {item.subtitle && <p className="text-[0.857em] opacity-90 wrap-break-word">{item.subtitle}</p>}
-                          {item.description && (
-                            <div
-                              className="mt-2 text-[0.857em] leading-relaxed opacity-90 wrap-break-word"
-                              dangerouslySetInnerHTML={{ __html: sanitizeRichText(normalizeRichText(item.description)) }}
-                            />
+                          {/* 圆点 */}
+                          <span
+                            className="absolute left-[4px] top-1.5 block rounded-full border-2 bg-white"
+                            style={{
+                              width: 14,
+                              height: 14,
+                              borderColor: cfg.timelineLineColor,
+                            }}
+                          />
+                          {/* 日期 */}
+                          {(item.startDate || item.endDate) && (
+                            <span className="text-[0.786em] font-bold text-black wrap-break-word">
+                              {[item.startDate, item.endDate]
+                                .filter(Boolean)
+                                .join(" - ")}
+                            </span>
                           )}
+                          {/* 色块卡片 */}
+                          <div
+                            className="mt-1 rounded-lg px-4 py-3 text-white"
+                            style={{
+                              background:
+                                item.entryStyle?.bgColor ??
+                                colors[i % colors.length] ??
+                                cfg.titleColor,
+                            }}
+                          >
+                            <h4 className="font-black text-[1em] wrap-break-word">
+                              {item.title}
+                            </h4>
+                            {item.subtitle && (
+                              <p className="text-[0.857em] opacity-90 wrap-break-word">
+                                {item.subtitle}
+                              </p>
+                            )}
+                            {item.description && (
+                              <div
+                                className="mt-2 text-[0.857em] leading-relaxed opacity-90 wrap-break-word"
+                                dangerouslySetInnerHTML={{
+                                  __html: sanitizeRichText(
+                                    normalizeRichText(item.description),
+                                  ),
+                                }}
+                              />
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 </div>
               </section>
@@ -174,20 +222,29 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
 });
 
 function TimelineLeftSection({
-  module, titleColor,
+  module,
+  titleColor,
 }: {
-  module: ResumeModule; titleColor: string;
+  module: ResumeModule;
+  titleColor: string;
 }) {
   return (
     <section className="mb-5 break-inside-avoid overflow-hidden">
-      <h3 className="mb-2 text-[0.929em] font-black wrap-break-word" style={{ color: titleColor }}>
+      <h3
+        className="mb-2 text-[0.929em] font-black wrap-break-word"
+        style={{ color: titleColor }}
+      >
         {module.title}
       </h3>
 
       {module.items.map((item) => {
-        if ("visible" in item && !(item as CustomResumeEntry).visible) return null;
+        if ("visible" in item && !(item as CustomResumeEntry).visible)
+          return null;
         return (
-          <div className="mb-2 text-[0.857em] overflow-hidden text-black" key={item.id}>
+          <div
+            className="mb-2 text-[0.857em] overflow-hidden text-black"
+            key={item.id}
+          >
             {(item.startDate || item.endDate) && (
               <span className="font-bold wrap-break-word">
                 {[item.startDate, item.endDate].filter(Boolean).join(" ~ ")}
@@ -196,11 +253,15 @@ function TimelineLeftSection({
             {item.title && module.type !== "skills" && (
               <p className="font-bold mt-0.5 wrap-break-word">{item.title}</p>
             )}
-            {item.subtitle && <p className="wrap-break-word">{item.subtitle}</p>}
+            {item.subtitle && (
+              <p className="wrap-break-word">{item.subtitle}</p>
+            )}
             {item.description && (
               <div
                 className="mt-1 wrap-break-word"
-                dangerouslySetInnerHTML={{ __html: sanitizeRichText(normalizeRichText(item.description)) }}
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeRichText(normalizeRichText(item.description)),
+                }}
               />
             )}
           </div>
@@ -213,6 +274,6 @@ function TimelineLeftSection({
 registerTemplate({
   id: "single_column_timeline_block",
   name: "时间轴色块",
-  description: "左侧信息栏+右侧时间轴色块工作与项目经历，适合行政/管理岗位",
+  description: "左侧信息栏+右侧时间轴色块工作与项目经历",
   component: TimelineBlockTemplate,
 });

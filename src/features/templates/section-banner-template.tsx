@@ -277,6 +277,6 @@ function SectionBannerSection({
 registerTemplate({
   id: "single_column_section_banner",
   name: "自定义标题背景",
-  description: "深色信息横幅与标题条，适合前端/技术岗位",
+  description: "深色信息横幅与标题条",
   component: SectionBannerTemplate,
 });

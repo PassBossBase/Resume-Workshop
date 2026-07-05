@@ -85,7 +85,9 @@ export function EditorShell({ id }: { id: string }) {
   const initializeDirectorySync = useDirectorySyncStore(
     (state) => state.initialize,
   );
-  const markDirectorySynced = useDirectorySyncStore((state) => state.markSynced);
+  const markDirectorySynced = useDirectorySyncStore(
+    (state) => state.markSynced,
+  );
   const markDirectoryUnsynced = useDirectorySyncStore(
     (state) => state.markUnsynced,
   );
@@ -195,13 +197,7 @@ export function EditorShell({ id }: { id: string }) {
     return () => {
       cancelled = true;
     };
-  }, [
-    id,
-    load,
-    markDirectorySynced,
-    markDirectoryUnsynced,
-    setSaveState,
-  ]);
+  }, [id, load, markDirectorySynced, markDirectoryUnsynced, setSaveState]);
 
   useEffect(() => {
     if (!resume || !ready) return;
@@ -264,7 +260,10 @@ export function EditorShell({ id }: { id: string }) {
         );
         setSaveState("unsynced");
         if (lastSaveNoticeRef.current !== message) {
-          addToast(message, error instanceof DirectoryConflictError ? "error" : "info");
+          addToast(
+            message,
+            error instanceof DirectoryConflictError ? "error" : "info",
+          );
           lastSaveNoticeRef.current = message;
         }
       }
@@ -483,7 +482,7 @@ export function EditorShell({ id }: { id: string }) {
             <PanelRestoreButton
               onClick={resize.expandMiddle}
               label="展开编辑面板"
-              side="right"
+              side="left"
             />
           ) : (
             <section className="scrollbar-thin h-full overflow-y-auto">
@@ -643,7 +642,11 @@ function SaveStatus({
           : "bg-red-100 text-red-700"
       }`}
     >
-      {state === "synced" ? <LayoutDashboard size={12} /> : <Sparkles size={12} />}
+      {state === "synced" ? (
+        <LayoutDashboard size={12} />
+      ) : (
+        <Sparkles size={12} />
+      )}
       {labels[state]}
     </span>
   );

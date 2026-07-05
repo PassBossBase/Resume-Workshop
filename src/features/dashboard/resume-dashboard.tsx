@@ -61,7 +61,9 @@ export function ResumeDashboard({
 
   const addToast = useToastStore((s) => s.addToast);
   const syncResumeToDirectory = useDirectorySyncStore((s) => s.syncResume);
-  const deleteResumeFromDirectory = useDirectorySyncStore((s) => s.deleteResume);
+  const deleteResumeFromDirectory = useDirectorySyncStore(
+    (s) => s.deleteResume,
+  );
 
   const duplicate = async (resume: ResumeDocument) => {
     const copy = {
@@ -110,8 +112,8 @@ export function ResumeDashboard({
   );
 
   return (
-    <PageContainer className="flex h-full flex-col overflow-hidden">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-5 shrink-0">
+    <PageContainer className="flex h-full flex-col overflow-hidden gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-5 shrink-0">
         <div>
           <PageHeading
             badge="LOCAL RESUME STUDIO"
