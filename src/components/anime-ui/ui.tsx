@@ -1,4 +1,5 @@
 import { clsx } from "clsx";
+import * as Dialog from "@radix-ui/react-dialog";
 import {
   memo,
   type ButtonHTMLAttributes,
@@ -164,8 +165,6 @@ export function Modal({
   ariaLabelledby?: string;
   children: ReactNode;
 }) {
-  if (!open) return null;
-
   const sizeConfig = {
     sm: { maxWidth: "max-w-lg", backdrop: "bg-black/70" },
     md: { maxWidth: "max-w-4xl", backdrop: "bg-black/75" },
@@ -175,28 +174,40 @@ export function Modal({
   const config = sizeConfig[size];
 
   return (
-    <div
-      className={clsx(
-        "fixed inset-0 z-100 grid place-items-center p-4",
-        config.backdrop,
-      )}
-      onMouseDown={(event) => {
-        if (event.currentTarget === event.target && !disabled) onClose();
+    <Dialog.Root
+      modal
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen && !disabled) onClose();
       }}
     >
-      <section
-        aria-labelledby={ariaLabelledby}
-        aria-modal="true"
-        role="dialog"
-        className={clsx(
-          "animate-pop relative w-full overflow-hidden rounded-[28px] border-2 border-black bg-(--paper) shadow-[8px_8px_0_black]",
-          config.maxWidth,
-          className,
-        )}
-      >
-        {children}
-      </section>
-    </div>
+      <Dialog.Portal>
+        <Dialog.Overlay
+          className={clsx(
+            "fixed inset-0 z-100 grid place-items-center p-4",
+            config.backdrop,
+          )}
+        >
+          <Dialog.Content
+            aria-describedby={undefined}
+            aria-labelledby={ariaLabelledby}
+            className={clsx(
+              "animate-pop relative w-full overflow-hidden rounded-[28px] border-2 border-black bg-(--paper) shadow-[8px_8px_0_black]",
+              config.maxWidth,
+              className,
+            )}
+            onEscapeKeyDown={(event) => {
+              if (disabled) event.preventDefault();
+            }}
+            onInteractOutside={(event) => {
+              if (disabled) event.preventDefault();
+            }}
+          >
+            {children}
+          </Dialog.Content>
+        </Dialog.Overlay>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
 

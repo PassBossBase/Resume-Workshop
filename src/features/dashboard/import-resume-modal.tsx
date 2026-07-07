@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation";
 import type { ChangeEvent } from "react";
 import { useMemo, useRef, useState } from "react";
 import { InkButton, Modal } from "@/components/anime-ui/ui";
-import { useOverlay } from "@/hooks/use-overlay";
 import { builtinTemplateFactories } from "@/features/resume-model/template-presets";
 import { saveResume } from "@/features/storage/resume-repository";
 import { listTemplates } from "@/features/templates/template-registry";
@@ -52,7 +51,6 @@ export function ImportResumeModal({
   submitLabel?: string;
 }) {
   const router = useRouter();
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedTemplateId, setSelectedTemplateId] =
     useState<TemplateId>(initialTemplateId);
@@ -65,12 +63,6 @@ export function ImportResumeModal({
 
   const yieldToBrowser = () =>
     new Promise<void>((resolve) => window.setTimeout(resolve, 0));
-
-  useOverlay(open, {
-    disabled: status === "parsing" || status === "saving",
-    focusRef: closeButtonRef,
-    onClose,
-  });
 
   const templateEntries = useMemo(() => listTemplates(), []);
 
@@ -239,7 +231,6 @@ export function ImportResumeModal({
           className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-xl border-2 border-black bg-white transition hover:bg-(--yellow)"
           disabled={status === "parsing" || status === "saving"}
           onClick={close}
-          ref={closeButtonRef}
           type="button"
         >
           <X size={20} />

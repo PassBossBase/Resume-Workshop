@@ -1,7 +1,7 @@
 "use client";
 
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import * as Popover from "@radix-ui/react-popover";
+import { memo, useCallback, useMemo, useState } from "react";
 import {
   Pipette,
   Eye,
@@ -432,12 +432,9 @@ function ThemeColorPicker({
   value: string;
   onCommit: (color: string) => void;
 }) {
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const popoverRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(normalizeHex(value) ?? "#3f57e8");
   const [inputValue, setInputValue] = useState(stripHash(draft));
-  const [position, setPosition] = useState({ left: 0, top: 0 });
   const hsv = useMemo(() => hexToHsv(draft), [draft]);
 
   const syncDraft = useCallback((color: string) => {
@@ -446,20 +443,10 @@ function ThemeColorPicker({
     setInputValue(stripHash(next));
   }, []);
 
-  const updatePosition = useCallback(() => {
-    const rect = buttonRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    setPosition({
-      left: Math.min(rect.right - 256, window.innerWidth - 272),
-      top: rect.bottom + 10,
-    });
-  }, []);
-
-  const openPicker = () => {
+  const openPicker = useCallback(() => {
     syncDraft(value);
-    updatePosition();
     setOpen(true);
-  };
+  }, [syncDraft, value]);
 
   const commitAndClose = useCallback(() => {
     const validInput = normalizeHex(inputValue);
@@ -467,37 +454,16 @@ function ThemeColorPicker({
     setOpen(false);
   }, [draft, inputValue, onCommit]);
 
-  useEffect(() => {
-    if (!open) return;
-
-    updatePosition();
-    window.setTimeout(() => popoverRef.current?.focus(), 0);
-
-    const handlePointerDown = (event: PointerEvent) => {
-      const target = event.target as Node;
-      if (
-        buttonRef.current?.contains(target) ||
-        popoverRef.current?.contains(target)
-      ) {
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      if (nextOpen) {
+        openPicker();
         return;
       }
-      commitAndClose();
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") commitAndClose();
-    };
-
-    window.addEventListener("resize", updatePosition);
-    window.addEventListener("scroll", updatePosition, true);
-    window.addEventListener("pointerdown", handlePointerDown);
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("resize", updatePosition);
-      window.removeEventListener("scroll", updatePosition, true);
-      window.removeEventListener("pointerdown", handlePointerDown);
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [commitAndClose, open, updatePosition]);
+      if (open) commitAndClose();
+    },
+    [commitAndClose, open, openPicker],
+  );
 
   const setFromHsv = (next: HsvColor) => {
     const nextHex = hsvToHex(next);
@@ -527,120 +493,96 @@ function ThemeColorPicker({
   };
 
   return (
-    <>
-      <button
-        title="自定义主题色"
-        aria-expanded={open}
-        aria-label="自定义主题色"
-        className="grid h-9 w-9 cursor-pointer place-items-center rounded-full border-2 border-black bg-white transition hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--blue)"
-        onClick={() => {
-          if (open) commitAndClose();
-          else openPicker();
-        }}
-        ref={buttonRef}
-        style={{ color: value }}
-        type="button"
-      >
-        <Pipette size={17} />
-      </button>
+    <Popover.Root open={open} onOpenChange={handleOpenChange}>
+      <Popover.Trigger asChild>
+        <button
+          title="自定义主题色"
+          aria-label="自定义主题色"
+          className="grid h-9 w-9 cursor-pointer place-items-center rounded-full border-2 border-black bg-white transition hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--blue)"
+          style={{ color: value }}
+          type="button"
+        >
+          <Pipette size={17} />
+        </button>
+      </Popover.Trigger>
 
-      {open && typeof document !== "undefined"
-        ? createPortal(
-            <div
-              className="fixed z-100 w-64 rounded-xl border border-black/10 bg-white p-2 shadow-[0_12px_32px_rgb(0_0_0/18%)]"
-              onBlurCapture={() => {
-                window.setTimeout(() => {
-                  const active = document.activeElement;
-                  if (
-                    active &&
-                    (buttonRef.current?.contains(active) ||
-                      popoverRef.current?.contains(active))
-                  ) {
-                    return;
-                  }
-                  commitAndClose();
-                }, 0);
-              }}
-              ref={popoverRef}
-              role="dialog"
+      <Popover.Portal>
+        <Popover.Content
+          align="end"
+          className="z-100 w-64 rounded-xl border border-black/10 bg-white p-2 shadow-[0_12px_32px_rgb(0_0_0/18%)]"
+          collisionPadding={8}
+          sideOffset={10}
+        >
+          <div
+            aria-label="选择颜色深浅"
+            className="relative h-48 cursor-crosshair overflow-hidden rounded-t-xl"
+            onPointerDown={(event) => {
+              event.currentTarget.setPointerCapture(event.pointerId);
+              updateSaturationValue(event);
+            }}
+            onPointerMove={(event) => {
+              if (event.buttons !== 1) return;
+              updateSaturationValue(event);
+            }}
+            style={{
+              background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(${hsv.h} 100% 50%))`,
+            }}
+          >
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute h-8 w-8 rounded-full border-3 border-white shadow-[0_1px_4px_rgb(0_0_0/45%)]"
               style={{
-                left: Math.max(8, position.left),
-                top: position.top,
+                left: `${hsv.s * 100}%`,
+                top: `${(1 - hsv.v) * 100}%`,
+                transform: "translate(-50%, -50%)",
               }}
-              tabIndex={-1}
-            >
-              <div
-                aria-label="选择颜色深浅"
-                className="relative h-48 cursor-crosshair overflow-hidden rounded-t-xl"
-                onPointerDown={(event) => {
-                  event.currentTarget.setPointerCapture(event.pointerId);
-                  updateSaturationValue(event);
-                }}
-                onPointerMove={(event) => {
-                  if (event.buttons !== 1) return;
-                  updateSaturationValue(event);
-                }}
-                style={{
-                  background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(${hsv.h} 100% 50%))`,
-                }}
-              >
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute h-8 w-8 rounded-full border-3 border-white shadow-[0_1px_4px_rgb(0_0_0/45%)]"
-                  style={{
-                    left: `${hsv.s * 100}%`,
-                    top: `${(1 - hsv.v) * 100}%`,
-                    transform: "translate(-50%, -50%)",
-                  }}
-                />
-              </div>
+            />
+          </div>
 
-              <div
-                aria-label="选择颜色"
-                className="relative h-7 cursor-pointer rounded-b-xl"
-                onPointerDown={(event) => {
-                  event.currentTarget.setPointerCapture(event.pointerId);
-                  updateHue(event);
-                }}
-                onPointerMove={(event) => {
-                  if (event.buttons !== 1) return;
-                  updateHue(event);
-                }}
-                style={{
-                  background:
-                    "linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)",
-                }}
-              >
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute top-1/2 h-7 w-7 rounded-full border-3 border-white shadow-[0_1px_5px_rgb(0_0_0/45%)]"
-                  style={{
-                    background: `hsl(${hsv.h} 100% 50%)`,
-                    left: `${(hsv.h / 360) * 100}%`,
-                    transform: "translate(-50%, -50%)",
-                  }}
-                />
-              </div>
+          <div
+            aria-label="选择颜色"
+            className="relative h-7 cursor-pointer rounded-b-xl"
+            onPointerDown={(event) => {
+              event.currentTarget.setPointerCapture(event.pointerId);
+              updateHue(event);
+            }}
+            onPointerMove={(event) => {
+              if (event.buttons !== 1) return;
+              updateHue(event);
+            }}
+            style={{
+              background:
+                "linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)",
+            }}
+          >
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute top-1/2 h-7 w-7 rounded-full border-3 border-white shadow-[0_1px_5px_rgb(0_0_0/45%)]"
+              style={{
+                background: `hsl(${hsv.h} 100% 50%)`,
+                left: `${(hsv.h / 360) * 100}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            />
+          </div>
 
-              <label className="mt-4 flex items-center gap-3 px-2 pb-2">
-                <span className="text-lg font-bold text-black/45">#</span>
-                <input
-                  aria-label="主题色十六进制值"
-                  className="h-12 min-w-0 flex-1 rounded-2xl border border-black/10 bg-white px-5 text-lg outline-none transition focus:border-black"
-                  maxLength={6}
-                  onBlur={() => {
-                    const next = normalizeHex(inputValue);
-                    if (next) syncDraft(next);
-                  }}
-                  onChange={handleInputChange}
-                  value={inputValue}
-                />
-              </label>
-            </div>,
-            document.body,
-          )
-        : null}
-    </>
+          <label className="mt-4 flex items-center gap-3 px-2 pb-2">
+            <span className="text-lg font-bold text-black/45">#</span>
+            <input
+              aria-label="主题色十六进制值"
+              className="h-12 min-w-0 flex-1 rounded-2xl border border-black/10 bg-white px-5 text-lg outline-none transition focus:border-black"
+              maxLength={6}
+              onBlur={() => {
+                const next = normalizeHex(inputValue);
+                if (next) syncDraft(next);
+              }}
+              onChange={handleInputChange}
+              value={inputValue}
+            />
+          </label>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
   );
 }
 

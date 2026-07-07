@@ -9,7 +9,7 @@ import {
   Unplug,
   X,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   InkButton,
   Modal,
@@ -17,7 +17,6 @@ import {
   PageHeading,
   StickerCard,
 } from "@/components/anime-ui/ui";
-import { useOverlay } from "@/hooks/use-overlay";
 import { useDirectorySyncStore } from "@/stores/directory-sync-store";
 
 const statusText = {
@@ -39,12 +38,10 @@ const reasonText = {
 
 export function DirectorySettings() {
   const [showDisconnect, setShowDisconnect] = useState(false);
-  const closeDisconnectRef = useRef<HTMLButtonElement>(null);
   const [syncResult, setSyncResult] = useState<{
     directoryName: string;
     resumeCount: number;
   } | null>(null);
-  const closeSyncResultRef = useRef<HTMLButtonElement>(null);
   const status = useDirectorySyncStore((state) => state.status);
   const reason = useDirectorySyncStore((state) => state.reason);
   const handle = useDirectorySyncStore((state) => state.handle);
@@ -58,15 +55,6 @@ export function DirectorySettings() {
   const disconnectDirectory = useDirectorySyncStore(
     (state) => state.disconnectDirectory,
   );
-
-  useOverlay(showDisconnect, {
-    focusRef: closeDisconnectRef,
-    onClose: () => setShowDisconnect(false),
-  });
-  useOverlay(Boolean(syncResult), {
-    focusRef: closeSyncResultRef,
-    onClose: () => setSyncResult(null),
-  });
 
   useEffect(() => {
     initialize();
@@ -183,7 +171,6 @@ export function DirectorySettings() {
             aria-label="关闭断开确认"
             className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-xl border-2 border-black bg-white transition hover:bg-(--yellow)"
             onClick={() => setShowDisconnect(false)}
-            ref={closeDisconnectRef}
             type="button"
           >
             <X size={20} />
@@ -242,7 +229,6 @@ export function DirectorySettings() {
             aria-label="关闭同步结果"
             className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-xl border-2 border-black bg-white transition hover:bg-(--yellow)"
             onClick={() => setSyncResult(null)}
-            ref={closeSyncResultRef}
             type="button"
           >
             <X size={20} />

@@ -2,9 +2,8 @@
 
 import { FilePlus2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { Modal, StickerCard } from "@/components/anime-ui/ui";
-import { useOverlay } from "@/hooks/use-overlay";
 import type { ResumeDocument } from "@/features/resume-model/resume-model";
 import { createBlankResume } from "@/features/resume-model/resume-model";
 import { builtinTemplateFactories } from "@/features/resume-model/template-presets";
@@ -36,13 +35,7 @@ export function NewResumeModal({
   defaultTitle: string;
 }) {
   const router = useRouter();
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const syncResumeToDirectory = useDirectorySyncStore((s) => s.syncResume);
-
-  useOverlay(open, {
-    focusRef: closeButtonRef,
-    onClose,
-  });
 
   const templateEntries = useMemo(
     () => listTemplates().filter((e) => e.id !== "blank"),
@@ -104,7 +97,6 @@ export function NewResumeModal({
           aria-label="关闭模板选择"
           className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-xl border-2 border-black bg-white transition hover:bg-(--yellow)"
           onClick={onClose}
-          ref={closeButtonRef}
           type="button"
         >
           <X size={20} />

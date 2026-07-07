@@ -17,7 +17,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BrandMark, InkButton, Modal } from "@/components/anime-ui/ui";
-import { useOverlay } from "@/hooks/use-overlay";
 import { ImportResumeModal } from "@/features/dashboard/import-resume-modal";
 import { exportResumePdf } from "@/features/pdf-export/export-pdf";
 import { builtinTemplateFactories } from "@/features/resume-model/template-presets";
@@ -663,12 +662,6 @@ function TemplateSwitchModal({
   onApply: (templateResume: ResumeDocument) => void;
   onClose: () => void;
 }) {
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-  useOverlay(open, {
-    focusRef: closeButtonRef,
-    onClose,
-  });
-
   const templateEntries = useMemo(() => listTemplates(), []);
   const availableTemplateEntries = useMemo(
     () => templateEntries.filter((entry) => entry.id !== currentTemplateId),
@@ -714,7 +707,6 @@ function TemplateSwitchModal({
           aria-label="关闭更换模板弹窗"
           className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-xl border-2 border-black bg-white transition hover:bg-(--yellow)"
           onClick={onClose}
-          ref={closeButtonRef}
           type="button"
         >
           <X size={20} />

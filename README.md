@@ -95,7 +95,12 @@ npm run typecheck # TypeScript 类型检查 (tsc --noEmit)
 
 ## 技术栈
 
-Next.js 16 (App Router) / React 19 / TypeScript / Tailwind CSS 4 / Zustand 5 / Zod 4 / Tiptap 3 / idb / jsPDF + html-to-image / Lucide React
+Next.js 16 (App Router) / React 19 / TypeScript / Tailwind CSS 4 / Radix UI Primitives / Zustand 5 / Zod 4 / Tiptap 3 / idb / jsPDF + html-to-image / Lucide React
+
+## UI 组件策略
+
+- `anime-ui` 负责项目漫画风外观，包括黑色描边、硬阴影、彩色强调和基础按钮/卡片/弹窗样式。
+- Radix UI Primitives 只作为交互底座使用，当前用于弹窗 Dialog 和颜色选择 Popover 的焦点管理、Escape、外部点击与 Portal 定位，不引入默认视觉样式。
 
 ## 兼容性
 

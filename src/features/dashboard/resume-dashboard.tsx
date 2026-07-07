@@ -9,7 +9,7 @@ import {
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   InkButton,
   Modal,
@@ -17,7 +17,6 @@ import {
   PageHeading,
   StickerCard,
 } from "@/components/anime-ui/ui";
-import { useOverlay } from "@/hooks/use-overlay";
 import { ImportResumeModal } from "@/features/dashboard/import-resume-modal";
 import { NewResumeModal } from "@/features/dashboard/new-resume-modal";
 import type { ResumeDocument } from "@/features/resume-model/resume-model";
@@ -44,13 +43,6 @@ export function ResumeDashboard({
   const [newResumeOpen, setNewResumeOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<ResumeDocument>();
   const [isDeleting, setIsDeleting] = useState(false);
-  const closeDeleteRef = useRef<HTMLButtonElement>(null);
-
-  useOverlay(Boolean(pendingDelete), {
-    disabled: isDeleting,
-    focusRef: closeDeleteRef,
-    onClose: () => setPendingDelete(undefined),
-  });
 
   useEffect(() => {
     listResumes()
@@ -284,7 +276,6 @@ export function ResumeDashboard({
             className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-xl border-2 border-black bg-white transition hover:bg-(--yellow)"
             disabled={isDeleting}
             onClick={() => setPendingDelete(undefined)}
-            ref={closeDeleteRef}
             type="button"
           >
             <X size={20} />
