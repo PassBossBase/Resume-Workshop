@@ -9,7 +9,7 @@ import {
 import Link from "next/link";
 
 const actionLinkBase =
-  "inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-2xl border-2 border-(--line) px-4 font-bold shadow-[3px_3px_0_var(--line)] transition-transform hover:-translate-y-0.5 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none";
+  "inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-2xl border-2 border-(--line) px-4 font-bold shadow-[3px_3px_0_var(--line)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none";
 
 const featureCards = [
   {
@@ -70,7 +70,7 @@ export default function Home() {
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {featureCards.map(({ title, copy, icon: Icon, color }) => (
                 <article
-                  className="rounded-[24px] border-2 border-black bg-(--paper) p-4 shadow-[4px_4px_0_#d9d1c3]"
+                  className="rounded-3xl border-2 border-black bg-(--paper) p-4 shadow-[4px_4px_0_#d9d1c3]"
                   key={title}
                 >
                   <span

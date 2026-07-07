@@ -11,7 +11,6 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
-  InkTooltip,
   InkButton,
   Modal,
   PageContainer,
@@ -117,11 +116,19 @@ export function ResumeDashboard({
           />
         </div>
         <div className="flex gap-4">
-          <InkButton onClick={() => setImportResume(true)} variant="blue">
+          <InkButton
+            onClick={() => setImportResume(true)}
+            pressable
+            variant="blue"
+          >
             <Upload size={17} />
             导入简历
           </InkButton>
-          <InkButton onClick={() => setNewResumeOpen(true)} variant="pink">
+          <InkButton
+            onClick={() => setNewResumeOpen(true)}
+            pressable
+            variant="pink"
+          >
             新建简历
           </InkButton>
         </div>
@@ -209,45 +216,47 @@ export function ResumeDashboard({
                   className="absolute flex top-3 right-3 z-10 gap-2 opacity-0 group-hover/card:opacity-100 transition-all duration-500 ease-out"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <InkTooltip content={`复制 ${resume.title}`}>
-                    <button
-                      type="button"
-                      aria-label={`复制 ${resume.title}`}
-                      className="group/copy relative grid h-10 w-10 place-items-center overflow-hidden rounded-full border-2 border-black bg-white text-(--ink) transition hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        duplicate(resume);
-                      }}
-                    >
-                      <Copy
-                        size={16}
-                        className="transition-all duration-200 group-hover/copy:scale-75 group-hover/copy:opacity-0 group-focus-visible/copy:scale-75 group-focus-visible/copy:opacity-0"
-                      />
-                      <span className="absolute inset-0 flex scale-75 items-center justify-center text-xs font-black opacity-0 transition-all duration-200 group-hover/copy:scale-100 group-hover/copy:opacity-100 group-focus-visible/copy:scale-100 group-focus-visible/copy:opacity-100">
-                        复制
-                      </span>
-                    </button>
-                  </InkTooltip>
+                  <InkButton
+                    type="button"
+                    aria-label={`复制 ${resume.title}`}
+                    className="group/copy relative overflow-hidden rounded-full shadow-none hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    iconOnly
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      duplicate(resume);
+                    }}
+                    size="icon"
+                    variant="paper"
+                  >
+                    <Copy
+                      size={16}
+                      className="transition-all duration-200 group-hover/copy:scale-75 group-hover/copy:opacity-0 group-focus-visible/copy:scale-75 group-focus-visible/copy:opacity-0"
+                    />
+                    <span className="absolute inset-0 flex scale-75 items-center justify-center text-xs font-black opacity-0 transition-all duration-200 group-hover/copy:scale-100 group-hover/copy:opacity-100 group-focus-visible/copy:scale-100 group-focus-visible/copy:opacity-100">
+                      复制
+                    </span>
+                  </InkButton>
 
-                  <InkTooltip content={`删除 ${resume.title}`}>
-                    <button
-                      type="button"
-                      aria-label={`删除 ${resume.title}`}
-                      className="group/del relative grid h-10 w-10 place-items-center overflow-hidden rounded-full border-2 border-black bg-white text-red-600 transition hover:bg-[#ffe1e1] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setPendingDelete(resume);
-                      }}
-                    >
-                      <Trash2
-                        size={16}
-                        className="transition-all duration-200 group-hover/del:scale-75 group-hover/del:opacity-0 group-focus-visible/del:scale-75 group-focus-visible/del:opacity-0"
-                      />
-                      <span className="absolute inset-0 flex scale-75 items-center justify-center text-xs font-black opacity-0 transition-all duration-200 group-hover/del:scale-100 group-hover/del:opacity-100 group-focus-visible/del:scale-100 group-focus-visible/del:opacity-100">
-                        删除
-                      </span>
-                    </button>
-                  </InkTooltip>
+                  <InkButton
+                    type="button"
+                    aria-label={`删除 ${resume.title}`}
+                    className="group/del relative overflow-hidden rounded-full text-red-600 shadow-none hover:bg-[#ffe1e1] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    iconOnly
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPendingDelete(resume);
+                    }}
+                    size="icon"
+                    variant="paper"
+                  >
+                    <Trash2
+                      size={16}
+                      className="transition-all duration-200 group-hover/del:scale-75 group-hover/del:opacity-0 group-focus-visible/del:scale-75 group-focus-visible/del:opacity-0"
+                    />
+                    <span className="absolute inset-0 flex scale-75 items-center justify-center text-xs font-black opacity-0 transition-all duration-200 group-hover/del:scale-100 group-hover/del:opacity-100 group-focus-visible/del:scale-100 group-focus-visible/del:opacity-100">
+                      删除
+                    </span>
+                  </InkButton>
                 </div>
               </StickerCard>
             ))}
@@ -264,7 +273,7 @@ export function ResumeDashboard({
       >
         <div className="comic-dots border-b-2 border-black bg-[#fff0e6] px-6 py-5">
           <div className="flex items-start gap-4">
-            <span className="grid h-14 w-14 shrink-0 rotate-[-4deg] place-items-center rounded-2xl border-2 border-black bg-(--pink) text-white shadow-[3px_3px_0_black]">
+            <span className="grid h-14 w-14 shrink-0 rotate-[-4deg] place-items-center rounded-2xl border-2 border-black bg-(--pink) text-white">
               <AlertTriangle size={28} strokeWidth={2.5} />
             </span>
             <div className="min-w-0 pt-1">
@@ -276,15 +285,19 @@ export function ResumeDashboard({
               </h2>
             </div>
           </div>
-          <button
+          <InkButton
             aria-label="关闭删除确认"
-            className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-xl border-2 border-black bg-white transition hover:bg-(--yellow)"
+            className="absolute right-4 top-4 hover:bg-(--yellow)"
             disabled={isDeleting}
+            iconOnly
             onClick={() => setPendingDelete(undefined)}
+            size="icon"
             type="button"
+            pressable
+            variant="paper"
           >
             <X size={20} />
-          </button>
+          </InkButton>
         </div>
 
         <div className="p-6">
@@ -300,6 +313,7 @@ export function ResumeDashboard({
               disabled={isDeleting}
               onClick={() => setPendingDelete(undefined)}
               variant="paper"
+              pressable
             >
               取消
             </InkButton>
@@ -309,6 +323,7 @@ export function ResumeDashboard({
               disabled={isDeleting}
               onClick={confirmRemove}
               variant="pink"
+              pressable
             >
               <Trash2 size={17} />
               {isDeleting ? "正在删除..." : "确认删除"}

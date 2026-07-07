@@ -52,11 +52,11 @@ export function DirectorySyncMessage() {
   return (
     <div
       aria-live="polite"
-      className="no-print fixed right-4 bottom-4 left-4 z-90 mx-auto max-w-3xl rounded-3xl border-2 border-black bg-[#fff0e6] p-3 shadow-[5px_5px_0_black] md:right-6 md:bottom-6 md:left-auto md:w-100"
+      className="no-print fixed right-4 bottom-4 left-4 z-90 mx-auto max-w-3xl rounded-3xl border-2 border-black bg-[#fff0e6] p-3 md:right-6 md:bottom-6 md:left-auto md:w-100"
       role="status"
     >
       <div className="flex items-start gap-3">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border-2 border-black bg-(--orange) text-white shadow-[2px_2px_0_black]">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border-2 border-black bg-(--orange) text-white">
           <FolderSync size={21} strokeWidth={2.5} />
         </span>
         <div className="min-w-0 flex-1">
@@ -71,6 +71,7 @@ export function DirectorySyncMessage() {
               className="min-h-10 px-3"
               disabled={isSyncing}
               onClick={handleSync}
+              pressable
               variant="yellow"
             >
               <RefreshCw
@@ -81,14 +82,17 @@ export function DirectorySyncMessage() {
             </InkButton>
           </div>
         </div>
-        <button
+        <InkButton
           aria-label="关闭目录同步提示"
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border-2 border-transparent text-black/45 transition hover:border-black hover:bg-white hover:text-black"
+          className="h-9 w-9 shrink-0 rounded-xl border-2 border-transparent text-black/45 hover:border-black hover:bg-white hover:text-black"
+          iconOnly
           onClick={dismissPrompt}
+          size="icon"
           type="button"
+          variant="ghost"
         >
           <X size={17} strokeWidth={2.5} />
-        </button>
+        </InkButton>
       </div>
     </div>
   );

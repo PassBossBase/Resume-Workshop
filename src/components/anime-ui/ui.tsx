@@ -3,6 +3,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as RadixSelect from "@radix-ui/react-select";
 import * as RadixTooltip from "@radix-ui/react-tooltip";
 import { Check, ChevronDown } from "lucide-react";
+import { twMerge } from "tailwind-merge";
 import {
   memo,
   type ButtonHTMLAttributes,
@@ -17,7 +18,7 @@ export const StickerCard = memo(function StickerCard({
   return (
     <div
       className={clsx(
-        "rounded-[26px] border-2 border-(--line) bg-(--paper) transition-shadow hover:shadow-[5px_5px_0_var(--line)]",
+        "rounded-[26px] border-2 border-(--line) bg-(--paper) transition-shadow",
         className,
       )}
       {...props}
@@ -44,6 +45,7 @@ type InkButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean;
   loadingLabel?: string;
   iconOnly?: boolean;
+  pressable?: boolean;
 };
 
 export const InkButton = memo(function InkButton({
@@ -53,6 +55,7 @@ export const InkButton = memo(function InkButton({
   iconOnly = false,
   loading = false,
   loadingLabel = "处理中",
+  pressable = false,
   size,
   variant = "dark",
   ...props
@@ -61,16 +64,16 @@ export const InkButton = memo(function InkButton({
   const ariaLabel =
     props["aria-label"] ?? (iconOnly && loading ? loadingLabel : undefined);
   const variants: Record<InkButtonVariant, string> = {
-    dark: "bg-(--ink) text-white",
-    paper: "bg-white text-(--ink)",
-    pink: "bg-(--pink) text-white",
-    blue: "bg-(--blue) text-white",
-    yellow: "bg-(--yellow) text-(--ink)",
-    mint: "bg-(--mint) text-(--ink)",
-    purple: "bg-(--purple) text-white",
-    danger: "bg-red-500 text-white",
+    dark: "border-2 border-(--line) bg-(--ink) text-white",
+    paper: "border-2 border-(--line) bg-white text-(--ink)",
+    pink: "border-2 border-(--line) bg-(--pink) text-white",
+    blue: "border-2 border-(--line) bg-(--blue) text-white",
+    yellow: "border-2 border-(--line) bg-(--yellow) text-(--ink)",
+    mint: "border-2 border-(--line) bg-(--mint) text-(--ink)",
+    purple: "border-2 border-(--line) bg-(--purple) text-white",
+    danger: "border-2 border-(--line) bg-red-500 text-white",
     ghost:
-      "bg-transparent text-(--ink) shadow-none hover:bg-white active:shadow-none",
+      "border-0 bg-transparent text-(--ink) shadow-none active:shadow-none",
   };
   const sizes: Record<InkButtonSize, string> = {
     sm: "min-h-9 rounded-xl px-3 text-sm shadow-[2px_2px_0_var(--line)]",
@@ -84,11 +87,15 @@ export const InkButton = memo(function InkButton({
       {...props}
       aria-busy={loading || undefined}
       aria-label={ariaLabel}
-      className={clsx(
-        "inline-flex items-center justify-center gap-2 whitespace-nowrap border-2 border-(--line) font-bold transition-transform hover:-translate-y-0.5 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:cursor-not-allowed disabled:opacity-50",
-        sizes[resolvedSize],
-        variants[variant],
-        className,
+      className={twMerge(
+        clsx(
+          "inline-flex items-center justify-center gap-2 whitespace-nowrap font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+          sizes[resolvedSize],
+          variants[variant],
+          pressable &&
+            "active:translate-x-0.5 active:translate-y-0.5 active:shadow-none",
+          className,
+        ),
       )}
       disabled={disabled || loading}
     >
@@ -251,7 +258,7 @@ export function Modal({
             aria-describedby={undefined}
             aria-labelledby={ariaLabelledby}
             className={clsx(
-              "animate-pop relative w-full overflow-hidden rounded-[28px] border-2 border-black bg-(--paper) shadow-[8px_8px_0_black]",
+              "animate-pop relative w-full overflow-hidden rounded-[28px] border-2 border-black bg-(--paper)",
               config.maxWidth,
               className,
             )}
@@ -377,14 +384,14 @@ export function SectionCard({
   variant?: "default" | "beige" | "white";
 }) {
   const variants = {
-    default: "border-black bg-(--paper) shadow-[4px_4px_0_#d9d1c3]",
-    beige: "border-black bg-white shadow-[4px_4px_0_#dcd5c7]",
-    white: "border-black bg-white shadow-[4px_4px_0_black]",
+    default: "border-black bg-(--paper)",
+    beige: "border-black bg-white",
+    white: "border-black bg-white",
   };
 
   return (
     <section
-      className={clsx("rounded-[24px] border-2", variants[variant], className)}
+      className={clsx("rounded-3xl border-2", variants[variant], className)}
       {...props}
     >
       {children}

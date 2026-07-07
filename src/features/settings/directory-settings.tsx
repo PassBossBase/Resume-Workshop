@@ -87,7 +87,7 @@ export function DirectorySettings() {
 
       <StickerCard className="mt-9 overflow-hidden">
         <div className="flex flex-wrap items-center gap-4 border-b-2 border-black bg-[#fff0e6] p-6">
-          <span className="grid h-14 w-14 place-items-center rounded-2xl border-2 border-black bg-(--orange) text-white shadow-[3px_3px_0_black]">
+          <span className="grid h-14 w-14 place-items-center rounded-2xl border-2 border-black bg-(--orange) text-white">
             <FolderOpen />
           </span>
           <div>
@@ -122,18 +122,16 @@ export function DirectorySettings() {
                 disabled={!isSupported || isSyncing || reason === "mobile"}
                 onClick={connect}
                 variant="yellow"
+                pressable
               >
-                {handle ? (
-                  <RefreshCcw size={17} />
-                ) : (
-                  <FolderOpen size={17} />
-                )}
+                {handle ? <RefreshCcw size={17} /> : <FolderOpen size={17} />}
                 {isSyncing ? "同步中..." : handle ? "重新授权" : "选择文件夹"}
               </InkButton>
               {handle && (
                 <InkButton
                   onClick={() => setShowDisconnect(true)}
                   variant="paper"
+                  pressable
                 >
                   <Unplug size={17} />
                   断开
@@ -167,14 +165,17 @@ export function DirectorySettings() {
               </h2>
             </div>
           </div>
-          <button
+          <InkButton
             aria-label="关闭断开确认"
-            className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-xl border-2 border-black bg-white transition hover:bg-(--yellow)"
+            className="absolute right-4 top-4 hover:bg-(--yellow)"
+            iconOnly
             onClick={() => setShowDisconnect(false)}
+            size="icon"
             type="button"
+            variant="paper"
           >
             <X size={20} />
-          </button>
+          </InkButton>
         </div>
 
         <div className="p-6">
@@ -225,14 +226,17 @@ export function DirectorySettings() {
               </h2>
             </div>
           </div>
-          <button
+          <InkButton
             aria-label="关闭同步结果"
-            className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-xl border-2 border-black bg-white transition hover:bg-(--yellow)"
+            className="absolute right-4 top-4 hover:bg-(--yellow)"
+            iconOnly
             onClick={() => setSyncResult(null)}
+            size="icon"
             type="button"
+            variant="paper"
           >
             <X size={20} />
-          </button>
+          </InkButton>
         </div>
 
         <div className="p-6">

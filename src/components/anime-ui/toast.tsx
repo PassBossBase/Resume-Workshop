@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckCircle2, Info, X, XCircle } from "lucide-react";
+import { InkButton } from "@/components/anime-ui/ui";
 import { useToastStore, type ToastType } from "@/stores/toast-store";
 
 const iconMap: Record<ToastType, typeof CheckCircle2> = {
@@ -49,14 +50,17 @@ export function ToastContainer() {
               strokeWidth={2.5}
             />
             <span className="text-sm">{toast.message}</span>
-            <button
+            <InkButton
               aria-label="关闭提示"
-              className="ml-1 grid h-7 w-7 shrink-0 place-items-center rounded-lg transition hover:bg-black/10"
+              className="ml-1 h-7 w-7 shrink-0 rounded-lg border-0 shadow-none hover:bg-black/10"
+              iconOnly
               onClick={() => removeToast(toast.id)}
+              size="icon"
               type="button"
+              variant="ghost"
             >
               <X size={15} strokeWidth={2.5} />
-            </button>
+            </InkButton>
           </div>
         );
       })}

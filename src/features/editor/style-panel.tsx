@@ -12,7 +12,7 @@ import {
   SlidersHorizontal,
   Trash2,
 } from "lucide-react";
-import { InkSelect, InkTooltip, SectionCard } from "@/components/anime-ui/ui";
+import { InkButton, InkSelect, SectionCard } from "@/components/anime-ui/ui";
 import { getModuleMeta } from "./module-meta";
 import { useResumeStore } from "@/stores/resume-store";
 import type { ResumeModule } from "@/features/resume-model/resume-model";
@@ -222,7 +222,7 @@ export function StylePanel() {
             : isDropTarget
               ? "border-black border-dashed bg-(--yellow)/30"
               : active
-                ? "border-black bg-(--yellow) shadow-[3px_3px_0_black]"
+                ? "border-black bg-(--yellow) "
                 : "border-black/15 bg-white"
         }`}
         onDragStart={() => handleDragStart(index)}
@@ -245,44 +245,40 @@ export function StylePanel() {
           <span className="truncate">{meta.displayTitle}</span>
         </button>
         {!isBasics && (
-          <div className="flex shrink-0 items-center gap-1">
-            <InkTooltip content={`拖拽移动${meta.displayTitle}`}>
-              <span
-                className="grid h-7 w-7 cursor-grab place-items-center rounded-lg hover:bg-black/10 active:cursor-grabbing"
-                aria-label={`拖拽移动${meta.displayTitle}`}
-              >
-                <GripVertical size={16} />
-              </span>
-            </InkTooltip>
-            <InkTooltip
-              content={
+          <div className="flex shrink-0 items-center gap-0">
+            <span
+              className="grid h-7 w-7 cursor-grab place-items-center rounded-lg text-black/55 transition-colors hover:bg-black/10 active:cursor-grabbing"
+              aria-label={`拖拽移动${meta.displayTitle}`}
+            >
+              <GripVertical size={16} />
+            </span>
+            <InkButton
+              aria-label={
                 module.visible
                   ? `隐藏${meta.displayTitle}`
                   : `显示${meta.displayTitle}`
               }
+              className="h-7 w-7 p-0 cursor-pointer rounded-lg border-0 text-black/55 hover:bg-black/10"
+              iconOnly
+              onClick={() => toggleModule(module.id)}
+              size="icon"
+              type="button"
+              variant="ghost"
             >
-              <button
-                aria-label={
-                  module.visible
-                    ? `隐藏${meta.displayTitle}`
-                    : `显示${meta.displayTitle}`
-                }
-                onClick={() => toggleModule(module.id)}
-                className="grid h-7 w-7 place-items-center rounded-lg hover:bg-black/10"
-              >
-                {module.visible ? <Eye size={17} /> : <EyeOff size={17} />}
-              </button>
-            </InkTooltip>
+              {module.visible ? <Eye size={17} /> : <EyeOff size={17} />}
+            </InkButton>
             {isCustom && (
-              <InkTooltip content={`删除${meta.displayTitle}`}>
-                <button
-                  aria-label={`删除${meta.displayTitle}`}
-                  onClick={() => handleDeleteClick(module.id)}
-                  className="grid h-7 w-7 place-items-center rounded-lg hover:bg-red-100"
-                >
-                  <Trash2 size={16} className="text-red-500" />
-                </button>
-              </InkTooltip>
+              <InkButton
+                aria-label={`删除${meta.displayTitle}`}
+                className="h-7 w-7 p-0 rounded-lg border-0 cursor-pointer text-red-500 shadow-none hover:bg-black/10"
+                iconOnly
+                onClick={() => handleDeleteClick(module.id)}
+                size="icon"
+                type="button"
+                variant="ghost"
+              >
+                <Trash2 size={16} />
+              </InkButton>
             )}
           </div>
         )}
@@ -612,7 +608,7 @@ function DeleteConfirmDialog({
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="w-80 rounded-2xl border-2 border-black bg-white p-6 shadow-[5px_5px_0_black]">
+      <div className="w-80 rounded-2xl border-2 border-black bg-white p-6">
         <h3 className="mb-3 text-lg font-black">确认删除</h3>
         <p className="mb-5 text-sm text-black/70">
           将删除模块「{moduleTitle}」及其所有项目，此操作不可撤销。

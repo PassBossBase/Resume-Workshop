@@ -226,15 +226,18 @@ export function ImportResumeModal({
           </div>
           <div></div>
         </div>
-        <button
+        <InkButton
           aria-label="关闭导入简历弹窗"
-          className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-xl border-2 border-black bg-white transition hover:bg-(--yellow)"
+          className="absolute right-4 top-4 hover:bg-(--yellow)"
           disabled={status === "parsing" || status === "saving"}
+          iconOnly
           onClick={close}
+          size="icon"
           type="button"
+          variant="paper"
         >
           <X size={20} />
-        </button>
+        </InkButton>
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto bg-(--canvas) p-4 sm:p-6 lg:p-7">

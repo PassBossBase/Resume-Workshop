@@ -394,6 +394,7 @@ export function EditorShell({ id }: { id: string }) {
             variant="blue"
             className="min-h-11 px-3 md:px-4"
             onClick={() => setImportResumeOpen(true)}
+            pressable
           >
             <FileUp size={18} />
             <span className="hidden xl:inline">重新导入</span>
@@ -403,6 +404,7 @@ export function EditorShell({ id }: { id: string }) {
             variant="pink"
             className="min-h-11 px-3 md:px-4"
             onClick={() => setTemplateModalOpen(true)}
+            pressable
           >
             <LayoutTemplate size={18} />
             <span className="hidden xl:inline">更换模板</span>
@@ -412,6 +414,7 @@ export function EditorShell({ id }: { id: string }) {
             variant="yellow"
             className="min-h-11 px-3 md:px-5"
             onClick={download}
+            pressable
           >
             <Download size={18} />
             <span className="hidden sm:inline">导出 PDF</span>
@@ -703,14 +706,17 @@ function TemplateSwitchModal({
             </h2>
           </div>
         </div>
-        <button
+        <InkButton
           aria-label="关闭更换模板弹窗"
-          className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-xl border-2 border-black bg-white transition hover:bg-(--yellow)"
+          className="absolute right-4 top-4 hover:bg-(--yellow)"
+          iconOnly
           onClick={onClose}
+          size="icon"
           type="button"
+          variant="paper"
         >
           <X size={20} />
-        </button>
+        </InkButton>
       </div>
 
       <div className="bg-(--canvas) p-4 sm:p-5">

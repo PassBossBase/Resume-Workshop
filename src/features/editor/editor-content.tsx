@@ -23,7 +23,7 @@ import type {
 } from "@/features/resume-model/resume-model";
 import { DEFAULT_OPTIONAL_BASIC_FIELD_ORDER } from "@/features/resume-model/resume-model";
 import { RichTextEditor } from "@/features/rich-text/rich-text-editor";
-import { InkSelect, InkTooltip, SectionCard } from "@/components/anime-ui/ui";
+import { InkButton, InkSelect, SectionCard } from "@/components/anime-ui/ui";
 import { DateInput } from "./date-input";
 import { getModuleMeta } from "./module-meta";
 import { CustomModuleEditor } from "./custom-module-editor";
@@ -575,36 +575,38 @@ function BasicFieldRow({
       {(onToggle || onRemove) && (
         <div className="flex justify-end">
           {!fixed && (
-            <InkTooltip content={`拖拽排序${label}`}>
-              <span
-                aria-label={`拖拽排序${label}`}
-                className="grid h-11 w-8 cursor-grab place-items-center rounded-2xl text-black/45 transition hover:bg-black/10 active:cursor-grabbing"
-              >
-                <GripVertical size={19} />
-              </span>
-            </InkTooltip>
+            <span
+              aria-label={`拖拽排序${label}`}
+              className="grid h-11 w-8 cursor-grab place-items-center rounded-2xl text-black/45 transition hover:bg-black/10 active:cursor-grabbing"
+            >
+              <GripVertical size={19} />
+            </span>
           )}
           {onToggle && (
-            <InkTooltip content={`${hidden ? "显示" : "隐藏"}${label}`}>
-              <button
-                aria-label={`${hidden ? "显示" : "隐藏"}${label}`}
-                className="grid h-11 w-8 place-items-center rounded-2xl border-2 border-transparent transition hover:border-black/15 hover:bg-white"
-                onClick={onToggle}
-              >
-                {hidden ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </InkTooltip>
+            <InkButton
+              aria-label={`${hidden ? "显示" : "隐藏"}${label}`}
+              className="h-11 w-8 rounded-2xl border-2 border-transparent shadow-none hover:border-black/15 hover:bg-white"
+              iconOnly
+              onClick={onToggle}
+              size="icon"
+              type="button"
+              variant="ghost"
+            >
+              {hidden ? <EyeOff size={18} /> : <Eye size={18} />}
+            </InkButton>
           )}
           {onRemove && (
-            <InkTooltip content={`删除${label}`}>
-              <button
-                aria-label={`删除${label}`}
-                className="grid h-11 w-8 place-items-center rounded-2xl border-2 border-transparent text-red-500 transition hover:border-red-200 hover:bg-red-50"
-                onClick={onRemove}
-              >
-                <Trash2 size={18} />
-              </button>
-            </InkTooltip>
+            <InkButton
+              aria-label={`删除${label}`}
+              className="h-11 w-8 rounded-2xl border-2 border-transparent text-red-500 shadow-none hover:border-red-200 hover:bg-red-50"
+              iconOnly
+              onClick={onRemove}
+              size="icon"
+              type="button"
+              variant="ghost"
+            >
+              <Trash2 size={18} />
+            </InkButton>
           )}
         </div>
       )}
@@ -678,32 +680,34 @@ function CustomBasicFieldRow({
         onChange={(event) => onChange({ value: event.target.value })}
       />
       <div className="flex justify-end gap-2">
-        <InkTooltip content={`拖拽排序${itemName}`}>
-          <span
-            aria-label={`拖拽排序${itemName}`}
-            className="grid h-11 w-9 cursor-grab place-items-center rounded-2xl text-black/45 transition hover:bg-black/10 active:cursor-grabbing"
-          >
-            <GripVertical size={19} />
-          </span>
-        </InkTooltip>
-        <InkTooltip content={`${hidden ? "显示" : "隐藏"}${itemName}`}>
-          <button
-            aria-label={`${hidden ? "显示" : "隐藏"}${itemName}`}
-            className="grid h-11 w-11 place-items-center rounded-2xl border-2 border-transparent transition hover:border-black/15 hover:bg-white"
-            onClick={onToggle}
-          >
-            {hidden ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        </InkTooltip>
-        <InkTooltip content={`删除${itemName}`}>
-          <button
-            aria-label={`删除${itemName}`}
-            className="grid h-11 w-11 place-items-center rounded-2xl border-2 border-transparent text-red-500 transition hover:border-red-200 hover:bg-red-50"
-            onClick={onRemove}
-          >
-            <Trash2 size={18} />
-          </button>
-        </InkTooltip>
+        <span
+          aria-label={`拖拽排序${itemName}`}
+          className="grid h-11 w-9 cursor-grab place-items-center rounded-2xl text-black/45 transition hover:bg-black/10 active:cursor-grabbing"
+        >
+          <GripVertical size={19} />
+        </span>
+        <InkButton
+          aria-label={`${hidden ? "显示" : "隐藏"}${itemName}`}
+          className="h-11 w-11 rounded-2xl border-2 border-transparent shadow-none hover:border-black/15 hover:bg-white"
+          iconOnly
+          onClick={onToggle}
+          size="icon"
+          type="button"
+          variant="ghost"
+        >
+          {hidden ? <EyeOff size={18} /> : <Eye size={18} />}
+        </InkButton>
+        <InkButton
+          aria-label={`删除${itemName}`}
+          className="h-11 w-11 rounded-2xl border-2 border-transparent text-red-500 shadow-none hover:border-red-200 hover:bg-red-50"
+          iconOnly
+          onClick={onRemove}
+          size="icon"
+          type="button"
+          variant="ghost"
+        >
+          <Trash2 size={18} />
+        </InkButton>
       </div>
     </div>
   );
@@ -747,40 +751,52 @@ function EntryEditor({
           )}
         </div>
         <div className="flex gap-2">
-          <button
+          <InkButton
             aria-label="上移"
-            className="rounded-xl border-2 border-black p-2"
+            className="h-9 w-9 rounded-xl p-0 shadow-none"
+            iconOnly
             onClick={() => onMove(-1)}
+            size="icon"
+            type="button"
+            variant="paper"
           >
             <ArrowUp size={16} />
-          </button>
-          <button
+          </InkButton>
+          <InkButton
             aria-label="下移"
-            className="rounded-xl border-2 border-black p-2"
+            className="h-9 w-9 rounded-xl p-0 shadow-none"
+            iconOnly
             onClick={() => onMove(1)}
+            size="icon"
+            type="button"
+            variant="paper"
           >
             <ArrowDown size={16} />
-          </button>
+          </InkButton>
           {canToggleVisibility && (
-            <InkTooltip content={`${hidden ? "显示" : "隐藏"}${entryLabel}`}>
-              <button
-                aria-label={`${hidden ? "显示" : "隐藏"}${entryLabel}`}
-                className="rounded-xl border-2 border-black p-2"
-                onClick={() => onChange({ visible: hidden })}
-              >
-                {hidden ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </InkTooltip>
-          )}
-          <InkTooltip content="删除条目">
-            <button
-              aria-label="删除条目"
-              className="rounded-xl border-2 border-black p-2 text-red-600"
-              onClick={onRemove}
+            <InkButton
+              aria-label={`${hidden ? "显示" : "隐藏"}${entryLabel}`}
+              className="h-9 w-9 rounded-xl p-0 shadow-none"
+              iconOnly
+              onClick={() => onChange({ visible: hidden })}
+              size="icon"
+              type="button"
+              variant="paper"
             >
-              <Trash2 size={16} />
-            </button>
-          </InkTooltip>
+              {hidden ? <EyeOff size={16} /> : <Eye size={16} />}
+            </InkButton>
+          )}
+          <InkButton
+            aria-label="删除条目"
+            className="h-9 w-9 rounded-xl p-0 text-red-600 shadow-none"
+            iconOnly
+            onClick={onRemove}
+            size="icon"
+            type="button"
+            variant="paper"
+          >
+            <Trash2 size={16} />
+          </InkButton>
         </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
