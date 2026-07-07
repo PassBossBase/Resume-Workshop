@@ -25,29 +25,85 @@ export const StickerCard = memo(function StickerCard({
   );
 });
 
+type InkButtonVariant =
+  | "dark"
+  | "paper"
+  | "pink"
+  | "yellow"
+  | "blue"
+  | "mint"
+  | "purple"
+  | "danger"
+  | "ghost";
+
+type InkButtonSize = "sm" | "md" | "lg" | "icon";
+
+type InkButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: InkButtonVariant;
+  size?: InkButtonSize;
+  loading?: boolean;
+  loadingLabel?: string;
+  iconOnly?: boolean;
+};
+
 export const InkButton = memo(function InkButton({
+  children,
   className,
+  disabled,
+  iconOnly = false,
+  loading = false,
+  loadingLabel = "处理中",
+  size,
   variant = "dark",
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "dark" | "paper" | "pink" | "yellow" | "blue";
-}) {
-  const variants = {
+}: InkButtonProps) {
+  const resolvedSize = size ?? (iconOnly ? "icon" : "md");
+  const ariaLabel =
+    props["aria-label"] ?? (iconOnly && loading ? loadingLabel : undefined);
+  const variants: Record<InkButtonVariant, string> = {
     dark: "bg-(--ink) text-white",
     paper: "bg-white text-(--ink)",
     pink: "bg-(--pink) text-white",
     blue: "bg-(--blue) text-white",
     yellow: "bg-(--yellow) text-(--ink)",
+    mint: "bg-(--mint) text-(--ink)",
+    purple: "bg-(--purple) text-white",
+    danger: "bg-red-500 text-white",
+    ghost:
+      "bg-transparent text-(--ink) shadow-none hover:bg-white active:shadow-none",
   };
+  const sizes: Record<InkButtonSize, string> = {
+    sm: "min-h-9 rounded-xl px-3 text-sm shadow-[2px_2px_0_var(--line)]",
+    md: "min-h-11 rounded-2xl px-4 shadow-[3px_3px_0_var(--line)]",
+    lg: "min-h-13 rounded-[20px] px-5 text-base shadow-[4px_4px_0_var(--line)]",
+    icon: "h-10 w-10 rounded-xl p-0 shadow-[3px_3px_0_var(--line)]",
+  };
+
   return (
     <button
+      {...props}
+      aria-busy={loading || undefined}
+      aria-label={ariaLabel}
       className={clsx(
-        "inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-2xl border-2 border-(--line) px-4 font-bold shadow-[3px_3px_0_var(--line)] transition-transform hover:-translate-y-0.5 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex items-center justify-center gap-2 whitespace-nowrap border-2 border-(--line) font-bold transition-transform hover:-translate-y-0.5 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:cursor-not-allowed disabled:opacity-50",
+        sizes[resolvedSize],
         variants[variant],
         className,
       )}
-      {...props}
-    />
+      disabled={disabled || loading}
+    >
+      {loading && (
+        <span
+          aria-hidden="true"
+          className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent"
+        />
+      )}
+      {iconOnly && loading ? (
+        <span className="sr-only">{loadingLabel}</span>
+      ) : (
+        children
+      )}
+    </button>
   );
 });
 
