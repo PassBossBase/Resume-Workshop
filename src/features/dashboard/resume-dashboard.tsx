@@ -143,7 +143,7 @@ export function ResumeDashboard({
             {[0, 1, 2].map((item) => (
               <StickerCard
                 aria-hidden="true"
-                className="relative h-84 overflow-hidden border-0 bg-[#242528] shadow-none hover:shadow-none"
+                className="relative h-84 overflow-hidden border-0  shadow-none hover:shadow-none"
                 key={item}
               >
                 <div className="h-full animate-pulse bg-white/90" />
@@ -181,7 +181,7 @@ export function ResumeDashboard({
             {resumes.map((resume, index) => (
               <StickerCard
                 key={resume.id}
-                className="group/card relative h-84 animate-pop cursor-pointer overflow-hidden border-0 bg-[#242528] text-white shadow-none hover:shadow-none focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-(--blue)"
+                className="group/card relative h-84 animate-pop cursor-pointer overflow-hidden border-0  text-white shadow-none hover:shadow-none focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-(--blue)"
                 style={{ animationDelay: `${index * 60}ms` }}
                 role="button"
                 tabIndex={0}
