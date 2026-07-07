@@ -1,5 +1,8 @@
 import { clsx } from "clsx";
 import * as Dialog from "@radix-ui/react-dialog";
+import * as RadixSelect from "@radix-ui/react-select";
+import * as RadixTooltip from "@radix-ui/react-tooltip";
+import { Check, ChevronDown } from "lucide-react";
 import {
   memo,
   type ButtonHTMLAttributes,
@@ -208,6 +211,103 @@ export function Modal({
         </Dialog.Overlay>
       </Dialog.Portal>
     </Dialog.Root>
+  );
+}
+
+export interface SelectOption {
+  value: string;
+  label: ReactNode;
+  disabled?: boolean;
+}
+
+export function InkSelect({
+  value,
+  onValueChange,
+  options,
+  ariaLabel,
+  placeholder = "请选择",
+  disabled,
+  className,
+}: {
+  value: string;
+  onValueChange: (value: string) => void;
+  options: SelectOption[];
+  ariaLabel: string;
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string;
+}) {
+  return (
+    <RadixSelect.Root
+      disabled={disabled}
+      onValueChange={onValueChange}
+      value={value}
+    >
+      <RadixSelect.Trigger
+        aria-label={ariaLabel}
+        className={clsx(
+          "flex h-11 w-full items-center justify-between gap-3 rounded-xl border-2 border-black bg-white px-3 text-left font-bold shadow-[2px_2px_0_#d9d1c3] transition hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--blue) disabled:cursor-not-allowed disabled:opacity-50",
+          className,
+        )}
+      >
+        <RadixSelect.Value placeholder={placeholder} />
+        <RadixSelect.Icon asChild>
+          <ChevronDown aria-hidden="true" size={16} strokeWidth={2.6} />
+        </RadixSelect.Icon>
+      </RadixSelect.Trigger>
+      <RadixSelect.Portal>
+        <RadixSelect.Content
+          className="z-100 max-h-72 min-w-(--radix-select-trigger-width) overflow-hidden rounded-2xl border-2 border-black bg-white p-1 shadow-[5px_5px_0_black]"
+          collisionPadding={8}
+          position="popper"
+          sideOffset={6}
+        >
+          <RadixSelect.Viewport>
+            {options.map((option) => (
+              <RadixSelect.Item
+                className="relative flex min-h-10 cursor-pointer select-none items-center rounded-xl py-2 pl-9 pr-3 text-sm font-bold outline-none transition data-disabled:pointer-events-none data-disabled:opacity-40 data-highlighted:bg-(--yellow)"
+                disabled={option.disabled}
+                key={option.value}
+                value={option.value}
+              >
+                <RadixSelect.ItemIndicator className="absolute left-3 grid place-items-center">
+                  <Check aria-hidden="true" size={15} strokeWidth={2.8} />
+                </RadixSelect.ItemIndicator>
+                <RadixSelect.ItemText>{option.label}</RadixSelect.ItemText>
+              </RadixSelect.Item>
+            ))}
+          </RadixSelect.Viewport>
+        </RadixSelect.Content>
+      </RadixSelect.Portal>
+    </RadixSelect.Root>
+  );
+}
+
+export function InkTooltip({
+  content,
+  children,
+  side = "top",
+}: {
+  content: ReactNode;
+  children: ReactNode;
+  side?: "top" | "right" | "bottom" | "left";
+}) {
+  return (
+    <RadixTooltip.Provider delayDuration={250} skipDelayDuration={100}>
+      <RadixTooltip.Root>
+        <RadixTooltip.Trigger asChild>{children}</RadixTooltip.Trigger>
+        <RadixTooltip.Portal>
+          <RadixTooltip.Content
+            className="z-100 rounded-xl border-2 border-black bg-(--ink) px-2.5 py-1.5 text-xs font-black text-white shadow-[3px_3px_0_black]"
+            side={side}
+            sideOffset={8}
+          >
+            {content}
+            <RadixTooltip.Arrow className="fill-(--ink)" />
+          </RadixTooltip.Content>
+        </RadixTooltip.Portal>
+      </RadixTooltip.Root>
+    </RadixTooltip.Provider>
   );
 }
 

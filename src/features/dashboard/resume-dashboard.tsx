@@ -11,6 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
+  InkTooltip,
   InkButton,
   Modal,
   PageContainer,
@@ -208,41 +209,45 @@ export function ResumeDashboard({
                   className="absolute flex top-3 right-3 z-10 gap-2 opacity-0 group-hover/card:opacity-100 transition-all duration-500 ease-out"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <button
-                    type="button"
-                    aria-label={`复制 ${resume.title}`}
-                    className="group/copy relative grid h-10 w-10 place-items-center overflow-hidden rounded-full border-2 border-black bg-white text-(--ink) transition hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      duplicate(resume);
-                    }}
-                  >
-                    <Copy
-                      size={16}
-                      className="transition-all duration-200 group-hover/copy:scale-75 group-hover/copy:opacity-0 group-focus-visible/copy:scale-75 group-focus-visible/copy:opacity-0"
-                    />
-                    <span className="absolute inset-0 flex scale-75 items-center justify-center text-xs font-black opacity-0 transition-all duration-200 group-hover/copy:scale-100 group-hover/copy:opacity-100 group-focus-visible/copy:scale-100 group-focus-visible/copy:opacity-100">
-                      复制
-                    </span>
-                  </button>
+                  <InkTooltip content={`复制 ${resume.title}`}>
+                    <button
+                      type="button"
+                      aria-label={`复制 ${resume.title}`}
+                      className="group/copy relative grid h-10 w-10 place-items-center overflow-hidden rounded-full border-2 border-black bg-white text-(--ink) transition hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        duplicate(resume);
+                      }}
+                    >
+                      <Copy
+                        size={16}
+                        className="transition-all duration-200 group-hover/copy:scale-75 group-hover/copy:opacity-0 group-focus-visible/copy:scale-75 group-focus-visible/copy:opacity-0"
+                      />
+                      <span className="absolute inset-0 flex scale-75 items-center justify-center text-xs font-black opacity-0 transition-all duration-200 group-hover/copy:scale-100 group-hover/copy:opacity-100 group-focus-visible/copy:scale-100 group-focus-visible/copy:opacity-100">
+                        复制
+                      </span>
+                    </button>
+                  </InkTooltip>
 
-                  <button
-                    type="button"
-                    aria-label={`删除 ${resume.title}`}
-                    className="group/del relative grid h-10 w-10 place-items-center overflow-hidden rounded-full border-2 border-black bg-white text-red-600 transition hover:bg-[#ffe1e1] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setPendingDelete(resume);
-                    }}
-                  >
-                    <Trash2
-                      size={16}
-                      className="transition-all duration-200 group-hover/del:scale-75 group-hover/del:opacity-0 group-focus-visible/del:scale-75 group-focus-visible/del:opacity-0"
-                    />
-                    <span className="absolute inset-0 flex scale-75 items-center justify-center text-xs font-black opacity-0 transition-all duration-200 group-hover/del:scale-100 group-hover/del:opacity-100 group-focus-visible/del:scale-100 group-focus-visible/del:opacity-100">
-                      删除
-                    </span>
-                  </button>
+                  <InkTooltip content={`删除 ${resume.title}`}>
+                    <button
+                      type="button"
+                      aria-label={`删除 ${resume.title}`}
+                      className="group/del relative grid h-10 w-10 place-items-center overflow-hidden rounded-full border-2 border-black bg-white text-red-600 transition hover:bg-[#ffe1e1] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPendingDelete(resume);
+                      }}
+                    >
+                      <Trash2
+                        size={16}
+                        className="transition-all duration-200 group-hover/del:scale-75 group-hover/del:opacity-0 group-focus-visible/del:scale-75 group-focus-visible/del:opacity-0"
+                      />
+                      <span className="absolute inset-0 flex scale-75 items-center justify-center text-xs font-black opacity-0 transition-all duration-200 group-hover/del:scale-100 group-hover/del:opacity-100 group-focus-visible/del:scale-100 group-focus-visible/del:opacity-100">
+                        删除
+                      </span>
+                    </button>
+                  </InkTooltip>
                 </div>
               </StickerCard>
             ))}

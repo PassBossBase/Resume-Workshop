@@ -100,7 +100,7 @@ Next.js 16 (App Router) / React 19 / TypeScript / Tailwind CSS 4 / Radix UI Prim
 ## UI 组件策略
 
 - `anime-ui` 负责项目漫画风外观，包括黑色描边、硬阴影、彩色强调和基础按钮/卡片/弹窗样式。
-- Radix UI Primitives 只作为交互底座使用，当前用于弹窗 Dialog 和颜色选择 Popover 的焦点管理、Escape、外部点击与 Portal 定位，不引入默认视觉样式。
+- Radix UI Primitives 只作为交互底座使用，当前用于 Dialog、Popover、Select 和 Tooltip 的焦点管理、Escape、外部点击、键盘操作与 Portal 定位，不引入默认视觉样式。
 
 ## 兼容性
 

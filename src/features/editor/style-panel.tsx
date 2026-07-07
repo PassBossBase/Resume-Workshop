@@ -12,7 +12,7 @@ import {
   SlidersHorizontal,
   Trash2,
 } from "lucide-react";
-import { SectionCard } from "@/components/anime-ui/ui";
+import { InkSelect, InkTooltip, SectionCard } from "@/components/anime-ui/ui";
 import { getModuleMeta } from "./module-meta";
 import { useResumeStore } from "@/stores/resume-store";
 import type { ResumeModule } from "@/features/resume-model/resume-model";
@@ -28,6 +28,11 @@ const colors = [
 ];
 
 const headingTextColors = ["#ffffff", "#171717"];
+const fontFamilyOptions = [
+  { value: "sans", label: "清晰黑体" },
+  { value: "serif", label: "优雅宋体" },
+  { value: "rounded", label: "圆润字体" },
+];
 
 type HsvColor = {
   h: number;
@@ -241,31 +246,43 @@ export function StylePanel() {
         </button>
         {!isBasics && (
           <div className="flex shrink-0 items-center gap-1">
-            <span
-              className="grid h-7 w-7 cursor-grab place-items-center rounded-lg hover:bg-black/10 active:cursor-grabbing"
-              aria-label={`拖拽移动${meta.displayTitle}`}
-            >
-              <GripVertical size={16} />
-            </span>
-            <button
-              aria-label={
+            <InkTooltip content={`拖拽移动${meta.displayTitle}`}>
+              <span
+                className="grid h-7 w-7 cursor-grab place-items-center rounded-lg hover:bg-black/10 active:cursor-grabbing"
+                aria-label={`拖拽移动${meta.displayTitle}`}
+              >
+                <GripVertical size={16} />
+              </span>
+            </InkTooltip>
+            <InkTooltip
+              content={
                 module.visible
                   ? `隐藏${meta.displayTitle}`
                   : `显示${meta.displayTitle}`
               }
-              onClick={() => toggleModule(module.id)}
-              className="grid h-7 w-7 place-items-center rounded-lg hover:bg-black/10"
             >
-              {module.visible ? <Eye size={17} /> : <EyeOff size={17} />}
-            </button>
-            {isCustom && (
               <button
-                aria-label={`删除${meta.displayTitle}`}
-                onClick={() => handleDeleteClick(module.id)}
-                className="grid h-7 w-7 place-items-center rounded-lg hover:bg-red-100"
+                aria-label={
+                  module.visible
+                    ? `隐藏${meta.displayTitle}`
+                    : `显示${meta.displayTitle}`
+                }
+                onClick={() => toggleModule(module.id)}
+                className="grid h-7 w-7 place-items-center rounded-lg hover:bg-black/10"
               >
-                <Trash2 size={16} className="text-red-500" />
+                {module.visible ? <Eye size={17} /> : <EyeOff size={17} />}
               </button>
+            </InkTooltip>
+            {isCustom && (
+              <InkTooltip content={`删除${meta.displayTitle}`}>
+                <button
+                  aria-label={`删除${meta.displayTitle}`}
+                  onClick={() => handleDeleteClick(module.id)}
+                  className="grid h-7 w-7 place-items-center rounded-lg hover:bg-red-100"
+                >
+                  <Trash2 size={16} className="text-red-500" />
+                </button>
+              </InkTooltip>
             )}
           </div>
         )}
@@ -398,15 +415,12 @@ export function StylePanel() {
         </Control>
         <label className="mt-4 block">
           <span className="mb-2 block text-sm font-bold">字体风格</span>
-          <select
-            className="h-11 w-full rounded-xl border-2 border-black bg-white px-3"
+          <InkSelect
+            ariaLabel="选择字体风格"
+            options={fontFamilyOptions}
             value={resume.styles.fontFamily}
-            onChange={(event) => updateStyle("fontFamily", event.target.value)}
-          >
-            <option value="sans">清晰黑体</option>
-            <option value="serif">优雅宋体</option>
-            <option value="rounded">圆润字体</option>
-          </select>
+            onValueChange={(value) => updateStyle("fontFamily", value)}
+          />
         </label>
       </Panel>
 
