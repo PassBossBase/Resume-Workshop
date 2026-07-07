@@ -16,6 +16,7 @@ import {
   normalizeRichText,
   sanitizeRichText,
 } from "@/features/rich-text/rich-text";
+import { BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
 
 export const LineSeparateTemplate = memo(function LineSeparateTemplate({
@@ -88,7 +89,7 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
         <div className="relative mb-6 py-4">
           <div className="grid grid-cols-2 gap-x-10 gap-y-2 text-[0.929em]">
             {basicDisplayItems.map((item) => (
-              <InfoRow key={item.key} label={item.label} value={item.value} />
+              <InfoRow item={item} key={item.key} />
             ))}
           </div>
           {basics.avatar && (
@@ -121,12 +122,15 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
   );
 });
 
-function InfoRow({ label, value }: { label: string; value?: string }) {
-  if (!value) return null;
+function InfoRow({
+  item,
+}: {
+  item: ReturnType<typeof getBasicDisplayItems>[number];
+}) {
   return (
     <div className="flex gap-2">
-      <span className="font-bold shrink-0">{label}：</span>
-      <span>{value}</span>
+      <span className="font-bold shrink-0">{item.label}：</span>
+      <BasicInfoValue item={item} />
     </div>
   );
 }

@@ -15,6 +15,7 @@ import {
   normalizeRichText,
   sanitizeRichText,
 } from "@/features/rich-text/rich-text";
+import { BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
 
 export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
@@ -118,7 +119,7 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
               <div className="space-y-1 text-[0.857em]">
                 {basicDisplayItems.map((item) => (
                   <p key={item.key}>
-                    {item.label}：{item.value}
+                    {item.label}：<BasicInfoValue item={item} />
                   </p>
                 ))}
               </div>

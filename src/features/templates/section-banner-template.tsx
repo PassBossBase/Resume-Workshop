@@ -28,6 +28,7 @@ import {
   normalizeRichText,
   sanitizeRichText,
 } from "@/features/rich-text/rich-text";
+import { BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
 
 const MODULE_ICONS: Record<string, typeof Award> = {
@@ -168,7 +169,7 @@ function HeaderInfo({ item }: { item: BasicDisplayItem }) {
     <span className="flex min-w-0 items-center gap-2">
       <Icon className="shrink-0" size={13} />
       <span className="truncate">
-        {item.label}：{item.value}
+        {item.label}：<BasicInfoValue item={item} />
       </span>
     </span>
   );

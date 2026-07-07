@@ -19,6 +19,8 @@ const allowedStyleProperties = new Set([
   "text-indent",
 ]);
 
+const dangerousLinkProtocolPattern = /^(javascript|data|vbscript):/i;
+
 /** 转义 HTML 特殊字符 */
 export function escapeHtml(value: string): string {
   return value
@@ -46,7 +48,10 @@ export function sanitizeRichText(value: string): string {
     return value
       .replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, "")
       .replace(/\son\w+=(?:"[^"]*"|'[^']*')/gi, "")
-      .replace(/javascript:/gi, "");
+      .replace(
+        /\shref=(?:"\s*(javascript|data|vbscript):[^"]*"|'\s*(javascript|data|vbscript):[^']*'|\s*(javascript|data|vbscript):[^\s>]*)/gi,
+        "",
+      );
   }
 
   const documentValue = new DOMParser().parseFromString(value, "text/html");
@@ -73,7 +78,7 @@ function sanitizeChildren(parent: ParentNode): void {
 
     if (element.tagName === "A") {
       const href = element.getAttribute("href") ?? "";
-      if (!/^(https?:|mailto:|tel:|#)/i.test(href)) {
+      if (!isSafeRichTextHref(href)) {
         element.removeAttribute("href");
       } else {
         element.setAttribute("target", "_blank");
@@ -120,6 +125,11 @@ function sanitizeChildren(parent: ParentNode): void {
       element.removeAttribute("style");
     }
   });
+}
+
+function isSafeRichTextHref(value: string): boolean {
+  const compactHref = value.trim().replace(/[\u0000-\u0020]+/g, "");
+  return Boolean(compactHref) && !dangerousLinkProtocolPattern.test(compactHref);
 }
 
 /** 富文本转纯文本，用于分页高度估算 */

@@ -25,6 +25,7 @@ import {
   normalizeRichText,
   sanitizeRichText,
 } from "@/features/rich-text/rich-text";
+import { BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
 
 /** sectionIcon → Lucide 图标映射 */
@@ -122,7 +123,7 @@ export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
           <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-1.5 text-[0.857em] opacity-90">
             {basicDisplayItems.map((item) => (
               <span key={item.key}>
-                {item.label}：{item.value}
+                {item.label}：<BasicInfoValue item={item} />
               </span>
             ))}
           </div>

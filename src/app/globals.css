@@ -113,6 +113,12 @@ a {
   text-underline-offset: 2px;
 }
 
+.resume-rich-text a {
+  color: #3157d5 !important;
+  text-decoration: underline !important;
+  text-underline-offset: 2px;
+}
+
 .resume-rich-text {
   overflow-wrap: anywhere;
 }

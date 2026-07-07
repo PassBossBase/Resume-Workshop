@@ -18,6 +18,7 @@ import {
   normalizeRichText,
   sanitizeRichText,
 } from "@/features/rich-text/rich-text";
+import { BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
 
 /** 经典单栏模板元数据 */
@@ -195,7 +196,7 @@ function Info({
   return (
     <span className="inline-flex items-center gap-1.5">
       <Icon size={12} />
-      {item.label}：{item.value}
+      {item.label}：<BasicInfoValue item={item} />
     </span>
   );
 }

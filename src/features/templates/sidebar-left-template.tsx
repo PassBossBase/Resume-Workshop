@@ -15,6 +15,7 @@ import {
   normalizeRichText,
   sanitizeRichText,
 } from "@/features/rich-text/rich-text";
+import { BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
 
 export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
@@ -83,7 +84,7 @@ export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
             {basicDisplayItems.map((item) => (
               <div className="flex gap-2" key={item.key}>
                 <span className="opacity-70">{item.label}：</span>
-                <span>{item.value}</span>
+                <BasicInfoValue item={item} />
               </div>
             ))}
           </div>

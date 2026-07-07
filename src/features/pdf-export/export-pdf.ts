@@ -8,6 +8,8 @@ import {
 
 const A4_PAGE_WIDTH = 794;
 const A4_PAGE_HEIGHT = 1123;
+const PDF_PAGE_WIDTH = 210;
+const PDF_PAGE_HEIGHT = 297;
 const PAGE_BREAK_GUARD = 4;
 const MIN_SAFE_SLICE_RATIO = 0.38;
 
@@ -19,6 +21,19 @@ interface ProtectedRange {
 interface PdfSlice {
   y: number;
   height: number;
+}
+
+interface PageBox {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  right: number;
+  bottom: number;
+}
+
+interface PdfLinkArea extends PageBox {
+  href: string;
 }
 
 /** 将简历页面 DOM 节点截图拼接为 A4 PDF 并触发下载 */
@@ -40,6 +55,7 @@ export async function exportResumePdf(
   for (const page of pages) {
     const width = Math.max(A4_PAGE_WIDTH, Math.ceil(page.scrollWidth || page.offsetWidth));
     const height = Math.max(A4_PAGE_HEIGHT, Math.ceil(page.scrollHeight || page.offsetHeight));
+    const linkAreas = collectPdfLinkAreas(page);
     const canvas = await toCanvas(page, {
       width,
       height,
@@ -91,7 +107,17 @@ export async function exportResumePdf(
       );
 
       if (hasPage) pdf.addPage("a4", "portrait");
-      pdf.addImage(slice.toDataURL("image/png"), "PNG", 0, 0, 210, 297, undefined, "FAST");
+      pdf.addImage(
+        slice.toDataURL("image/png"),
+        "PNG",
+        0,
+        0,
+        PDF_PAGE_WIDTH,
+        PDF_PAGE_HEIGHT,
+        undefined,
+        "FAST",
+      );
+      addLinkAnnotations(pdf, linkAreas, sliceRange);
       hasPage = true;
     }
   }
@@ -246,6 +272,110 @@ function mergeProtectedRanges(ranges: ProtectedRange[]): ProtectedRange[] {
 
   return merged;
 }
+
+function collectPdfLinkAreas(page: HTMLElement): PdfLinkArea[] {
+  const geometry = getPageGeometry(page);
+  const links: PdfLinkArea[] = [];
+
+  page.querySelectorAll<HTMLAnchorElement>("a[href]").forEach((anchor) => {
+    if (shouldSkipPdfNode(anchor)) return;
+    const href = normalizePdfHref(anchor.getAttribute("href") ?? "");
+    if (!href) return;
+
+    for (const rect of Array.from(anchor.getClientRects())) {
+      if (rect.width <= 0 || rect.height <= 0) continue;
+      const box = toPageBox(rect, geometry);
+      if (box.width <= 0 || box.height <= 0) continue;
+      links.push({ ...box, href });
+    }
+  });
+
+  return links;
+}
+
+function addLinkAnnotations(
+  pdf: jsPDF,
+  linkAreas: PdfLinkArea[],
+  slice: PdfSlice,
+): void {
+  const sliceBottom = slice.y + slice.height;
+
+  for (const area of linkAreas) {
+    const top = Math.max(area.top, slice.y);
+    const bottom = Math.min(area.bottom, sliceBottom);
+    if (bottom <= top) continue;
+
+    pdf.link(
+      cssPxToPdfX(area.left),
+      cssPxToPdfY(top - slice.y),
+      cssPxToPdfWidth(area.width),
+      cssPxToPdfHeight(bottom - top),
+      { url: area.href },
+    );
+  }
+}
+
+function getPageGeometry(page: HTMLElement) {
+  const pageRect = page.getBoundingClientRect();
+  const renderedWidth = pageRect.width || page.offsetWidth || page.scrollWidth;
+  const renderedHeight = pageRect.height || page.offsetHeight || page.scrollHeight;
+  return {
+    pageRect,
+    scaleX: renderedWidth > 0 ? page.scrollWidth / renderedWidth : 1,
+    scaleY: renderedHeight > 0 ? page.scrollHeight / renderedHeight : 1,
+  };
+}
+
+function toPageBox(
+  rect: DOMRect,
+  geometry: ReturnType<typeof getPageGeometry>,
+): PageBox {
+  const left = Math.max(0, (rect.left - geometry.pageRect.left) * geometry.scaleX);
+  const top = Math.max(0, (rect.top - geometry.pageRect.top) * geometry.scaleY);
+  const width = Math.max(0, rect.width * geometry.scaleX);
+  const height = Math.max(0, rect.height * geometry.scaleY);
+
+  return {
+    left,
+    top,
+    width,
+    height,
+    right: left + width,
+    bottom: top + height,
+  };
+}
+
+function shouldSkipPdfNode(node: Element): boolean {
+  if (node.closest('[data-pdf-exclude="true"]')) return true;
+  const element = node instanceof HTMLElement ? node : null;
+  if (!element) return false;
+  const style = window.getComputedStyle(element);
+  return style.display === "none" || style.visibility === "hidden";
+}
+
+function normalizePdfHref(value: string): string | null {
+  const href = value.trim();
+  if (!href || href.startsWith("#")) return null;
+  const compactHref = href.replace(/[\u0000-\u0020]+/g, "");
+  return /^(javascript|data|vbscript):/i.test(compactHref) ? null : href;
+}
+
+function cssPxToPdfX(value: number): number {
+  return (value / A4_PAGE_WIDTH) * PDF_PAGE_WIDTH;
+}
+
+function cssPxToPdfY(value: number): number {
+  return (value / A4_PAGE_HEIGHT) * PDF_PAGE_HEIGHT;
+}
+
+function cssPxToPdfWidth(value: number): number {
+  return (value / A4_PAGE_WIDTH) * PDF_PAGE_WIDTH;
+}
+
+function cssPxToPdfHeight(value: number): number {
+  return (value / A4_PAGE_HEIGHT) * PDF_PAGE_HEIGHT;
+}
+
 function sanitizeFileName(value: string): string {
   return value.replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-").trim() || "简历";
 }

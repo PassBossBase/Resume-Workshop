@@ -25,6 +25,7 @@ import {
   normalizeRichText,
   sanitizeRichText,
 } from "@/features/rich-text/rich-text";
+import { BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
 
 /** basicDisplayItems key → Lucide 图标映射 */
@@ -118,7 +119,7 @@ export const BlankTemplate = memo(function BlankTemplate({
                     key={item.key}
                   >
                     <ContactIcon itemKey={item.key} />
-                    <span>{item.value}</span>
+                    <BasicInfoValue item={item} />
                   </span>
                 ))}
             </div>
