@@ -15,9 +15,7 @@ import {
   isAppLocale,
   type AppLocale,
 } from "@/lib/locale";
-
-const localeStorageKey = "resume-workshop:locale";
-const localeChangeEvent = "resume-workshop:locale-change";
+import { localeChangeEvent, localeStorageKey } from "@/lib/locale-bootstrap";
 
 function subscribeToLocale(onStoreChange: () => void) {
   window.addEventListener("storage", onStoreChange);
@@ -29,12 +27,27 @@ function subscribeToLocale(onStoreChange: () => void) {
 }
 
 function getLocaleSnapshot(): AppLocale {
-  const stored = window.localStorage.getItem(localeStorageKey);
-  return isAppLocale(stored) ? stored : defaultLocale;
+  try {
+    const stored = window.localStorage.getItem(localeStorageKey);
+    if (isAppLocale(stored)) {
+      return stored;
+    }
+  } catch {}
+
+  const bootstrappedLocale = document.documentElement.dataset.initialLocale;
+  return isAppLocale(bootstrappedLocale) ? bootstrappedLocale : defaultLocale;
 }
 
 function getServerLocaleSnapshot(): AppLocale {
   return defaultLocale;
+}
+
+function clearPendingLocaleVisibility(locale: AppLocale) {
+  const pendingLocale = document.documentElement.dataset.initialLocale;
+  if (!isAppLocale(pendingLocale) || pendingLocale === locale) {
+    document.documentElement.style.visibility = "";
+    delete document.documentElement.dataset.localePending;
+  }
 }
 
 export const translations = {
@@ -801,10 +814,12 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.lang = locale;
+    clearPendingLocaleVisibility(locale);
   }, [locale]);
 
   const setLocale = useCallback((nextLocale: AppLocale) => {
     window.localStorage.setItem(localeStorageKey, nextLocale);
+    document.documentElement.dataset.initialLocale = nextLocale;
     window.dispatchEvent(new Event(localeChangeEvent));
   }, []);
 
