@@ -1,6 +1,8 @@
 "use client";
 
 import { PanelLeftOpen, PanelRightOpen } from "lucide-react";
+import { InkButton } from "@/components/anime-ui/ui";
+import { useT } from "@/lib/i18n";
 
 /**
  * 两个面板之间的拖拽分隔条。
@@ -15,8 +17,9 @@ export function ResizeHandle({
   onMouseDown: (clientX: number) => void;
   onDoubleClick?: () => void;
 }) {
+  const t = useT();
   const label =
-    position === "left" ? "拖拽调整样式面板宽度" : "拖拽调整编辑面板宽度";
+    position === "left" ? t.editor.dragStylePanel : t.editor.dragEditorPanel;
 
   return (
     <div
@@ -57,14 +60,16 @@ export function PanelRestoreButton({
         side === "left" ? "border-r-2" : "border-l-2"
       } border-black/10`}
     >
-      <button
+      <InkButton
         onClick={onClick}
         aria-label={label}
         title={label}
         className="grid h-9 w-9 place-items-center rounded-xl border-2 border-black bg-white shadow-[2px_2px_0_black] transition hover:-translate-y-0.5 hover:shadow-[3px_3px_0_black]"
+        type="button"
+        unstyled
       >
         <Icon size={16} />
-      </button>
+      </InkButton>
     </div>
   );
 }

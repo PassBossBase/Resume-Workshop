@@ -3,11 +3,13 @@ import { InkButton, StickerCard } from "@/components/anime-ui/ui";
 import type { ResumeDocument } from "@/features/resume-model/resume-model";
 import { ResumeContentThumbnail } from "@/features/templates/resume-content-thumbnail";
 import type { ResumePageData } from "@/features/templates/resume-pages";
+import { formatLocaleDateTime, useLocale } from "@/lib/i18n";
 
 export function ResumeDashboardLoadingGrid() {
+  const { t } = useLocale();
   return (
     <div
-      aria-label="正在读取简历"
+      aria-label={t.dashboard.loading}
       className="grid gap-7 sm:grid-cols-2 xl:grid-cols-4"
       role="status"
     >
@@ -28,23 +30,29 @@ export function ResumeDashboardLoadingGrid() {
           </div>
         </StickerCard>
       ))}
-      <span className="sr-only">正在读取简历</span>
+      <span className="sr-only">{t.dashboard.loading}</span>
     </div>
   );
 }
 
 export function EmptyResumeState({ onCreate }: { onCreate: () => void }) {
+  const { t } = useLocale();
   return (
     <StickerCard className="relative overflow-hidden p-10 text-center md:p-16">
       <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full border-2 border-black bg-(--blue) opacity-90" />
       <div className="absolute -bottom-8 -left-8 h-28 w-28 rotate-12 border-2 border-black bg-(--yellow)" />
       <FilePlus2 className="mx-auto mb-5" size={54} />
-      <h2 className="text-3xl font-black">从第一份简历开始</h2>
+      <h2 className="text-3xl font-black">{t.dashboard.emptyTitle}</h2>
       <p className="mx-auto mt-3 max-w-md leading-7 text-black/60">
-        内容自动保存在浏览器。桌面 Chrome 还可以连接本地文件夹。
+        {t.dashboard.emptyCopy}
       </p>
-      <InkButton className="mt-7" onClick={onCreate} variant="yellow" pressable>
-        创建第一份简历
+      <InkButton
+        className="mt-7 shadow-[3px_3px_0_var(--line)]"
+        onClick={onCreate}
+        variant="yellow"
+        pressable
+      >
+        {t.dashboard.emptyAction}
       </InkButton>
     </StickerCard>
   );
@@ -63,6 +71,7 @@ export function ResumeCardGrid({
   resumePageMap: Map<string, ResumePageData>;
   resumes: ResumeDocument[];
 }) {
+  const { locale, t } = useLocale();
   return (
     <div className="grid gap-7 sm:grid-cols-2 xl:grid-cols-4">
       {resumes.map((resume, index) => (
@@ -72,7 +81,7 @@ export function ResumeCardGrid({
           style={{ animationDelay: `${index * 60}ms` }}
           role="button"
           tabIndex={0}
-          aria-label={`编辑 ${resume.title}`}
+          aria-label={t.dashboard.editAria(resume.title)}
           onClick={() => onOpen(resume.id)}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
@@ -82,7 +91,11 @@ export function ResumeCardGrid({
           }}
         >
           <ResumeContentThumbnail
-            ariaLabel={`${resume.title}简历内容预览`}
+            ariaLabel={
+              locale === "en-US"
+                ? `${resume.title} resume content preview`
+                : `${resume.title}简历内容预览`
+            }
             className="pointer-events-none"
             fitToWidth
             page={resumePageMap.get(resume.id)!}
@@ -94,7 +107,7 @@ export function ResumeCardGrid({
               {resume.title}
             </h2>
             <p className="mt-1 truncate text-xs font-medium text-white/90">
-              更新于 {new Date(resume.updatedAt).toLocaleString("zh-CN")}
+              {t.dashboard.updatedAt(formatLocaleDateTime(resume.updatedAt, locale))}
             </p>
           </div>
 
@@ -104,8 +117,9 @@ export function ResumeCardGrid({
           >
             <InkButton
               type="button"
-              aria-label={`复制 ${resume.title}`}
-              className="group/copy relative overflow-hidden rounded-full shadow-none hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
+              aria-label={t.dashboard.duplicateAria(resume.title)}
+              className="rounded-full shadow-none hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
+              hoverLabel={t.dashboard.duplicateAction}
               iconOnly
               onClick={(e) => {
                 e.stopPropagation();
@@ -114,19 +128,14 @@ export function ResumeCardGrid({
               size="icon"
               variant="paper"
             >
-              <Copy
-                size={16}
-                className="transition-all duration-200 group-hover/copy:scale-75 group-hover/copy:opacity-0 group-focus-visible/copy:scale-75 group-focus-visible/copy:opacity-0"
-              />
-              <span className="absolute inset-0 flex scale-75 items-center justify-center text-xs font-black opacity-0 transition-all duration-200 group-hover/copy:scale-100 group-hover/copy:opacity-100 group-focus-visible/copy:scale-100 group-focus-visible/copy:opacity-100">
-                复制
-              </span>
+              <Copy size={16} />
             </InkButton>
 
             <InkButton
               type="button"
-              aria-label={`删除 ${resume.title}`}
-              className="group/del relative overflow-hidden rounded-full text-red-600 shadow-none hover:bg-[#ffe1e1] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
+              aria-label={t.dashboard.deleteAria(resume.title)}
+              className="rounded-full text-red-600 shadow-none hover:bg-[#ffe1e1] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
+              hoverLabel={t.dashboard.deleteAction}
               iconOnly
               onClick={(e) => {
                 e.stopPropagation();
@@ -135,13 +144,7 @@ export function ResumeCardGrid({
               size="icon"
               variant="paper"
             >
-              <Trash2
-                size={16}
-                className="transition-all duration-200 group-hover/del:scale-75 group-hover/del:opacity-0 group-focus-visible/del:scale-75 group-focus-visible/del:opacity-0"
-              />
-              <span className="absolute inset-0 flex scale-75 items-center justify-center text-xs font-black opacity-0 transition-all duration-200 group-hover/del:scale-100 group-hover/del:opacity-100 group-focus-visible/del:scale-100 group-focus-visible/del:opacity-100">
-                删除
-              </span>
+              <Trash2 size={16} />
             </InkButton>
           </div>
         </StickerCard>

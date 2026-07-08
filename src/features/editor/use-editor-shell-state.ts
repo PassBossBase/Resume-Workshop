@@ -18,6 +18,7 @@ import {
 import { useDirectorySyncStore } from "@/stores/directory-sync-store";
 import { useResumeStore } from "@/stores/resume-store";
 import { useToastStore } from "@/stores/toast-store";
+import { useLocale } from "@/lib/i18n";
 import type { MobileTab } from "./editor-mobile-tabs";
 import { usePanelResize } from "./use-panel-resize";
 
@@ -58,6 +59,14 @@ export function useEditorShellState(id: string) {
   const syncResumeToDirectory = useDirectorySyncStore(
     (state) => state.syncResume,
   );
+  const { locale, t } = useLocale();
+  const localeRef = useRef(locale);
+  const messagesRef = useRef(t);
+
+  useEffect(() => {
+    localeRef.current = locale;
+    messagesRef.current = t;
+  }, [locale, t]);
 
   useEffect(() => {
     initializeDirectorySync();
@@ -120,7 +129,13 @@ export function useEditorShellState(id: string) {
         currentResumeSynced = true;
         if (directory) markDirectorySynced(directory);
       } else {
-        value = cached ?? createDefaultResume(id, "我的新简历");
+        value =
+          cached ??
+          createDefaultResume(
+            id,
+            localeRef.current === "en-US" ? "My New Resume" : "我的新简历",
+            localeRef.current,
+          );
         if (!cached) await saveResume(value);
         if (directoryRef.current) {
           try {
@@ -184,7 +199,7 @@ export function useEditorShellState(id: string) {
                 await directory.removeEntry(fileNameRef.current);
                 fileStampRef.current = undefined;
               } catch {
-                addToast("旧版简历文件无法自动删除，请手动清理", "info");
+                addToast(messagesRef.current.editor.oldFileDeleteFailed, "info");
               }
             }
 
@@ -212,8 +227,8 @@ export function useEditorShellState(id: string) {
         await saveResume(resume);
         const message =
           error instanceof DirectoryConflictError
-            ? "本地目录文件有外部修改，当前简历未同步"
-            : "目录同步失败，当前简历已保存到浏览器缓存";
+            ? messagesRef.current.editor.directoryConflict
+            : messagesRef.current.editor.directorySaveFailed;
         markDirectoryUnsynced(
           error instanceof DirectoryConflictError ? "conflict" : "error",
         );
@@ -286,7 +301,11 @@ export function useEditorShellState(id: string) {
       Boolean(page),
     );
     if (!resume || pages.length === 0) return;
-    await exportResumePdf(pages, resume.title, resume);
+    await exportResumePdf(pages, resume.title, resume, {
+      canvasFailed: messagesRef.current.editor.pdfCanvasFailed,
+      fallbackFileName: messagesRef.current.editor.fallbackFileName,
+      noPage: messagesRef.current.editor.pdfNoPage,
+    });
   };
 
   const handleImportedResume = async (importedResume: ResumeDocument) => {

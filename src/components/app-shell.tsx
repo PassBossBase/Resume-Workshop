@@ -13,8 +13,10 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useSyncExternalStore, type ReactNode } from "react";
-import { BrandMark } from "./anime-ui/ui";
+import { BrandMark, InkButton } from "./anime-ui/ui";
+import { LanguageToggle } from "./language-toggle";
 import { useOverlay } from "@/hooks/use-overlay";
+import { useT } from "@/lib/i18n";
 
 const sidebarStorageKey = "resume-workshop:sidebar-collapsed";
 const sidebarChangeEvent = "resume-workshop:sidebar-change";
@@ -36,39 +38,41 @@ function getServerSidebarSnapshot() {
   return false;
 }
 
-const links = [
-  { href: "/dashboard", label: "我的简历", icon: FileText },
-  { href: "/templates", label: "简历模板", icon: LayoutTemplate },
-  // { href: "/pdf-to-json", label: "PDF转JSON", icon: FileJson },
-  { href: "/settings", label: "通用设置", icon: Cog },
-];
-
 function MobileNavigation({ pathname }: { pathname: string }) {
   const [open, setOpen] = useState(false);
+  const t = useT();
+  const links = [
+    { href: "/dashboard", label: t.nav.dashboard, icon: FileText },
+    { href: "/templates", label: t.nav.templates, icon: LayoutTemplate },
+    // { href: "/pdf-to-json", label: "PDF转JSON", icon: FileJson },
+    { href: "/settings", label: t.nav.settings, icon: Cog },
+  ];
 
   useOverlay(open, { lockScroll: false, onClose: () => setOpen(false) });
 
   return (
     <div className="relative z-50">
-      <button
+      <InkButton
         type="button"
         aria-controls="mobile-navigation"
         aria-expanded={open}
-        aria-label={open ? "关闭主导航" : "打开主导航"}
-        className="grid h-11 w-11 place-items-center rounded-2xl border-2 border-black bg-white shadow-[3px_3px_0_black] transition hover:-translate-y-0.5 hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-(--blue) active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+        pressable
+        aria-label={open ? t.nav.close : t.nav.open}
+        className="grid h-11 w-11 place-items-center rounded-2xl border-2 border-black bg-white shadow-[3px_3px_0_black] transition hover:-translate-y-0.5 hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-(--blue) "
         onClick={() => setOpen((current) => !current)}
+        unstyled
       >
         {open ? (
           <X aria-hidden="true" size={21} strokeWidth={2.7} />
         ) : (
           <Menu aria-hidden="true" size={21} strokeWidth={2.7} />
         )}
-      </button>
+      </InkButton>
       {open ? (
         <nav
           id="mobile-navigation"
           role="menu"
-          aria-label="主导航"
+          aria-label={t.nav.label}
           className="absolute right-0 top-[calc(100%+14px)] z-20 w-64 rotate-[0.5deg] rounded-3xl border-2 border-black bg-(--paper) p-3 shadow-[5px_5px_0_black]"
         >
           {links.map(({ href, label, icon: Icon }, index) => {
@@ -106,7 +110,7 @@ function MobileNavigation({ pathname }: { pathname: string }) {
                 {label}
                 {active ? (
                   <span className="ml-auto rounded-full border border-black bg-white px-2 py-0.5 text-xs">
-                    当前
+                    {t.nav.current}
                   </span>
                 ) : null}
               </Link>
@@ -120,7 +124,14 @@ function MobileNavigation({ pathname }: { pathname: string }) {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const t = useT();
   const isHomePage = pathname === "/";
+  const links = [
+    { href: "/dashboard", label: t.nav.dashboard, icon: FileText },
+    { href: "/templates", label: t.nav.templates, icon: LayoutTemplate },
+    // { href: "/pdf-to-json", label: "PDF转JSON", icon: FileJson },
+    { href: "/settings", label: t.nav.settings, icon: Cog },
+  ];
   const sidebarCollapsed = useSyncExternalStore(
     subscribeToSidebarState,
     getSidebarSnapshot,
@@ -148,11 +159,15 @@ export function AppShell({ children }: { children: ReactNode }) {
             }`}
           >
             <Link
-              aria-label="返回首页"
+              aria-label={t.app.backHome}
               className="rounded-2xl focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-(--blue)"
               href="/"
             >
-              <BrandMark compact={sidebarCollapsed} />
+              <BrandMark
+                compact={sidebarCollapsed}
+                prefix={t.app.brandPrefix}
+                suffix={t.app.brandSuffix}
+              />
             </Link>
           </div>
           <nav
@@ -180,12 +195,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 >
                   <span
                     className={`grid h-9 w-9 place-items-center rounded-xl border-2 border-black ${
-                      [
-                        "bg-(--blue)",
-                        "bg-(--pink)",
-                        "bg-(--mint)",
-                        "bg-(--purple)",
-                      ][index]
+                      ["bg-(--blue)", "bg-(--purple)", "bg-(--pink)"][index]
                     }`}
                   >
                     <Icon size={18} color="white" strokeWidth={2.6} />
@@ -196,20 +206,32 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </Link>
               );
             })}
-            <button
+            <div className="absolute left-0 bottom-10 w-full">
+              <LanguageToggle
+                compact
+                variant="purple"
+                className="w-full rounded-xl transition"
+              />
+            </div>
+            <InkButton
               type="button"
-              aria-label={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
+              aria-label={
+                sidebarCollapsed ? t.nav.expandSidebar : t.nav.collapseSidebar
+              }
               aria-expanded={!sidebarCollapsed}
-              className="absolute rounded-2xl cursor-pointer left-0 bottom-2 grid h-10 w-full shrink-0 place-items-center border-2 border-black bg-white transition hover:-translate-y-0.5 hover:bg-(--yellow) hover:shadow-[3px_3px_0_black] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--blue)"
+              className="absolute rounded-xl cursor-pointer left-0 bottom-2 grid h-10 w-full shrink-0 place-items-center border-2 border-black bg-white"
               onClick={toggleSidebar}
-              title={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
+              title={
+                sidebarCollapsed ? t.nav.expandSidebar : t.nav.collapseSidebar
+              }
+              unstyled
             >
               {sidebarCollapsed ? (
                 <PanelLeftOpen aria-hidden="true" size={20} />
               ) : (
                 <PanelLeftClose aria-hidden="true" size={20} />
               )}
-            </button>
+            </InkButton>
           </nav>
         </aside>
       ) : null}
@@ -221,13 +243,19 @@ export function AppShell({ children }: { children: ReactNode }) {
         {!isHomePage ? (
           <header className="no-print relative z-40 flex h-20 items-center justify-between border-b-2 border-black bg-(--paper) px-5 lg:hidden">
             <Link
-              aria-label="返回首页"
+              aria-label={t.app.backHome}
               className="rounded-2xl focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-(--blue)"
               href="/"
             >
-              <BrandMark />
+              <BrandMark
+                prefix={t.app.brandPrefix}
+                suffix={t.app.brandSuffix}
+              />
             </Link>
-            <MobileNavigation pathname={pathname} />
+            <div className="flex items-center gap-3">
+              <LanguageToggle compact className="w-15" />
+              <MobileNavigation pathname={pathname} />
+            </div>
           </header>
         ) : null}
         <main>{children}</main>

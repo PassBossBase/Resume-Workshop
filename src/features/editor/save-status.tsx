@@ -1,5 +1,6 @@
 import { LayoutDashboard, Sparkles } from "lucide-react";
 import { useResumeStore } from "@/stores/resume-store";
+import { useT } from "@/lib/i18n";
 
 export type SaveStatusState = ReturnType<
   typeof useResumeStore.getState
@@ -10,9 +11,10 @@ export function SaveStatus({
 }: {
   state: SaveStatusState;
 }) {
+  const t = useT();
   const labels = {
-    synced: "已同步",
-    unsynced: "未同步",
+    synced: t.editor.saveSynced,
+    unsynced: t.editor.saveUnsynced,
   };
   return (
     <span

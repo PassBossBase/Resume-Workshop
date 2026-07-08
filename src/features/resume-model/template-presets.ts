@@ -10,6 +10,7 @@ import {
   type ResumeDocument,
   type TemplateId,
 } from "@/features/resume-model/resume-model";
+import type { AppLocale } from "@/lib/locale";
 
 type ResumeStyles = ResumeDocument["styles"];
 
@@ -18,8 +19,9 @@ function createTemplateFromBlank(
   templateId: TemplateId,
   layoutConfig: LayoutConfig,
   styles: ResumeStyles,
+  locale: AppLocale = "zh-CN",
 ): ResumeDocument {
-  const resume = createBlankResume(crypto.randomUUID(), title);
+  const resume = createBlankResume(crypto.randomUUID(), title, locale);
 
   return {
     ...resume,
@@ -29,9 +31,9 @@ function createTemplateFromBlank(
   };
 }
 
-export function createClassicTemplate(): ResumeDocument {
+export function createClassicTemplate(locale: AppLocale = "zh-CN"): ResumeDocument {
   return createTemplateFromBlank(
-    "经典单栏简历",
+    locale === "en-US" ? "Classic Single Column Resume" : "经典单栏简历",
     "classic",
     { type: "classic" },
     {
@@ -42,12 +44,15 @@ export function createClassicTemplate(): ResumeDocument {
       pageMargin: 36,
       sectionGap: 28,
     },
+    locale,
   );
 }
 
-export function createHeaderFullWidthTemplate(): ResumeDocument {
+export function createHeaderFullWidthTemplate(locale: AppLocale = "zh-CN"): ResumeDocument {
   return createTemplateFromBlank(
-    "顶部全宽蓝色头部单栏简历",
+    locale === "en-US"
+      ? "Blue Header Single Column Resume"
+      : "顶部全宽蓝色头部单栏简历",
     "single_column_header_full_width",
     {
       type: "single_column_header_full_width",
@@ -65,12 +70,15 @@ export function createHeaderFullWidthTemplate(): ResumeDocument {
       pageMargin: 40,
       sectionGap: 28,
     },
+    locale,
   );
 }
 
-export function createSidebarLeftTemplate(): ResumeDocument {
+export function createSidebarLeftTemplate(locale: AppLocale = "zh-CN"): ResumeDocument {
   return createTemplateFromBlank(
-    "左侧侧边栏深色双栏简历",
+    locale === "en-US"
+      ? "Dark Sidebar Two Column Resume"
+      : "左侧侧边栏深色双栏简历",
     "two_column_sidebar_left",
     {
       type: "two_column_sidebar_left",
@@ -89,12 +97,15 @@ export function createSidebarLeftTemplate(): ResumeDocument {
       pageMargin: 32,
       sectionGap: 24,
     },
+    locale,
   );
 }
 
-export function createTimelineBlockTemplate(): ResumeDocument {
+export function createTimelineBlockTemplate(locale: AppLocale = "zh-CN"): ResumeDocument {
   return createTemplateFromBlank(
-    "时间轴色块行政单栏简历",
+    locale === "en-US"
+      ? "Timeline Block Resume"
+      : "时间轴色块行政单栏简历",
     "single_column_timeline_block",
     {
       type: "single_column_timeline_block",
@@ -111,12 +122,15 @@ export function createTimelineBlockTemplate(): ResumeDocument {
       pageMargin: 36,
       sectionGap: 24,
     },
+    locale,
   );
 }
 
-export function createLineSeparateTemplate(): ResumeDocument {
+export function createLineSeparateTemplate(locale: AppLocale = "zh-CN"): ResumeDocument {
   return createTemplateFromBlank(
-    "复古分割线顶部标题单栏简历",
+    locale === "en-US"
+      ? "Vintage Divider Resume"
+      : "复古分割线顶部标题单栏简历",
     "single_column_line_separate",
     {
       type: "single_column_line_separate",
@@ -133,12 +147,13 @@ export function createLineSeparateTemplate(): ResumeDocument {
       pageMargin: 40,
       sectionGap: 30,
     },
+    locale,
   );
 }
 
-export function createSectionBannerTemplate(): ResumeDocument {
+export function createSectionBannerTemplate(locale: AppLocale = "zh-CN"): ResumeDocument {
   return createTemplateFromBlank(
-    "自定义标题背景",
+    locale === "en-US" ? "Section Banner Resume" : "自定义标题背景",
     "single_column_section_banner",
     {
       type: "single_column_section_banner",
@@ -153,11 +168,20 @@ export function createSectionBannerTemplate(): ResumeDocument {
       pageMargin: 38,
       sectionGap: 24,
     },
+    locale,
   );
 }
 
-export const builtinTemplateFactories: Record<string, () => ResumeDocument> = {
-  blank: () => createBlankResume(crypto.randomUUID(), "基础简历"),
+export const builtinTemplateFactories: Record<
+  string,
+  (locale?: AppLocale) => ResumeDocument
+> = {
+  blank: (locale = "zh-CN") =>
+    createBlankResume(
+      crypto.randomUUID(),
+      locale === "en-US" ? "Blank Resume" : "基础简历",
+      locale,
+    ),
   classic: createClassicTemplate,
   single_column_header_full_width: createHeaderFullWidthTemplate,
   two_column_sidebar_left: createSidebarLeftTemplate,

@@ -19,7 +19,6 @@ import type {
   ResumeDocument,
   ResumeModule,
 } from "@/features/resume-model/resume-model";
-import { getBasicDisplayItems } from "@/features/resume-model/resume-model";
 import type { ResumePageData } from "./resume-pages";
 import {
   normalizeRichText,
@@ -27,6 +26,11 @@ import {
 } from "@/features/rich-text/rich-text";
 import { BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
+import {
+  getLocalizedBasicDisplayItems,
+  getLocalizedModuleTitle,
+} from "./resume-display";
+import type { AppLocale } from "@/lib/locale";
 
 /** sectionIcon → Lucide 图标映射 */
 const ICON_MAP: Record<string, typeof Award> = {
@@ -58,10 +62,12 @@ function ModuleIcon({
 export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
   resume,
   page,
+  locale = "zh-CN",
   pageRef,
 }: {
   resume: ResumeDocument;
   page: ResumePageData;
+  locale?: AppLocale;
   pageRef?: (node: HTMLDivElement | null) => void;
 }) {
   const cfg = resume.layoutConfig;
@@ -71,7 +77,7 @@ export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
   const firstModule = resume.modules[0];
   const basics =
     firstModule?.type === "basics" ? firstModule.basics : undefined;
-  const basicDisplayItems = getBasicDisplayItems(basics);
+  const basicDisplayItems = getLocalizedBasicDisplayItems(basics, locale);
   const headerBg = cfg.headerBgColor;
   const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
@@ -148,6 +154,7 @@ export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
           <HeaderFullWidthSection
             accent={resume.styles.accent}
             key={module.id}
+            locale={locale}
             module={module}
             titleColor={cfg.titleColor}
             textColor={cfg.textColor}
@@ -167,11 +174,13 @@ function HeaderFullWidthSection({
   accent,
   titleColor,
   textColor,
+  locale,
 }: {
   module: ResumeModule;
   accent: string;
   titleColor: string;
   textColor: string;
+  locale: AppLocale;
 }) {
   return (
     <section className="break-inside-avoid">
@@ -186,7 +195,7 @@ function HeaderFullWidthSection({
           style={{ color: accent }}
         />
         <h2 className="text-[1.143em] font-black" style={{ color: titleColor }}>
-          {module.title}
+          {getLocalizedModuleTitle(module, locale)}
         </h2>
       </div>
 

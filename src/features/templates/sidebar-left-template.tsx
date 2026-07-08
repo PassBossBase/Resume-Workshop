@@ -9,7 +9,6 @@ import type {
   ResumeDocument,
   ResumeModule,
 } from "@/features/resume-model/resume-model";
-import { getBasicDisplayItems } from "@/features/resume-model/resume-model";
 import type { ResumePageData } from "./resume-pages";
 import {
   normalizeRichText,
@@ -17,14 +16,21 @@ import {
 } from "@/features/rich-text/rich-text";
 import { BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
+import {
+  getLocalizedBasicDisplayItems,
+  getLocalizedModuleTitle,
+} from "./resume-display";
+import type { AppLocale } from "@/lib/locale";
 
 export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
   resume,
   page,
+  locale = "zh-CN",
   pageRef,
 }: {
   resume: ResumeDocument;
   page: ResumePageData;
+  locale?: AppLocale;
   pageRef?: (node: HTMLDivElement | null) => void;
 }) {
   const cfg = resume.layoutConfig;
@@ -33,7 +39,7 @@ export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
   const firstModule = resume.modules[0];
   const basics =
     firstModule?.type === "basics" ? firstModule.basics : undefined;
-  const basicDisplayItems = getBasicDisplayItems(basics);
+  const basicDisplayItems = getLocalizedBasicDisplayItems(basics, locale);
   const sidebarModules = page.modules.filter(
     (module) => module.type === "education",
   );
@@ -95,6 +101,7 @@ export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
             <SidebarSection
               accent={cfg.sidebarTextColor}
               key={mod.id}
+              locale={locale}
               module={mod}
               titleColor={cfg.sidebarTextColor}
               textColor={cfg.sidebarTextColor}
@@ -128,6 +135,7 @@ export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
             <SidebarSection
               accent={resume.styles.accent}
               key={mod.id}
+              locale={locale}
               module={mod}
               titleColor={cfg.titleColor}
               textColor={cfg.textColor}
@@ -144,11 +152,13 @@ function SidebarSection({
   accent,
   titleColor,
   textColor,
+  locale,
 }: {
   module: ResumeModule;
   accent: string;
   titleColor: string;
   textColor: string;
+  locale: AppLocale;
 }) {
   return (
     <section className="break-inside-avoid">
@@ -158,7 +168,7 @@ function SidebarSection({
       >
         <i className="h-3.5 w-1 rounded-full" style={{ background: accent }} />
         <h2 className="text-[1.071em] font-black" style={{ color: titleColor }}>
-          {module.title}
+          {getLocalizedModuleTitle(module, locale)}
         </h2>
       </div>
 

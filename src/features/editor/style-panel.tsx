@@ -2,12 +2,13 @@
 
 import { type DragEvent, useState } from "react";
 import { GripVertical, Palette, Plus, SlidersHorizontal } from "lucide-react";
-import { InkSelect } from "@/components/anime-ui/ui";
+import { InkButton, InkSelect } from "@/components/anime-ui/ui";
 import { useResumeStore } from "@/stores/resume-store";
 import { DeleteConfirmDialog } from "./delete-confirm-dialog";
 import { ThemeColorPicker } from "./style-color-picker";
 import { StyleModuleCard } from "./style-module-card";
 import { Control, Panel } from "./style-panel-shell";
+import { useT } from "@/lib/i18n";
 
 const colors = [
   "#171717",
@@ -20,14 +21,9 @@ const colors = [
 ];
 
 const headingTextColors = ["#ffffff", "#171717"];
-const fontFamilyOptions = [
-  { value: "sans", label: "清晰黑体" },
-  { value: "serif", label: "优雅宋体" },
-  { value: "rounded", label: "圆润字体" },
-];
-
 /** 左侧样式面板：模块排序与显隐、主题色、字号行高页边距等排版设置 */
 export function StylePanel() {
+  const t = useT();
   const resume = useResumeStore((state) => state.resume);
   const activeModuleId = useResumeStore((state) => state.activeModuleId);
   const setActiveModule = useResumeStore((state) => state.setActiveModule);
@@ -47,6 +43,11 @@ export function StylePanel() {
   const [deletingModuleId, setDeletingModuleId] = useState<string | null>(null);
 
   if (!resume) return null;
+  const fontFamilyOptions = [
+    { value: "sans", label: t.stylePanel.fonts.sans },
+    { value: "serif", label: t.stylePanel.fonts.serif },
+    { value: "rounded", label: t.stylePanel.fonts.rounded },
+  ];
 
   const sectionBannerConfig =
     resume.layoutConfig.type === "single_column_section_banner"
@@ -96,7 +97,7 @@ export function StylePanel() {
 
   return (
     <div className="space-y-5 p-5">
-      <Panel title="布局" icon={<GripVertical size={18} />}>
+      <Panel title={t.stylePanel.layout} icon={<GripVertical size={18} />}>
         <div className="space-y-3">
           {resume.modules.map((module, index) => (
             <StyleModuleCard
@@ -118,18 +119,20 @@ export function StylePanel() {
           ))}
 
           {/* 添加自定义模块按钮 */}
-          <button
+          <InkButton
             onClick={addCustomModule}
             className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black/25 bg-white/50 py-3 text-sm font-bold text-black/50 transition hover:border-black hover:text-black hover:bg-(--yellow)/10"
+            type="button"
+            unstyled
           >
             <Plus size={16} />
-            添加模块
-          </button>
+            {t.stylePanel.addModule}
+          </InkButton>
         </div>
       </Panel>
 
       <Panel
-        title="主题色"
+        title={t.stylePanel.themeColor}
         icon={<Palette size={18} />}
         action={
           <ThemeColorPicker
@@ -140,8 +143,8 @@ export function StylePanel() {
       >
         <div className="flex flex-wrap gap-3">
           {colors.map((color) => (
-            <button
-              aria-label={`主题色 ${color}`}
+            <InkButton
+              aria-label={`${t.stylePanel.themeColor} ${color}`}
               key={color}
               className={`h-9 w-9 cursor-pointer rounded-full border-2 border-black transition hover:scale-110 ${
                 resume.styles.accent === color
@@ -150,6 +153,8 @@ export function StylePanel() {
               }`}
               style={{ background: color }}
               onClick={() => updateStyle("accent", color)}
+              type="button"
+              unstyled
             />
           ))}
         </div>
@@ -157,7 +162,7 @@ export function StylePanel() {
 
       {sectionBannerConfig && (
         <Panel
-          title="标题文字颜色"
+          title={t.stylePanel.titleTextColor}
           icon={<Palette size={18} />}
           action={
             <ThemeColorPicker
@@ -170,8 +175,8 @@ export function StylePanel() {
         >
           <div className="flex flex-wrap gap-3">
             {headingTextColors.map((color) => (
-              <button
-                aria-label={`标题文字颜色 ${color}`}
+              <InkButton
+                aria-label={`${t.stylePanel.titleTextColor} ${color}`}
                 key={color}
                 className={`h-9 w-9 cursor-pointer rounded-full border-2 border-black transition hover:scale-110 ${
                   sectionBannerConfig.headingTextColor === color
@@ -180,14 +185,16 @@ export function StylePanel() {
                 }`}
                 style={{ background: color }}
                 onClick={() => updateLayoutConfig({ headingTextColor: color })}
+                type="button"
+                unstyled
               />
             ))}
           </div>
         </Panel>
       )}
 
-      <Panel title="排版" icon={<SlidersHorizontal size={18} />}>
-        <Control label="正文字号" value={`${resume.styles.fontSize}px`}>
+      <Panel title={t.stylePanel.typography} icon={<SlidersHorizontal size={18} />}>
+        <Control label={t.stylePanel.fontSize} value={`${resume.styles.fontSize}px`}>
           <input
             max="20"
             min="12"
@@ -198,7 +205,7 @@ export function StylePanel() {
             }
           />
         </Control>
-        <Control label="行高" value={resume.styles.lineHeight.toFixed(2)}>
+        <Control label={t.stylePanel.lineHeight} value={resume.styles.lineHeight.toFixed(2)}>
           <input
             max="2"
             min="1.2"
@@ -210,7 +217,7 @@ export function StylePanel() {
             }
           />
         </Control>
-        <Control label="页边距" value={`${resume.styles.pageMargin}px`}>
+        <Control label={t.stylePanel.pageMargin} value={`${resume.styles.pageMargin}px`}>
           <input
             max="64"
             min="24"
@@ -221,7 +228,7 @@ export function StylePanel() {
             }
           />
         </Control>
-        <Control label="模块间距" value={`${resume.styles.sectionGap}px`}>
+        <Control label={t.stylePanel.sectionGap} value={`${resume.styles.sectionGap}px`}>
           <input
             max="52"
             min="16"
@@ -233,9 +240,9 @@ export function StylePanel() {
           />
         </Control>
         <label className="mt-4 block">
-          <span className="mb-2 block text-sm font-bold">字体风格</span>
+          <span className="mb-2 block text-sm font-bold">{t.stylePanel.fontStyle}</span>
           <InkSelect
-            ariaLabel="选择字体风格"
+            ariaLabel={t.stylePanel.fontStyleAria}
             options={fontFamilyOptions}
             value={resume.styles.fontFamily}
             onValueChange={(value) => updateStyle("fontFamily", value)}
@@ -248,7 +255,7 @@ export function StylePanel() {
         <DeleteConfirmDialog
           moduleTitle={
             resume.modules.find((m) => m.id === deletingModuleId)?.title ??
-            "自定义"
+            t.stylePanel.customFallback
           }
           onConfirm={confirmDelete}
           onCancel={cancelDelete}

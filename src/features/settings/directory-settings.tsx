@@ -18,25 +18,10 @@ import {
   StickerCard,
 } from "@/components/anime-ui/ui";
 import { useDirectorySyncStore } from "@/stores/directory-sync-store";
-
-const statusText = {
-  synced: "已同步",
-  unsynced: "未同步",
-  checking: "正在检测同步状态...",
-};
-
-const reasonText = {
-  unbound: "尚未连接同步目录",
-  permission: "目录需要重新授权",
-  mobile: "移动端暂不支持本地目录同步",
-  unsupported: "当前浏览器不支持目录同步，请使用桌面版 Chrome",
-  error: "目录同步失败，请重新选择目录",
-  conflict: "目录文件有外部修改，请处理冲突后再同步",
-  disconnected: "已断开目录，之后将继续保存到浏览器缓存",
-  unknown: "选择一个文件夹保存和备份简历",
-};
+import { useT } from "@/lib/i18n";
 
 export function DirectorySettings() {
+  const t = useT();
   const [showDisconnect, setShowDisconnect] = useState(false);
   const [syncResult, setSyncResult] = useState<{
     directoryName: string;
@@ -64,16 +49,16 @@ export function DirectorySettings() {
     const result = await connectDirectory();
     if (!result.ok || result.cancelled) return;
     setSyncResult({
-      directoryName: result.directoryName ?? "同步目录",
+      directoryName: result.directoryName ?? t.settings.syncDirectory,
       resumeCount: result.resumeCount ?? 0,
     });
   };
 
-  const statusLabel = statusText[status];
+  const statusLabel = t.settings.status[status];
   const detailLabel =
     status === "synced" && directoryName
-      ? `已连接：${directoryName}`
-      : reasonText[reason];
+      ? t.settings.connected(directoryName)
+      : t.settings.reason[reason];
 
   return (
     <PageContainer>
@@ -81,8 +66,8 @@ export function DirectorySettings() {
         badge="PRIVATE BY DEFAULT"
         badgeColor="bg-(--mint)"
         badgeRotation="rotate-1"
-        title="通用设置"
-        subtitle="桌面 Chrome 可以把本地目录作为权威数据源；手机始终使用浏览器缓存。"
+        title={t.settings.title}
+        subtitle={t.settings.subtitle}
       />
 
       <StickerCard className="mt-9 overflow-hidden">
@@ -91,8 +76,8 @@ export function DirectorySettings() {
             <FolderOpen />
           </span>
           <div>
-            <h2 className="text-2xl font-black">同步目录</h2>
-            <p className="mt-1 text-black/55">选择一个文件夹保存和备份简历。</p>
+            <h2 className="text-2xl font-black">{t.settings.directoryTitle}</h2>
+            <p className="mt-1 text-black/55">{t.settings.directoryCopy}</p>
           </div>
         </div>
         <div className="p-6">
@@ -116,22 +101,28 @@ export function DirectorySettings() {
             </div>
             <div className="flex flex-wrap gap-3">
               <InkButton
+                className="shadow-[3px_3px_0_var(--line)]"
                 disabled={!isSupported || isSyncing || reason === "mobile"}
                 onClick={connect}
                 variant="yellow"
                 pressable
               >
                 {handle ? <RefreshCcw size={17} /> : <FolderOpen size={17} />}
-                {isSyncing ? "同步中..." : handle ? "重新授权" : "选择文件夹"}
+                {isSyncing
+                  ? t.settings.syncing
+                  : handle
+                    ? t.settings.reauthorize
+                    : t.settings.chooseFolder}
               </InkButton>
               {handle && (
                 <InkButton
+                  className="shadow-[3px_3px_0_var(--line)]"
                   onClick={() => setShowDisconnect(true)}
                   variant="paper"
                   pressable
                 >
                   <Unplug size={17} />
-                  断开
+                  {t.settings.disconnect}
                 </InkButton>
               )}
             </div>
@@ -152,19 +143,19 @@ export function DirectorySettings() {
             </span>
             <div className="min-w-0 pt-1">
               <span className="text-xs font-black tracking-[0.18em] text-orange-700">
-                同步设置
+                {t.settings.syncDirectory}
               </span>
               <h2
                 className="mt-1 text-2xl font-black"
                 id="disconnect-dir-title"
               >
-                确认断开目录同步？
+                {t.settings.disconnectTitle}
               </h2>
             </div>
           </div>
           <InkButton
-            aria-label="关闭断开确认"
-            className="absolute right-4 top-4 hover:bg-(--yellow)"
+            aria-label={t.settings.closeDisconnect}
+            className="absolute right-4 top-4 shadow-[3px_3px_0_var(--line)] hover:bg-(--yellow)"
             iconOnly
             onClick={() => setShowDisconnect(false)}
             size="icon"
@@ -177,19 +168,19 @@ export function DirectorySettings() {
 
         <div className="p-6">
           <p className="leading-7 text-black/60">
-            你正在断开目录
-            <strong className="mx-1 text-black">
-              &ldquo;{handle?.name}&rdquo;
-            </strong>
-            。断开后简历将继续保存到浏览器缓存，不会删除本地文件夹中已有的文件。
+            {t.settings.disconnectBody(handle?.name ?? "")}
           </p>
           <div className="mt-6 grid grid-cols-2 gap-3">
-            <InkButton onClick={() => setShowDisconnect(false)} variant="paper">
-              取消
+            <InkButton
+              className="shadow-[3px_3px_0_var(--line)]"
+              onClick={() => setShowDisconnect(false)}
+              variant="paper"
+            >
+              {t.dashboard.cancel}
             </InkButton>
             <InkButton
-              aria-label="确认断开"
-              className="bg-orange-500 text-white"
+              aria-label={t.settings.confirmDisconnect}
+              className="bg-orange-500 text-white shadow-[3px_3px_0_var(--line)]"
               onClick={() => {
                 disconnectDirectory();
                 setShowDisconnect(false);
@@ -197,7 +188,7 @@ export function DirectorySettings() {
               variant="pink"
             >
               <Unplug size={17} />
-              确认断开
+              {t.settings.confirmDisconnect}
             </InkButton>
           </div>
         </div>
@@ -216,16 +207,16 @@ export function DirectorySettings() {
             </span>
             <div className="min-w-0 pt-1">
               <span className="text-xs font-black tracking-[0.18em] text-emerald-700">
-                同步完成
+                {t.settings.syncDone}
               </span>
               <h2 className="mt-1 text-2xl font-black" id="sync-result-title">
-                目录连接成功
+                {t.settings.syncSuccess}
               </h2>
             </div>
           </div>
           <InkButton
-            aria-label="关闭同步结果"
-            className="absolute right-4 top-4 hover:bg-(--yellow)"
+            aria-label={t.settings.closeSyncResult}
+            className="absolute right-4 top-4 shadow-[3px_3px_0_var(--line)] hover:bg-(--yellow)"
             iconOnly
             onClick={() => setSyncResult(null)}
             size="icon"
@@ -238,23 +229,20 @@ export function DirectorySettings() {
 
         <div className="p-6">
           <p className="leading-7 text-black/60">
-            已成功连接目录
-            <strong className="mx-1 text-black">
-              &ldquo;{syncResult?.directoryName}&rdquo;
-            </strong>
-            ，共同步
-            <strong className="mx-1 text-black">
-              {syncResult?.resumeCount}
-            </strong>
-            份简历。之后所有修改都会自动写入该目录。
+            {syncResult
+              ? t.settings.syncResultBody(
+                  syncResult.directoryName,
+                  syncResult.resumeCount,
+                )
+              : ""}
           </p>
           <div className="mt-6">
             <InkButton
-              className="w-full"
+              className="w-full shadow-[3px_3px_0_var(--line)]"
               onClick={() => setSyncResult(null)}
               variant="yellow"
             >
-              知道了
+              {t.settings.gotIt}
             </InkButton>
           </div>
         </div>

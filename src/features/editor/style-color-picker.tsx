@@ -1,5 +1,6 @@
 import * as Popover from "@radix-ui/react-popover";
 import { Pipette } from "lucide-react";
+import { InkButton } from "@/components/anime-ui/ui";
 import {
   type ChangeEvent,
   type PointerEvent,
@@ -176,15 +177,16 @@ export function ThemeColorPicker({
   return (
     <Popover.Root open={open} onOpenChange={handleOpenChange}>
       <Popover.Trigger asChild>
-        <button
+        <InkButton
           title="自定义主题色"
           aria-label="自定义主题色"
           className="grid h-9 w-9 cursor-pointer place-items-center rounded-full border-2 border-black bg-white transition hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--blue)"
           style={{ color: value }}
           type="button"
+          unstyled
         >
           <Pipette size={17} />
-        </button>
+        </InkButton>
       </Popover.Trigger>
 
       <Popover.Portal>

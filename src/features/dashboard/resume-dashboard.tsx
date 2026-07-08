@@ -30,6 +30,7 @@ import {
 import { buildContinuousResumePage } from "@/features/templates/resume-pages";
 import { useToastStore } from "@/stores/toast-store";
 import { useDirectorySyncStore } from "@/stores/directory-sync-store";
+import { useLocale } from "@/lib/i18n";
 
 /** 简历列表页：新建 / 复制 / 删除，加载骨架屏与卡片入口 */
 export function ResumeDashboard({
@@ -44,6 +45,7 @@ export function ResumeDashboard({
   const [newResumeOpen, setNewResumeOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<ResumeDocument>();
   const [isDeleting, setIsDeleting] = useState(false);
+  const { t } = useLocale();
 
   useEffect(() => {
     listResumes()
@@ -62,16 +64,16 @@ export function ResumeDashboard({
     const copy = {
       ...resume,
       id: crypto.randomUUID(),
-      title: `${resume.title} · 副本`,
+      title: t.dashboard.copyTitle(resume.title),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
     await saveResume(copy);
     const syncResult = await syncResumeToDirectory(copy);
     setResumes(await listResumes());
-    addToast(`「${resume.title}」复制成功`);
+    addToast(t.dashboard.copiedToast(resume.title));
     if (syncResult.status === "unsynced" && syncResult.issue === "error") {
-      addToast("目录未同步，副本已保存到浏览器缓存", "info");
+      addToast(t.dashboard.copyUnsyncedToast, "info");
     }
   };
 
@@ -87,13 +89,13 @@ export function ResumeDashboard({
       setResumes((current) =>
         current.filter((resume) => resume.id !== pendingDelete.id),
       );
-      addToast(`「${pendingDelete.title}」已删除`, "info");
+      addToast(t.dashboard.deletedToast(pendingDelete.title), "info");
       if (syncResult.status === "unsynced" && syncResult.issue === "error") {
-        addToast("目录文件未能同步删除，请稍后手动检查", "info");
+        addToast(t.dashboard.deleteUnsyncedToast, "info");
       }
       setPendingDelete(undefined);
     } catch {
-      addToast("删除失败，请重试", "error");
+      addToast(t.dashboard.deleteFailedToast, "error");
     } finally {
       setIsDeleting(false);
     }
@@ -112,25 +114,27 @@ export function ResumeDashboard({
             badge="LOCAL RESUME STUDIO"
             badgeColor="bg-(--yellow)"
             badgeRotation="rotate-[-2deg]"
-            title={"我的简历"}
-            subtitle="把经历整理成一份清晰、专业又属于你的简历。"
+            title={t.dashboard.title}
+            subtitle={t.dashboard.subtitle}
           />
         </div>
         <div className="flex gap-4">
           <InkButton
+            className="shadow-[3px_3px_0_var(--line)]"
             onClick={() => setImportResume(true)}
             pressable
             variant="blue"
           >
             <Upload size={17} />
-            导入简历
+            {t.dashboard.import}
           </InkButton>
           <InkButton
+            className="shadow-[3px_3px_0_var(--line)]"
             onClick={() => setNewResumeOpen(true)}
             pressable
             variant="pink"
           >
-            新建简历
+            {t.dashboard.create}
           </InkButton>
         </div>
       </div>
@@ -167,13 +171,13 @@ export function ResumeDashboard({
                 DANGER ZONE
               </span>
               <h2 className="mt-1 text-2xl font-black" id="delete-resume-title">
-                确认删除简历？
+                {t.dashboard.deleteTitle}
               </h2>
             </div>
           </div>
           <InkButton
-            aria-label="关闭删除确认"
-            className="absolute right-4 top-4 hover:bg-(--yellow)"
+            aria-label={t.dashboard.closeDelete}
+            className="absolute right-4 top-4 shadow-[3px_3px_0_var(--line)] hover:bg-(--yellow)"
             disabled={isDeleting}
             iconOnly
             onClick={() => setPendingDelete(undefined)}
@@ -188,31 +192,28 @@ export function ResumeDashboard({
 
         <div className="p-6">
           <p className="leading-7 text-black/60">
-            你正在删除
-            <strong className="mx-1 text-black">
-              &ldquo;{pendingDelete?.title}&rdquo;
-            </strong>
-            。此操作无法撤销，保存在当前设备中的数据也会一并移除。
+            {pendingDelete ? t.dashboard.deleteBody(pendingDelete.title) : ""}
           </p>
           <div className="mt-6 grid grid-cols-2 gap-3">
             <InkButton
+              className="shadow-[3px_3px_0_var(--line)]"
               disabled={isDeleting}
               onClick={() => setPendingDelete(undefined)}
               variant="paper"
               pressable
             >
-              取消
+              {t.dashboard.cancel}
             </InkButton>
             <InkButton
-              aria-label="确认删除"
-              className="bg-red-500 text-white"
+              aria-label={t.dashboard.confirmDelete}
+              className="bg-red-500 text-white shadow-[3px_3px_0_var(--line)]"
               disabled={isDeleting}
               onClick={confirmRemove}
               variant="pink"
               pressable
             >
               <Trash2 size={17} />
-              {isDeleting ? "正在删除..." : "确认删除"}
+              {isDeleting ? t.dashboard.deleting : t.dashboard.confirmDelete}
             </InkButton>
           </div>
         </div>
@@ -221,7 +222,7 @@ export function ResumeDashboard({
       <NewResumeModal
         open={newResumeOpen}
         onClose={() => setNewResumeOpen(false)}
-        defaultTitle={`我的简历 ${resumes.length + 1}`}
+        defaultTitle={t.dashboard.defaultNewTitle(resumes.length + 1)}
       />
       <ImportResumeModal
         open={importResume}

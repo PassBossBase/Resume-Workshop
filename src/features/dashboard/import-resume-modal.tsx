@@ -15,6 +15,7 @@ import { saveResume } from "@/features/storage/resume-repository";
 import { listTemplates } from "@/features/templates/template-registry";
 import { TemplateSkeletonPreview } from "@/features/templates/template-skeleton-preview";
 import { useDirectorySyncStore } from "@/stores/directory-sync-store";
+import { useLocale } from "@/lib/i18n";
 import {
   IMPORT_PDF_MAX_BYTES,
   buildResumeFromImport,
@@ -42,7 +43,7 @@ export function ImportResumeModal({
   onClose,
   initialTemplateId = "blank",
   onImportedResume,
-  submitLabel = "导入到模板",
+  submitLabel,
 }: {
   open: boolean;
   onClose: () => void;
@@ -51,6 +52,7 @@ export function ImportResumeModal({
   submitLabel?: string;
 }) {
   const router = useRouter();
+  const { locale, t } = useLocale();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedTemplateId, setSelectedTemplateId] =
     useState<TemplateId>(initialTemplateId);
@@ -99,7 +101,7 @@ export function ImportResumeModal({
 
     if (!isJson && file.size > IMPORT_PDF_MAX_BYTES) {
       setStatus("error");
-      setError("PDF 文件过大，请选择 10MB 以内的文件。");
+      setError(t.importResume.tooLarge);
       return;
     }
 
@@ -114,7 +116,7 @@ export function ImportResumeModal({
     } catch (err) {
       setStatus("error");
       setError(
-        err instanceof Error ? err.message : "文件解析失败，请换一个文件试试。",
+        err instanceof Error ? err.message : t.importResume.parseFailed,
       );
     }
   };
@@ -159,7 +161,7 @@ export function ImportResumeModal({
 
     setStatus("saving");
     try {
-      const resume = buildResumeFromImport(factory(), draft, fileName);
+      const resume = buildResumeFromImport(factory(locale), draft, fileName);
       if (onImportedResume) {
         await onImportedResume(resume);
         reset();
@@ -171,26 +173,34 @@ export function ImportResumeModal({
       }
     } catch (err) {
       setStatus("error");
-      setError(err instanceof Error ? err.message : "导入失败，请稍后重试。");
+      setError(err instanceof Error ? err.message : t.importResume.importFailed);
     }
   };
 
   const parsedSummary = draft
     ? [
         [
-          "来源",
+          t.importResume.source,
           draft.source === "embedded"
             ? "简历工坊 PDF"
             : draft.source === "json"
               ? "JSON 文件"
               : "普通 PDF 文本",
         ],
-        ["姓名", draft.basics.name || "未识别"],
-        ["岗位", draft.basics.role || "未识别"],
-        ["联系方式", draft.basics.phone || draft.basics.email || "未识别"],
+        [t.importResume.name, draft.basics.name || t.importResume.notFound],
+        [t.importResume.role, draft.basics.role || t.importResume.notFound],
         [
-          "内容",
-          `${draft.skills.length} 技能 / ${draft.work.length} 工作 / ${draft.projects.length} 项目 / ${draft.education.length} 教育`,
+          t.importResume.contact,
+          draft.basics.phone || draft.basics.email || t.importResume.notFound,
+        ],
+        [
+          t.importResume.content,
+          t.importResume.contentSummary(
+            draft.skills.length,
+            draft.work.length,
+            draft.projects.length,
+            draft.education.length,
+          ),
         ],
       ]
     : [];
@@ -221,14 +231,14 @@ export function ImportResumeModal({
             </span>
 
             <h2 className="mt-1 text-2xl font-black" id="import-resume-title">
-              导入简历
+              {t.importResume.title}
             </h2>
           </div>
           <div></div>
         </div>
         <InkButton
-          aria-label="关闭导入简历弹窗"
-          className="absolute right-4 top-4 hover:bg-(--yellow)"
+          aria-label={t.importResume.close}
+          className="absolute right-4 top-4 shadow-[3px_3px_0_var(--line)] hover:bg-(--yellow)"
           disabled={status === "parsing" || status === "saving"}
           iconOnly
           onClick={close}
@@ -243,7 +253,7 @@ export function ImportResumeModal({
       <div className="min-h-0 flex-1 overflow-auto bg-(--canvas) p-4 sm:p-6 lg:p-7">
         <div className="grid gap-5 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.42fr)]">
           <section className="rounded-3xl border-2 border-black bg-(--paper) p-5 shadow-[4px_4px_0_#d9d1c3]">
-            <h3 className="text-lg font-black">1. 上传文件</h3>
+            <h3 className="text-lg font-black">{t.importResume.uploadTitle}</h3>
             <label
               className={[
                 "mt-4 flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-black p-5 text-center transition",
@@ -261,11 +271,11 @@ export function ImportResumeModal({
                 {fileName
                   ? fileName
                   : isDragOver
-                    ? "松开以导入文件"
-                    : "选择或拖入简历文件"}
+                    ? t.importResume.release
+                    : t.importResume.choose}
               </span>
               <span className="mt-2 text-sm font-medium text-black/50">
-                支持 PDF 与 JSON 格式，扫描件暂不支持
+                {t.importResume.supports}
               </span>
               <input
                 accept="application/pdf,.pdf,application/json,.json"
@@ -278,14 +288,14 @@ export function ImportResumeModal({
             </label>
 
             <div className="mt-5 rounded-2xl border-2 border-black bg-white p-4">
-              <h4 className="font-black">识别结果</h4>
+              <h4 className="font-black">{t.importResume.resultTitle}</h4>
               {status === "idle" ? (
                 <p className="mt-2 text-sm leading-6 text-black/55">
-                  上传后会在本地浏览器中解析，不会上传到服务器。
+                  {t.importResume.idle}
                 </p>
               ) : status === "parsing" ? (
                 <p className="mt-2 text-sm font-bold text-(--blue)">
-                  正在读取文件内容...
+                  {t.importResume.parsing}
                 </p>
               ) : status === "error" ? (
                 <div className="mt-2 flex gap-2 text-sm leading-6 text-red-600">
@@ -330,7 +340,9 @@ export function ImportResumeModal({
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div>
-                    <h3 className="text-lg font-black">2. 选择目标模板</h3>
+                    <h3 className="text-lg font-black">
+                      {t.importResume.templateTitle}
+                    </h3>
                   </div>
                 </div>
               </div>
@@ -339,7 +351,7 @@ export function ImportResumeModal({
                 {templateEntries.map((entry) => {
                   const selected = entry.id === selectedTemplateId;
                   return (
-                    <button
+                    <InkButton
                       className={[
                         "group flex items-center justify-between gap-3 rounded-2xl border-2 border-black px-3 py-2.5 text-left transition active:translate-y-0.5",
                         selected
@@ -349,13 +361,14 @@ export function ImportResumeModal({
                       key={entry.id}
                       onClick={() => setSelectedTemplateId(entry.id)}
                       type="button"
+                      unstyled
                     >
                       <span className="min-w-0">
                         <span className="block truncate text-sm font-black">
-                          {entry.name}
+                          {t.templates.names[entry.id]}
                         </span>
                       </span>
-                    </button>
+                    </InkButton>
                   );
                 })}
               </div>
@@ -364,13 +377,15 @@ export function ImportResumeModal({
               <div className="grid min-h-[420px] place-items-center rounded-2xl border-2 border-black bg-[#eef6fb] p-3 sm:p-5">
                 {selectedTemplateEntry ? (
                   <TemplateSkeletonPreview
-                    ariaLabel={`${selectedTemplateEntry.name}模板骨架预览`}
+                    ariaLabel={t.templates.previewAria(
+                      t.templates.names[selectedTemplateEntry.id],
+                    )}
                     className="h-[380px] w-[269px] max-h-full shadow-[4px_4px_0_black]"
                     templateId={selectedTemplateEntry.id}
                   />
                 ) : (
                   <div className="grid min-h-80 place-items-center rounded-xl border-2 border-dashed border-black/25 bg-white text-sm font-bold text-black/40">
-                    暂无预览
+                    {t.importResume.noPreview}
                   </div>
                 )}
               </div>
@@ -381,23 +396,27 @@ export function ImportResumeModal({
 
       <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t-2 border-black bg-(--paper) px-5 py-4">
         <p className="text-sm font-medium text-black/45">
-          第一版会尽量识别字段，导入后仍建议人工检查。
+          {t.importResume.footer}
         </p>
         <div className="flex gap-3">
           <InkButton
+            className="shadow-[3px_3px_0_var(--line)]"
             disabled={status === "parsing" || status === "saving"}
             onClick={close}
             variant="paper"
           >
-            取消
+            {t.importResume.cancel}
           </InkButton>
           <InkButton
+            className="shadow-[3px_3px_0_var(--line)]"
             disabled={!draft || status === "parsing" || status === "saving"}
             onClick={handleImport}
             variant="pink"
           >
             <Upload size={17} />
-            {status === "saving" ? "正在生成..." : submitLabel}
+            {status === "saving"
+              ? t.importResume.saving
+              : (submitLabel ?? t.importResume.submit)}
           </InkButton>
         </div>
       </footer>

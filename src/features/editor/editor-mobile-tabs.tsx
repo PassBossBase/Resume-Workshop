@@ -3,6 +3,7 @@ import { Eye, FileText, Palette, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import type { ResumeModule } from "@/features/resume-model/resume-model";
 import { getModuleMeta } from "./module-meta";
+import { useLocale } from "@/lib/i18n";
 
 export type MobileTab = "content" | "style" | "preview";
 
@@ -19,6 +20,7 @@ export function MobileEditorTabs({
   style: ReactNode;
   value: MobileTab;
 }) {
+  const { t } = useLocale();
   return (
     <RadixTabs.Root
       className="h-[calc(100vh-78px)] lg:hidden"
@@ -44,25 +46,25 @@ export function MobileEditorTabs({
         {preview}
       </RadixTabs.Content>
       <RadixTabs.List
-        aria-label="编辑器移动端视图"
+        aria-label={t.editor.mobileViews}
         className="fixed bottom-0 left-0 right-0 z-30 grid h-19 grid-cols-3 border-t-2 border-black bg-(--paper)"
       >
         <MobileTabTrigger
           active={value === "content"}
           icon={FileText}
-          label="内容"
+          label={t.editor.content}
           value="content"
         />
         <MobileTabTrigger
           active={value === "style"}
           icon={Palette}
-          label="样式"
+          label={t.editor.style}
           value="style"
         />
         <MobileTabTrigger
           active={value === "preview"}
           icon={Eye}
-          label="预览"
+          label={t.editor.preview}
           value="preview"
         />
       </RadixTabs.List>
@@ -79,14 +81,15 @@ export function ModuleTabs({
   activeModuleId: string;
   onChange: (moduleId: string) => void;
 }) {
+  const { locale, t } = useLocale();
   return (
     <RadixTabs.Root onValueChange={onChange} value={activeModuleId}>
       <RadixTabs.List
-        aria-label="简历模块"
+        aria-label={t.editor.modules}
         className="scrollbar-thin flex gap-2 overflow-x-auto border-b-2 border-black/10 bg-(--paper) p-3"
       >
         {modules.map((module) => {
-          const meta = getModuleMeta(module);
+          const meta = getModuleMeta(module, locale);
           const Icon = meta.icon;
           const active = module.id === activeModuleId;
           return (

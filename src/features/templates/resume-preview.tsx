@@ -5,6 +5,7 @@ import { useResumeStore } from "@/stores/resume-store";
 import { ClassicTemplatePage } from "./classic-template";
 import { getTemplate } from "./template-registry";
 import { buildContinuousResumePage } from "./resume-pages";
+import { useLocale } from "@/lib/i18n";
 
 // 确保所有渲染器模块被加载并注册（硬刷新时也有效）
 import "./blank-template";
@@ -21,6 +22,7 @@ export const ResumePreview = memo(function ResumePreview({
   registerPage?: (index: number, node: HTMLDivElement | null) => void;
 }) {
   const resume = useResumeStore((state) => state.resume);
+  const { locale } = useLocale();
   const page = useMemo(() => (resume ? buildContinuousResumePage(resume) : null), [resume]);
   const documentRef = useRef<HTMLDivElement | null>(null);
   const [documentHeight, setDocumentHeight] = useState(1123);
@@ -84,6 +86,7 @@ export const ResumePreview = memo(function ResumePreview({
                 documentRef.current = node;
                 registerPage?.(0, node);
               }}
+              locale={locale}
               resume={resume}
             />
             {Array.from({ length: pageCount - 1 }, (_, index) => {
@@ -97,7 +100,7 @@ export const ResumePreview = memo(function ResumePreview({
                   style={{ top: (pageNumber - 1) * 1123 }}
                 >
                   <span className="absolute left-3 top-[-11px] bg-red-500 px-2 py-0.5 text-[11px] font-black leading-none text-white">
-                    第{pageNumber}页
+                    {locale === "en-US" ? `Page ${pageNumber}` : `第${pageNumber}页`}
                   </span>
                 </div>
               );

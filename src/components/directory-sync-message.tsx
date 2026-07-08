@@ -4,17 +4,7 @@ import { FolderSync, RefreshCw, X } from "lucide-react";
 import { InkButton } from "@/components/anime-ui/ui";
 import { useDirectorySyncStore } from "@/stores/directory-sync-store";
 import { useToastStore } from "@/stores/toast-store";
-
-const reasonText = {
-  unbound: "还没有连接本地同步目录，简历当前只保存在浏览器缓存中。",
-  permission: "本地同步目录需要重新授权，简历当前只保存在浏览器缓存中。",
-  error: "本地目录写入失败，简历当前只保存在浏览器缓存中。",
-  conflict: "本地目录文件有外部修改，当前简历处于未同步状态。",
-  disconnected: "目录同步已断开，简历当前只保存在浏览器缓存中。",
-  unknown: "本地目录未同步，简历当前只保存在浏览器缓存中。",
-  mobile: "移动端暂不支持本地目录同步。",
-  unsupported: "当前浏览器不支持目录同步，请使用桌面版 Chrome。",
-};
+import { useT } from "@/lib/i18n";
 
 export function DirectorySyncMessage() {
   const status = useDirectorySyncStore((state) => state.status);
@@ -28,6 +18,7 @@ export function DirectorySyncMessage() {
   );
   const dismissPrompt = useDirectorySyncStore((state) => state.dismissPrompt);
   const addToast = useToastStore((state) => state.addToast);
+  const t = useT();
 
   if (
     dismissed ||
@@ -43,10 +34,10 @@ export function DirectorySyncMessage() {
     const result = await connectDirectory();
     if (result.cancelled) return;
     if (result.ok) {
-      addToast(`已同步 ${result.resumeCount ?? 0} 份简历到本地目录`);
+      addToast(t.directoryMessage.syncedToast(result.resumeCount ?? 0));
       return;
     }
-    addToast("目录同步未完成，请稍后重试", "error");
+    addToast(t.directoryMessage.failedToast, "error");
   };
 
   return (
@@ -61,14 +52,14 @@ export function DirectorySyncMessage() {
         </span>
         <div className="min-w-0 flex-1">
           <strong className="block text-sm font-black text-(--ink)">
-            本地目录未同步
+            {t.directoryMessage.title}
           </strong>
           <p className="mt-1 text-sm leading-6 font-bold text-black/60">
-            {reasonText[reason]}
+            {t.directoryMessage.reason[reason]}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <InkButton
-              className="min-h-10 px-3"
+              className="min-h-10 px-3 shadow-[3px_3px_0_var(--line)]"
               disabled={isSyncing}
               onClick={handleSync}
               pressable
@@ -78,12 +69,12 @@ export function DirectorySyncMessage() {
                 className={isSyncing ? "animate-spin" : undefined}
                 size={16}
               />
-              {isSyncing ? "同步中..." : "同步"}
+              {isSyncing ? t.directoryMessage.syncing : t.directoryMessage.sync}
             </InkButton>
           </div>
         </div>
         <InkButton
-          aria-label="关闭目录同步提示"
+          aria-label={t.directoryMessage.close}
           className="h-9 w-9 shrink-0 rounded-xl border-2 border-transparent text-black/45 hover:border-black hover:bg-white hover:text-black"
           iconOnly
           onClick={dismissPrompt}

@@ -3,6 +3,7 @@ import type { DragEvent } from "react";
 import { InkButton } from "@/components/anime-ui/ui";
 import type { ResumeModule } from "@/features/resume-model/resume-model";
 import { getModuleMeta } from "./module-meta";
+import { useLocale } from "@/lib/i18n";
 
 export function StyleModuleCard({
   activeModuleId,
@@ -33,7 +34,8 @@ export function StyleModuleCard({
   onSelect: (moduleId: string) => void;
   onToggle: (moduleId: string) => void;
 }) {
-  const meta = getModuleMeta(module);
+  const { locale, t } = useLocale();
+  const meta = getModuleMeta(module, locale);
   const Icon = meta.icon;
   const active = module.id === activeModuleId;
   const isDragging = dragIndex === index;
@@ -60,10 +62,12 @@ export function StyleModuleCard({
       onDrop={() => onDrop(index)}
       onDragEnd={onDragEnd}
     >
-      <button
+      <InkButton
         className="flex min-w-0 flex-1 items-center gap-3 text-left font-bold"
         onClick={() => onSelect(module.id)}
-        aria-label={`编辑${meta.displayTitle}`}
+        aria-label={t.stylePanel.editAria(meta.displayTitle)}
+        type="button"
+        unstyled
       >
         <span
           className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border-2 border-black"
@@ -72,20 +76,20 @@ export function StyleModuleCard({
           <Icon size={16} color="white" />
         </span>
         <span className="truncate">{meta.displayTitle}</span>
-      </button>
+      </InkButton>
       {!isBasics && (
         <div className="flex shrink-0 items-center gap-0">
           <span
             className="grid h-7 w-7 cursor-grab place-items-center rounded-lg text-black/55 transition-colors hover:bg-black/10 active:cursor-grabbing"
-            aria-label={`拖拽移动${meta.displayTitle}`}
+            aria-label={t.stylePanel.dragAria(meta.displayTitle)}
           >
             <GripVertical size={16} />
           </span>
           <InkButton
             aria-label={
               module.visible
-                ? `隐藏${meta.displayTitle}`
-                : `显示${meta.displayTitle}`
+                ? t.stylePanel.hideAria(meta.displayTitle)
+                : t.stylePanel.showAria(meta.displayTitle)
             }
             className="h-7 w-7 p-0 rounded-lg border-0 text-black/55 hover:bg-black/10"
             iconOnly
@@ -98,7 +102,7 @@ export function StyleModuleCard({
           </InkButton>
           {isCustom && (
             <InkButton
-              aria-label={`删除${meta.displayTitle}`}
+              aria-label={t.stylePanel.deleteAria(meta.displayTitle)}
               className="h-7 w-7 p-0 rounded-lg border-0 text-red-500 shadow-none hover:bg-black/10"
               iconOnly
               onClick={() => onDeleteClick(module.id)}

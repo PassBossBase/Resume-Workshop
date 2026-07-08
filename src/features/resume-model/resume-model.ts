@@ -15,6 +15,7 @@
  */
 import { z } from "zod";
 import { normalizeRichText } from "@/features/rich-text/rich-text";
+import type { AppLocale } from "@/lib/locale";
 
 // ──────────────────────────────────────
 // 模块类型枚举
@@ -598,8 +599,10 @@ function entry(
 export function createDefaultResume(
   id: string,
   title = "未命名简历",
+  locale: AppLocale = "zh-CN",
 ): ResumeDocument {
   const now = new Date().toISOString();
+  const en = locale === "en-US";
 
   return {
     version: 3,
@@ -621,16 +624,16 @@ export function createDefaultResume(
       {
         id: "basics",
         type: "basics",
-        title: "基本信息",
+        title: en ? "Basic Info" : "基本信息",
         visible: true,
         basics: {
-          name: "林小满",
-          role: "产品设计师",
-          status: "求职中",
-          birthday: "1998/06",
+          name: en ? "Alex Lin" : "林小满",
+          role: en ? "Product Designer" : "产品设计师",
+          status: en ? "Open to opportunities" : "求职中",
+          birthday: en ? "Jun 1998" : "1998/06",
           email: "hello@example.com",
-          phone: "138 0013 8000",
-          location: "杭州市",
+          phone: en ? "+1 555 013 8000" : "138 0013 8000",
+          location: en ? "Hangzhou" : "杭州市",
           website: "",
           avatar: "",
           infoItems: [],
@@ -643,64 +646,72 @@ export function createDefaultResume(
       {
         id: "skills",
         type: "skills",
-        title: "专业技能",
+        title: en ? "Skills" : "专业技能",
         visible: true,
         items: [
           entry(
             "skill-1",
-            "产品与体验",
+            en ? "Product & Experience" : "产品与体验",
             "",
             "",
             "",
-            "用户研究、交互设计、原型制作、设计系统\n熟练使用 Figma、Sketch、Adobe Creative Suite\n具备从需求分析到产品落地的完整经验",
+            en
+              ? "User research, interaction design, prototyping, design systems\nSkilled with Figma, Sketch, and Adobe Creative Suite\nExperienced in the full process from requirements to product delivery"
+              : "用户研究、交互设计、原型制作、设计系统\n熟练使用 Figma、Sketch、Adobe Creative Suite\n具备从需求分析到产品落地的完整经验",
           ),
         ],
       },
       {
         id: "work",
         type: "work",
-        title: "工作经历",
+        title: en ? "Work Experience" : "工作经历",
         visible: true,
         items: [
           entry(
             "work-1",
-            "星河科技",
-            "高级产品设计师",
+            en ? "Galaxy Tech" : "星河科技",
+            en ? "Senior Product Designer" : "高级产品设计师",
             "2022/07",
-            "至今",
-            "负责核心产品体验设计，推动跨团队协作与设计落地\n建立组件规范，将设计交付效率提升 35%\n主导新版工作台改版，关键任务完成率提升 18%",
+            en ? "Present" : "至今",
+            en
+              ? "Led core product experience design and cross-functional delivery\nBuilt component guidelines that improved design handoff efficiency by 35%\nDirected a workspace redesign that increased key task completion by 18%"
+              : "负责核心产品体验设计，推动跨团队协作与设计落地\n建立组件规范，将设计交付效率提升 35%\n主导新版工作台改版，关键任务完成率提升 18%",
           ),
         ],
       },
       {
         id: "projects",
         type: "projects",
-        title: "项目经历",
+        title: en ? "Projects" : "项目经历",
         visible: true,
         items: [
           entry(
             "project-1",
-            "创作者工作台",
-            "产品负责人",
+            en ? "Creator Workspace" : "创作者工作台",
+            en ? "Product Lead" : "产品负责人",
             "2023/03",
             "2023/12",
-            "梳理复杂创作流程并完成信息架构重构\n联合研发完成灰度发布与数据复盘\n项目获得年度最佳体验改进奖",
+            en
+              ? "Restructured information architecture for a complex creation workflow\nPartnered with engineering on phased release and data review\nWon the annual best experience improvement award"
+              : "梳理复杂创作流程并完成信息架构重构\n联合研发完成灰度发布与数据复盘\n项目获得年度最佳体验改进奖",
           ),
         ],
       },
       {
         id: "education",
         type: "education",
-        title: "教育经历",
+        title: en ? "Education" : "教育经历",
         visible: true,
         items: [
           entry(
             "education-1",
-            "江南大学",
-            "工业设计 · 本科",
+            en ? "Jiangnan University" : "江南大学",
+            en ? "Industrial Design · B.A." : "工业设计 · 本科",
             "2016/09",
             "2020/06",
-            "主修产品设计、视觉传达与人机交互\n校级优秀毕业设计",
+            en
+              ? "Focused on product design, visual communication, and human-computer interaction\nOutstanding graduation project"
+              : "主修产品设计、视觉传达与人机交互\n校级优秀毕业设计",
           ),
         ],
       },
@@ -712,8 +723,10 @@ export function createDefaultResume(
 export function createBlankResume(
   id: string,
   title = "基础简历",
+  locale: AppLocale = "zh-CN",
 ): ResumeDocument {
   const now = new Date().toISOString();
+  const en = locale === "en-US";
 
   return {
     version: 3,
@@ -740,16 +753,16 @@ export function createBlankResume(
       {
         id: "basics",
         type: "basics",
-        title: "基本信息",
+        title: en ? "Basic Info" : "基本信息",
         visible: true,
         basics: {
-          name: "姓名",
-          role: "求职意向",
-          status: "求职中",
+          name: en ? "Name" : "姓名",
+          role: en ? "Target Role" : "求职意向",
+          status: en ? "Open to opportunities" : "求职中",
           birthday: "",
           email: "email@example.com",
-          phone: "138 0000 0000",
-          location: "所在城市",
+          phone: en ? "+1 555 000 0000" : "138 0000 0000",
+          location: en ? "City" : "所在城市",
           website: "",
           avatar: "",
           infoItems: [],
@@ -762,64 +775,72 @@ export function createBlankResume(
       {
         id: "skills",
         type: "skills",
-        title: "专业技能",
+        title: en ? "Skills" : "专业技能",
         visible: true,
         items: [
           entry(
             "skill-1",
-            "专业技能",
+            en ? "Skills" : "专业技能",
             "",
             "",
             "",
-            "在此填写你的核心技能、擅长的工具或领域",
+            en
+              ? "Add your core skills, tools, or areas of expertise here"
+              : "在此填写你的核心技能、擅长的工具或领域",
           ),
         ],
       },
       {
         id: "work",
         type: "work",
-        title: "工作经历",
+        title: en ? "Work Experience" : "工作经历",
         visible: true,
         items: [
           entry(
             "work-1",
-            "公司名称",
-            "职位",
+            en ? "Company Name" : "公司名称",
+            en ? "Role" : "职位",
             "2023/01",
-            "至今",
-            "在此描述你的工作职责、成果和贡献",
+            en ? "Present" : "至今",
+            en
+              ? "Describe your responsibilities, outcomes, and contributions here"
+              : "在此描述你的工作职责、成果和贡献",
           ),
         ],
       },
       {
         id: "projects",
         type: "projects",
-        title: "项目经历",
+        title: en ? "Projects" : "项目经历",
         visible: true,
         items: [
           entry(
             "project-1",
-            "项目名称",
-            "担任角色",
+            en ? "Project Name" : "项目名称",
+            en ? "Role" : "担任角色",
             "2023/01",
             "2023/12",
-            "在此描述项目内容、你的角色和取得的成果",
+            en
+              ? "Describe the project, your role, and the outcomes here"
+              : "在此描述项目内容、你的角色和取得的成果",
           ),
         ],
       },
       {
         id: "education",
         type: "education",
-        title: "教育经历",
+        title: en ? "Education" : "教育经历",
         visible: true,
         items: [
           entry(
             "education-1",
-            "学校名称",
-            "专业 · 学历",
+            en ? "School Name" : "学校名称",
+            en ? "Major · Degree" : "专业 · 学历",
             "2019/09",
             "2023/06",
-            "在此填写学校、专业、学位等信息",
+            en
+              ? "Add school, major, degree, and related information here"
+              : "在此填写学校、专业、学位等信息",
           ),
         ],
       },

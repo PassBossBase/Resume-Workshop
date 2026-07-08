@@ -10,7 +10,6 @@ import type {
   ResumeDocument,
   ResumeModule,
 } from "@/features/resume-model/resume-model";
-import { getBasicDisplayItems } from "@/features/resume-model/resume-model";
 import type { ResumePageData } from "./resume-pages";
 import {
   normalizeRichText,
@@ -18,14 +17,21 @@ import {
 } from "@/features/rich-text/rich-text";
 import { BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
+import {
+  getLocalizedBasicDisplayItems,
+  getLocalizedModuleTitle,
+} from "./resume-display";
+import type { AppLocale } from "@/lib/locale";
 
 export const LineSeparateTemplate = memo(function LineSeparateTemplate({
   resume,
   page,
+  locale = "zh-CN",
   pageRef,
 }: {
   resume: ResumeDocument;
   page: ResumePageData;
+  locale?: AppLocale;
   pageRef?: (node: HTMLDivElement | null) => void;
 }) {
   const cfg = resume.layoutConfig;
@@ -34,7 +40,7 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
   const firstModule = resume.modules[0];
   const basics =
     firstModule?.type === "basics" ? firstModule.basics : undefined;
-  const basicDisplayItems = getBasicDisplayItems(basics);
+  const basicDisplayItems = getLocalizedBasicDisplayItems(basics, locale);
   const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
     serif: '"Songti SC", SimSun, serif',
@@ -111,6 +117,7 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
             <LineSeparateSection
               accent={resume.styles.accent}
               key={mod.id}
+              locale={locale}
               module={mod}
               titleColor={cfg.titleColor}
               textColor={cfg.textColor}
@@ -125,7 +132,7 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
 function InfoRow({
   item,
 }: {
-  item: ReturnType<typeof getBasicDisplayItems>[number];
+  item: ReturnType<typeof getLocalizedBasicDisplayItems>[number];
 }) {
   return (
     <div className="flex gap-2">
@@ -141,12 +148,14 @@ function LineSeparateSection({
   titleColor,
   textColor,
   separateColor,
+  locale,
 }: {
   module: ResumeModule;
   accent: string;
   titleColor: string;
   textColor: string;
   separateColor: string;
+  locale: AppLocale;
 }) {
   return (
     <section className="break-inside-avoid">
@@ -156,7 +165,7 @@ function LineSeparateSection({
       <div className="mb-2 flex items-center gap-2">
         <i className="h-3.5 w-1 rounded-full" style={{ background: accent }} />
         <h2 className="text-[1.071em] font-black" style={{ color: titleColor }}>
-          {module.title}
+          {getLocalizedModuleTitle(module, locale)}
         </h2>
       </div>
 

@@ -12,7 +12,6 @@ import type {
   ResumeDocument,
   ResumeModule,
 } from "@/features/resume-model/resume-model";
-import { getBasicDisplayItems } from "@/features/resume-model/resume-model";
 import type { ResumePageData } from "./resume-pages";
 import {
   normalizeRichText,
@@ -20,6 +19,11 @@ import {
 } from "@/features/rich-text/rich-text";
 import { BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
+import {
+  getLocalizedBasicDisplayItems,
+  getLocalizedModuleTitle,
+} from "./resume-display";
+import type { AppLocale } from "@/lib/locale";
 
 /** 经典单栏模板元数据 */
 export const CLASSIC_TEMPLATE = {
@@ -32,15 +36,17 @@ export const CLASSIC_TEMPLATE = {
 export const ClassicTemplatePage = memo(function ClassicTemplatePage({
   resume,
   page,
+  locale = "zh-CN",
   pageRef,
 }: {
   resume: ResumeDocument;
   page: ResumePageData;
+  locale?: AppLocale;
   pageRef?: (node: HTMLDivElement | null) => void;
 }) {
   const firstModule = resume.modules[0];
   const basics = firstModule?.type === "basics" ? firstModule.basics : undefined;
-  const basicDisplayItems = getBasicDisplayItems(basics);
+  const basicDisplayItems = getLocalizedBasicDisplayItems(basics, locale);
 
   const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
@@ -101,6 +107,7 @@ export const ClassicTemplatePage = memo(function ClassicTemplatePage({
             accent={resume.styles.accent}
             key={module.id}
             module={module}
+            locale={locale}
           />
         ))}
       </main>
@@ -111,15 +118,19 @@ export const ClassicTemplatePage = memo(function ClassicTemplatePage({
 function ResumeSection({
   module,
   accent,
+  locale,
 }: {
   module: ResumeModule;
   accent: string;
+  locale: AppLocale;
 }) {
   return (
     <section className="break-inside-avoid">
       <div className="mb-4 flex items-center gap-3 border-b border-[#dfe4ec] pb-2">
         <i className="h-5 w-1.5 rounded-full" style={{ background: accent }} />
-        <h2 className="text-[1.214em] font-black">{module.title}</h2>
+        <h2 className="text-[1.214em] font-black">
+          {getLocalizedModuleTitle(module, locale)}
+        </h2>
       </div>
       <div className="space-y-5">
         {module.items.map((item) => {

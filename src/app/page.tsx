@@ -1,3 +1,5 @@
+"use client";
+
 import { AppShell } from "@/components/app-shell";
 import {
   ArrowRight,
@@ -7,32 +9,34 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
+import { useT } from "@/lib/i18n";
 
 const actionLinkBase =
   "inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-2xl border-2 border-(--line) px-4 font-bold shadow-[3px_3px_0_var(--line)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none";
 
-const featureCards = [
-  {
-    title: "本地保存",
-    copy: "默认只存在当前设备，没有账号、云同步或后端 API。",
-    icon: ShieldCheck,
-    color: "bg-(--yellow)",
-  },
-  {
-    title: "模板开局",
-    copy: "基础模板加内置模板，点一下就能开始编辑。",
-    icon: LayoutTemplate,
-    color: "bg-(--pink) text-white",
-  },
-  {
-    title: "目录同步",
-    copy: "桌面 Chrome 可连接本地文件夹，把简历保存成 JSON。",
-    icon: FolderSync,
-    color: "bg-(--mint)",
-  },
-];
-
 export default function Home() {
+  const t = useT();
+  const featureCards = [
+    {
+      title: t.home.localTitle,
+      copy: t.home.localCopy,
+      icon: ShieldCheck,
+      color: "bg-(--yellow)",
+    },
+    {
+      title: t.home.templateTitle,
+      copy: t.home.templateCopy,
+      icon: LayoutTemplate,
+      color: "bg-(--pink) text-white",
+    },
+    {
+      title: t.home.syncTitle,
+      copy: t.home.syncCopy,
+      icon: FolderSync,
+      color: "bg-(--mint)",
+    },
+  ];
+
   return (
     <AppShell>
       <section className="relative min-h-screen overflow-hidden px-5 py-6 md:px-10 lg:py-8">
@@ -42,28 +46,27 @@ export default function Home() {
         <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-5xl items-center">
           <div className="relative z-10 w-full">
             <h1 className="mt-5 max-w-3xl text-5xl leading-[0.98] font-black tracking-tight md:text-7xl">
-              简历工坊
+              {t.home.title}
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 font-medium text-black/62 md:text-lg">
-              纯本地简历编辑器。选模板、填内容、调样式 、看 A4
-              预览，再导出一份免费无水印的 PDF。
+              {t.home.subtitle}
             </p>
 
             <div className="mt-7 flex flex-wrap gap-4">
               <Link
-                className={`${actionLinkBase} bg-(--pink) text-white`}
+                className={`${actionLinkBase} bg-(--blue) text-white`}
                 href="/dashboard"
               >
                 <FilePlus2 aria-hidden="true" size={18} />
-                制作简历
+                {t.home.start}
                 <ArrowRight aria-hidden="true" size={18} />
               </Link>
               <Link
-                className={`${actionLinkBase} bg-white text-(--ink)`}
+                className={`${actionLinkBase} bg-(--purple) text-white`}
                 href="/templates"
               >
                 <LayoutTemplate aria-hidden="true" size={18} />
-                模板列表
+                {t.home.templates}
               </Link>
             </div>
 

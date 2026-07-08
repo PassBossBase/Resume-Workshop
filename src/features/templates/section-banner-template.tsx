@@ -22,7 +22,6 @@ import type {
   ResumeDocument,
   ResumeModule,
 } from "@/features/resume-model/resume-model";
-import { getBasicDisplayItems } from "@/features/resume-model/resume-model";
 import type { ResumePageData } from "./resume-pages";
 import {
   normalizeRichText,
@@ -30,6 +29,11 @@ import {
 } from "@/features/rich-text/rich-text";
 import { BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
+import {
+  getLocalizedBasicDisplayItems,
+  getLocalizedModuleTitle,
+} from "./resume-display";
+import type { AppLocale } from "@/lib/locale";
 
 const MODULE_ICONS: Record<string, typeof Award> = {
   basics: UserRound,
@@ -52,10 +56,12 @@ const BASIC_ICONS: Record<string, typeof UserRound> = {
 export const SectionBannerTemplate = memo(function SectionBannerTemplate({
   resume,
   page,
+  locale = "zh-CN",
   pageRef,
 }: {
   resume: ResumeDocument;
   page: ResumePageData;
+  locale?: AppLocale;
   pageRef?: (node: HTMLDivElement | null) => void;
 }) {
   const cfg = resume.layoutConfig;
@@ -64,7 +70,7 @@ export const SectionBannerTemplate = memo(function SectionBannerTemplate({
   const firstModule = resume.modules[0];
   const basics =
     firstModule?.type === "basics" ? firstModule.basics : undefined;
-  const basicDisplayItems = getBasicDisplayItems(basics);
+  const basicDisplayItems = getLocalizedBasicDisplayItems(basics, locale);
   const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
     serif: '"Songti SC", SimSun, serif',
@@ -153,6 +159,7 @@ export const SectionBannerTemplate = memo(function SectionBannerTemplate({
             accent={accent}
             headingTextColor={cfg.headingTextColor}
             key={module.id}
+            locale={locale}
             module={module}
             textColor={cfg.textColor}
           />
@@ -180,11 +187,13 @@ function SectionBannerSection({
   accent,
   headingTextColor,
   textColor,
+  locale,
 }: {
   module: ResumeModule;
   accent: string;
   headingTextColor: string;
   textColor: string;
+  locale: AppLocale;
 }) {
   const Icon = MODULE_ICONS[module.type] ?? Award;
 
@@ -197,7 +206,9 @@ function SectionBannerSection({
         <span className="grid h-8 w-8 shrink-0 place-items-center bg-black/10">
           <Icon size={15} />
         </span>
-        <h2 className="truncate px-3">{module.title}</h2>
+        <h2 className="truncate px-3">
+          {getLocalizedModuleTitle(module, locale)}
+        </h2>
       </div>
 
       <div className="space-y-4">

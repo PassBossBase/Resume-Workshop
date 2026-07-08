@@ -6,6 +6,7 @@ import { EditorShellHeader } from "./editor-shell-header";
 import { EditorWorkbench } from "./editor-workbench";
 import { TemplateSwitchModal } from "./template-switch-modal";
 import { useEditorShellState } from "./use-editor-shell-state";
+import { useT } from "@/lib/i18n";
 
 /**
  * 编辑器顶层容器：三栏布局（样式 / 内容 / 预览），
@@ -14,12 +15,13 @@ import { useEditorShellState } from "./use-editor-shell-state";
 export function EditorShell({ id }: { id: string }) {
   const router = useRouter();
   const editor = useEditorShellState(id);
+  const t = useT();
 
   if (!editor.ready || !editor.resume) {
     return (
       <div className="grid min-h-screen place-items-center bg-(--yellow)">
         <div className="animate-bounce rounded-[28px] border-2 border-black bg-white px-7 py-5 text-xl font-black shadow-[5px_5px_0_black]">
-          正在打开工作台...
+          {t.editor.opening}
         </div>
       </div>
     );
@@ -49,7 +51,7 @@ export function EditorShell({ id }: { id: string }) {
           onClose={() => editor.setImportResumeOpen(false)}
           onImportedResume={editor.handleImportedResume}
           open={editor.importResumeOpen}
-          submitLabel="替换当前简历"
+          submitLabel={t.importResume.replaceSubmit}
         />
       )}
 

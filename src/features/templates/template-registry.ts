@@ -7,11 +7,13 @@ import type { FC } from "react";
 import type { TemplateId } from "@/features/resume-model/resume-model";
 import type { ResumePageData } from "./resume-pages";
 import type { ResumeDocument } from "@/features/resume-model/resume-model";
+import type { AppLocale } from "@/lib/locale";
 
 /** 所有模板页面渲染组件必须遵循的 Props 接口 */
 export interface TemplatePageProps {
   resume: ResumeDocument;
   page: ResumePageData;
+  locale?: AppLocale;
   pageRef?: (node: HTMLDivElement | null) => void;
 }
 

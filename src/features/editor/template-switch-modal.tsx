@@ -8,6 +8,7 @@ import type {
 } from "@/features/resume-model/resume-model";
 import { listTemplates } from "@/features/templates/template-registry";
 import { TemplateSkeletonPreview } from "@/features/templates/template-skeleton-preview";
+import { useLocale } from "@/lib/i18n";
 
 export function TemplateSwitchModal({
   currentTemplateId,
@@ -20,6 +21,7 @@ export function TemplateSwitchModal({
   onApply: (templateResume: ResumeDocument) => void;
   onClose: () => void;
 }) {
+  const { locale, t } = useLocale();
   const templateEntries = useMemo(() => listTemplates(), []);
   const availableTemplateEntries = useMemo(
     () => templateEntries.filter((entry) => entry.id !== currentTemplateId),
@@ -36,7 +38,7 @@ export function TemplateSwitchModal({
   const apply = () => {
     const factory = builtinTemplateFactories[selectedTemplateId];
     if (!factory) return;
-    onApply(factory());
+    onApply(factory(locale));
   };
 
   return (
@@ -54,16 +56,16 @@ export function TemplateSwitchModal({
           </span>
           <div className="min-w-0 pt-1">
             <span className="text-xs font-black tracking-[0.18em] text-(--blue)">
-              TEMPLATE
+              {t.templateSwitch.badge}
             </span>
             <h2 className="mt-1 text-2xl font-black" id="switch-template-title">
-              更换模板
+              {t.templateSwitch.title}
             </h2>
           </div>
         </div>
         <InkButton
-          aria-label="关闭更换模板弹窗"
-          className="absolute right-4 top-4 hover:bg-(--yellow)"
+          aria-label={t.templateSwitch.close}
+          className="absolute right-4 top-4 shadow-[3px_3px_0_var(--line)] hover:bg-(--yellow)"
           iconOnly
           onClick={onClose}
           size="icon"
@@ -77,12 +79,14 @@ export function TemplateSwitchModal({
       <div className="bg-(--canvas) p-4 sm:p-5">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)]">
           <section className="rounded-3xl border-2 border-black bg-(--paper) p-4 shadow-[4px_4px_0_#d9d1c3]">
-            <h3 className="mb-3 text-lg font-black">选择模板</h3>
+            <h3 className="mb-3 text-lg font-black">
+              {t.templateSwitch.choose}
+            </h3>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
               {availableTemplateEntries.map((entry) => {
                 const active = entry.id === selectedTemplateId;
                 return (
-                  <button
+                  <InkButton
                     className={`rounded-2xl border-2 px-3 py-2.5 text-left transition ${
                       active
                         ? "border-black bg-(--yellow) shadow-[3px_3px_0_black]"
@@ -91,31 +95,38 @@ export function TemplateSwitchModal({
                     key={entry.id}
                     onClick={() => setSelectedTemplateId(entry.id)}
                     type="button"
+                    unstyled
                   >
-                    <span className="block font-black">{entry.name}</span>
-                  </button>
+                    <span className="block font-black">
+                      {t.templates.names[entry.id]}
+                    </span>
+                  </InkButton>
                 );
               })}
               {availableTemplateEntries.length === 0 && (
                 <p className="rounded-2xl border-2 border-dashed border-black/20 bg-white px-3 py-4 text-sm font-bold text-black/45">
-                  暂无其他模板
+                  {t.templateSwitch.noOther}
                 </p>
               )}
             </div>
           </section>
 
           <section className="rounded-3xl border-2 border-black bg-(--paper) p-4 shadow-[4px_4px_0_#d9d1c3]">
-            <h3 className="mb-3 text-lg font-black">模板预览</h3>
+            <h3 className="mb-3 text-lg font-black">
+              {t.templateSwitch.preview}
+            </h3>
             <div className="grid h-[356px] place-items-center overflow-hidden rounded-2xl border-2 border-black bg-[#e7ebf1] p-3">
               {selectedEntry ? (
                 <TemplateSkeletonPreview
-                  ariaLabel={`${selectedEntry.name}模板骨架预览`}
+                  ariaLabel={t.templates.previewAria(
+                    t.templates.names[selectedEntry.id],
+                  )}
                   className="h-[324px] w-[229px] shadow-[4px_4px_0_black]"
                   templateId={selectedEntry.id}
                 />
               ) : (
                 <div className="grid min-h-72 place-items-center text-sm font-bold text-black/45">
-                  暂无预览
+                  {t.templateSwitch.noPreview}
                 </div>
               )}
             </div>
@@ -125,15 +136,23 @@ export function TemplateSwitchModal({
 
       <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t-2 border-black bg-(--paper) px-5 py-4">
         <p className="text-sm font-medium text-black/45">
-          只替换模板布局和样式，当前填写的内容会保留。
+          {t.templateSwitch.note}
         </p>
         <div className="flex gap-3">
-          <InkButton onClick={onClose} variant="paper">
-            取消
+          <InkButton
+            className="shadow-[3px_3px_0_var(--line)]"
+            onClick={onClose}
+            variant="paper"
+          >
+            {t.templateSwitch.cancel}
           </InkButton>
-          <InkButton onClick={apply} variant="pink">
+          <InkButton
+            className="shadow-[3px_3px_0_var(--line)]"
+            onClick={apply}
+            variant="pink"
+          >
             <LayoutTemplate size={17} />
-            应用模板
+            {t.templateSwitch.apply}
           </InkButton>
         </div>
       </footer>

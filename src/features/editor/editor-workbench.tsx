@@ -5,6 +5,7 @@ import { MobileEditorTabs, ModuleTabs, type MobileTab } from "./editor-mobile-ta
 import { ResizeHandle, PanelRestoreButton } from "./resize-handle";
 import { StylePanel } from "./style-panel";
 import type { usePanelResize } from "./use-panel-resize";
+import { useT } from "@/lib/i18n";
 
 export function EditorWorkbench({
   activeModuleId,
@@ -23,6 +24,7 @@ export function EditorWorkbench({
   resize: ReturnType<typeof usePanelResize>;
   resume: ResumeDocument;
 }) {
+  const t = useT();
   return (
     <>
       <div className="hidden h-[calc(100vh-78px)] lg:flex">
@@ -35,7 +37,7 @@ export function EditorWorkbench({
         >
           {resize.leftCollapsed ? (
             <PanelRestoreButton
-              label="展开样式面板"
+              label={t.editor.expandStyle}
               onClick={resize.expandLeft}
               side="left"
             />
@@ -63,7 +65,7 @@ export function EditorWorkbench({
         >
           {resize.middleCollapsed ? (
             <PanelRestoreButton
-              label="展开编辑面板"
+              label={t.editor.expandContent}
               onClick={resize.expandMiddle}
               side="left"
             />

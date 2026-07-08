@@ -23,6 +23,12 @@ interface PdfSlice {
   height: number;
 }
 
+interface ExportPdfMessages {
+  noPage: string;
+  canvasFailed: string;
+  fallbackFileName: string;
+}
+
 interface PageBox {
   left: number;
   top: number;
@@ -41,8 +47,13 @@ export async function exportResumePdf(
   pages: HTMLElement[],
   fileName: string,
   resume: ResumeDocument,
+  messages: ExportPdfMessages = {
+    noPage: "没有可导出的简历页面",
+    canvasFailed: "无法创建 PDF 页面画布",
+    fallbackFileName: "简历",
+  },
 ): Promise<void> {
-  if (pages.length === 0) throw new Error("没有可导出的简历页面");
+  if (pages.length === 0) throw new Error(messages.noPage);
   const pdf = new jsPDF({
     orientation: "portrait",
     unit: "mm",
@@ -90,7 +101,7 @@ export async function exportResumePdf(
       slice.width = sliceWidth;
       slice.height = sliceHeight;
       const context = slice.getContext("2d");
-      if (!context) throw new Error("无法创建 PDF 页面画布");
+      if (!context) throw new Error(messages.canvasFailed);
 
       context.fillStyle = "#ffffff";
       context.fillRect(0, 0, slice.width, slice.height);
@@ -123,7 +134,7 @@ export async function exportResumePdf(
   }
 
   embedPdfImportPayload(pdf, buildPdfImportPayload(resume));
-  pdf.save(`${sanitizeFileName(fileName)}.pdf`);
+  pdf.save(`${sanitizeFileName(fileName, messages.fallbackFileName)}.pdf`);
 }
 
 export function calculatePdfSlices(
@@ -376,6 +387,6 @@ function cssPxToPdfHeight(value: number): number {
   return (value / A4_PAGE_HEIGHT) * PDF_PAGE_HEIGHT;
 }
 
-function sanitizeFileName(value: string): string {
-  return value.replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-").trim() || "简历";
+function sanitizeFileName(value: string, fallback: string): string {
+  return value.replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-").trim() || fallback;
 }

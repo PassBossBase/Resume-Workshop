@@ -28,6 +28,7 @@ import { DateInput } from "./date-input";
 import { getModuleMeta } from "./module-meta";
 import { CustomModuleEditor } from "./custom-module-editor";
 import { useResumeStore } from "@/stores/resume-store";
+import { useLocale } from "@/lib/i18n";
 
 /**
  * 编辑器中间面板：基本信息表单、模块条目列表、富文本编辑与日期输入。
@@ -48,16 +49,6 @@ const optionalBasicFields = basicFields.slice(2) as Array<
   readonly [OptionalBasicFieldKey, string]
 >;
 const noSectionIconValue = "__none__";
-const sectionIconOptions = [
-  { value: noSectionIconValue, label: "无图标" },
-  { value: "work", label: "工作" },
-  { value: "edu", label: "教育" },
-  { value: "skill", label: "技能" },
-  { value: "cert", label: "证书" },
-  { value: "eval", label: "评价" },
-  { value: "project", label: "项目" },
-  { value: "user", label: "用户" },
-];
 
 // const optionalFieldIcons: Record<OptionalBasicFieldKey, typeof UserRound> = {
 //   status: UserRound,
@@ -123,6 +114,7 @@ function moveIndexToTarget<T>(
 }
 
 export function EditorContent() {
+  const { locale, t } = useLocale();
   const [draggedBasicField, setDraggedBasicField] =
     useState<OptionalBasicFieldKey | null>(null);
   const [basicDropTarget, setBasicDropTarget] =
@@ -147,7 +139,18 @@ export function EditorContent() {
     (item) => item.id === activeModuleId,
   );
   if (!activeSection) return null;
-  const meta = getModuleMeta(activeSection);
+  const meta = getModuleMeta(activeSection, locale);
+  const basicFieldLabels = t.resumeDisplay.basicLabels;
+  const sectionIconOptions = [
+    { value: noSectionIconValue, label: t.editor.noIcon },
+    { value: "work", label: t.editor.iconWork },
+    { value: "edu", label: t.editor.iconEdu },
+    { value: "skill", label: t.editor.iconSkill },
+    { value: "cert", label: t.editor.iconCert },
+    { value: "eval", label: t.editor.iconEval },
+    { value: "project", label: t.editor.iconProject },
+    { value: "user", label: t.editor.iconUser },
+  ];
   const Icon = meta.icon;
   const canEditSectionIcon =
     resume.templateId === "single_column_header_full_width" &&
@@ -172,7 +175,7 @@ export function EditorContent() {
         </span>
         <div>
           <p className="text-xs font-black uppercase tracking-[0.18em] text-black/40">
-            正在编辑
+            {t.editor.editing}
           </p>
           <h2 className="text-2xl font-black">{meta.displayTitle}</h2>
         </div>
@@ -181,9 +184,9 @@ export function EditorContent() {
       {canEditSectionIcon && (
         <div className="mb-8">
           <label className="grid gap-1">
-            <span className="text-sm font-bold">模块图标</span>
+            <span className="text-sm font-bold">{t.editor.sectionIcon}</span>
             <InkSelect
-              ariaLabel="选择模块图标"
+              ariaLabel={t.editor.sectionIconAria}
               options={sectionIconOptions}
               value={activeSection.sectionIcon ?? noSectionIconValue}
               onValueChange={(value) =>
@@ -206,13 +209,13 @@ export function EditorContent() {
           return (
             <div className="space-y-7">
               <section>
-                <h3 className="mb-3 text-lg font-black">头像</h3>
+                <h3 className="mb-3 text-lg font-black">{t.editor.avatar}</h3>
                 <label className="flex cursor-pointer items-center gap-4 rounded-3xl border-2 border-dashed border-black bg-[#f7f4ec] p-4">
                   <span className="grid h-20 w-20 place-items-center overflow-hidden rounded-2xl border-2 border-black bg-(--yellow)">
                     {basics.avatar ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        alt="头像预览"
+                        alt={t.editor.avatarAlt}
                         className="h-full w-full object-cover"
                         src={basics.avatar}
                       />
@@ -221,9 +224,9 @@ export function EditorContent() {
                     )}
                   </span>
                   <span>
-                    <strong className="block">上传个人头像</strong>
+                    <strong className="block">{t.editor.uploadAvatar}</strong>
                     <small className="text-black/50">
-                      JPG / PNG，建议使用正方形照片
+                      {t.editor.avatarHint}
                     </small>
                   </span>
                   <input
@@ -243,33 +246,37 @@ export function EditorContent() {
                 </label>
                 {basics.avatar && (
                   <div className="mt-4">
-                    <button
-                      aria-label="取消个人头像"
+                    <InkButton
+                      aria-label={t.editor.removeAvatar}
                       className="inline-flex h-10 items-center gap-2 rounded-2xl border-2 border-black bg-white px-4 text-sm font-black shadow-[3px_3px_0_#111] transition hover:-translate-y-0.5"
                       type="button"
                       onClick={() => updateBasic("avatar", "")}
+                      unstyled
                     >
                       <Trash2 className="h-4 w-4" />
-                      取消头像
-                    </button>
+                      {t.editor.removeAvatar}
+                    </InkButton>
                   </div>
                 )}
               </section>
               <section>
-                <h3 className="mb-4 text-lg font-black">基础字段</h3>
+                <h3 className="mb-4 text-lg font-black">
+                  {t.editor.basicFields}
+                </h3>
                 <div>
-                  {fixedBasicFields.map(([key, label]) => (
+                  {fixedBasicFields.map(([key]) => (
                     <BasicFieldRow
                       fixed
+                      fieldKey={key}
                       key={key}
-                      label={label}
+                      label={basicFieldLabels[key]}
                       value={basics[key] ?? ""}
                       onChange={(value) => updateBasic(key, value)}
                     />
                   ))}
                   {orderedOptionalBasicFields
                     .filter(([key]) => !basics.removedFields.includes(key))
-                    .map(([key, label]) => (
+                    .map(([key]) => (
                       <BasicFieldRow
                         hidden={basics.hiddenFields.includes(key)}
                         // icon={optionalFieldIcons[key]}
@@ -278,7 +285,8 @@ export function EditorContent() {
                           basicDropTarget === key && draggedBasicField !== key
                         }
                         key={key}
-                        label={label}
+                        fieldKey={key}
+                        label={basicFieldLabels[key]}
                         onDragEnd={() => {
                           setDraggedBasicField(null);
                           setBasicDropTarget(null);
@@ -329,15 +337,15 @@ export function EditorContent() {
                   {basics.removedFields.length > 0 && (
                     <div className="rounded-3xl border-2 border-dashed border-black/15 bg-white/50 p-4">
                       <p className="mb-3 text-sm font-bold text-black/55">
-                        添加基础字段
+                        {t.editor.addBasicField}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {optionalBasicFields
                           .filter(([key]) => basics.removedFields.includes(key))
-                          .map(([key, label]) => {
+                          .map(([key]) => {
                             // const Icon = optionalFieldIcons[key];
                             return (
-                              <button
+                              <InkButton
                                 className="inline-flex h-10 items-center gap-2 rounded-2xl border-2 border-black/15 bg-white px-3 text-sm font-bold transition hover:border-black hover:shadow-[3px_3px_0_var(--yellow)]"
                                 key={key}
                                 onClick={() => {
@@ -352,10 +360,12 @@ export function EditorContent() {
                                     ),
                                   });
                                 }}
+                                type="button"
+                                unstyled
                               >
                                 {/* <Icon size={16} /> */}
-                                {label}
-                              </button>
+                                {basicFieldLabels[key]}
+                              </InkButton>
                             );
                           })}
                       </div>
@@ -364,7 +374,9 @@ export function EditorContent() {
                 </div>
               </section>
               <section>
-                <h3 className="mb-4 text-lg font-black">自定义字段</h3>
+                <h3 className="mb-4 text-lg font-black">
+                  {t.editor.customFields}
+                </h3>
                 <div className="space-y-3">
                   {basics.infoItems.map((item, index) => (
                     <CustomBasicFieldRow
@@ -422,7 +434,7 @@ export function EditorContent() {
                       }}
                     />
                   ))}
-                  <button
+                  <InkButton
                     className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black/25 bg-(--yellow)/50 py-3 font-bold transition hover:border-black hover:bg-(--yellow)"
                     onClick={() => {
                       const next = [
@@ -431,10 +443,12 @@ export function EditorContent() {
                       ];
                       updateBasicsField({ infoItems: next });
                     }}
+                    type="button"
+                    unstyled
                   >
                     <Plus size={16} />
-                    添加信息项
-                  </button>
+                    {t.editor.addInfoItem}
+                  </InkButton>
                 </div>
               </section>
             </div>
@@ -443,13 +457,13 @@ export function EditorContent() {
       ) : activeSection.type === "skills" ? (
         <SectionCard variant="beige" className="p-5">
           <div className="mb-4">
-            <h3 className="text-lg font-black">专业技能内容</h3>
+            <h3 className="text-lg font-black">{t.editor.skillsContent}</h3>
             <p className="mt-1 text-sm text-black/50">
-              可直接使用列表、颜色、链接和多种段落对齐方式组织全部技能。
+              {t.editor.skillsHint}
             </p>
           </div>
           <RichTextEditor
-            label="专业技能内容"
+            label={t.editor.skillsContent}
             value={activeSection.items[0]?.description ?? ""}
             onChange={(description) => {
               const firstItem = activeSection.items[0];
@@ -483,13 +497,15 @@ export function EditorContent() {
               }
             />
           ))}
-          <button
+          <InkButton
             className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black bg-(--yellow) py-4 font-black transition hover:-translate-y-0.5"
             onClick={() => addEntry(activeSection.id)}
+            type="button"
+            unstyled
           >
             <Plus size={19} />
-            添加{meta.displayTitle}
-          </button>
+            {t.editor.addModuleItem(meta.displayTitle)}
+          </InkButton>
         </div>
       )}
     </div>
@@ -498,6 +514,7 @@ export function EditorContent() {
 
 function BasicFieldRow({
   fixed = false,
+  fieldKey,
   hidden = false,
   icon: Icon,
   isDragging = false,
@@ -514,6 +531,7 @@ function BasicFieldRow({
   onToggle,
 }: {
   fixed?: boolean;
+  fieldKey?: string;
   hidden?: boolean;
   icon?: typeof UserRound;
   isDragging?: boolean;
@@ -529,6 +547,7 @@ function BasicFieldRow({
   onRemove?: () => void;
   onToggle?: () => void;
 }) {
+  const { t } = useLocale();
   return (
     <div
       className={[
@@ -562,8 +581,8 @@ function BasicFieldRow({
         {Icon && <Icon className="shrink-0" size={19} />}
         <span className="shrink-0 font-bold">{label}</span>
       </div>
-      {label === "生日" ? (
-        <DateInput hideLabel label="生日" value={value} onChange={onChange} />
+      {fieldKey === "birthday" ? (
+        <DateInput hideLabel label={label} value={value} onChange={onChange} />
       ) : (
         <input
           aria-label={label}
@@ -576,7 +595,7 @@ function BasicFieldRow({
         <div className="flex justify-end">
           {!fixed && (
             <span
-              aria-label={`拖拽排序${label}`}
+              aria-label={t.editor.dragSort(label)}
               className="grid h-11 w-8 cursor-grab place-items-center rounded-2xl text-black/45 transition hover:bg-black/10 active:cursor-grabbing"
             >
               <GripVertical size={19} />
@@ -584,7 +603,7 @@ function BasicFieldRow({
           )}
           {onToggle && (
             <InkButton
-              aria-label={`${hidden ? "显示" : "隐藏"}${label}`}
+              aria-label={`${hidden ? t.editor.show : t.editor.hide}${label}`}
               className="h-11 w-8 rounded-2xl border-2 border-transparent shadow-none hover:border-black/15 hover:bg-white"
               iconOnly
               onClick={onToggle}
@@ -597,7 +616,7 @@ function BasicFieldRow({
           )}
           {onRemove && (
             <InkButton
-              aria-label={`删除${label}`}
+              aria-label={`${t.editor.delete}${label}`}
               className="h-11 w-8 rounded-2xl border-2 border-transparent text-red-500 shadow-none hover:border-red-200 hover:bg-red-50"
               iconOnly
               onClick={onRemove}
@@ -639,7 +658,8 @@ function CustomBasicFieldRow({
   onRemove: () => void;
   onToggle: () => void;
 }) {
-  const itemName = item.label || "自定义字段";
+  const { t } = useLocale();
+  const itemName = item.label || t.editor.customField;
   const hidden = item.visible === false;
 
   return (
@@ -666,28 +686,28 @@ function CustomBasicFieldRow({
       onDrop={onDrop}
     >
       <input
-        aria-label="标签"
+        aria-label={t.editor.label}
         className="h-12 w-full rounded-2xl border-2 border-black/10 bg-white px-4 font-medium outline-none transition focus:border-black focus:shadow-[3px_3px_0_var(--yellow)]"
-        placeholder="标签"
+        placeholder={t.editor.label}
         value={item.label}
         onChange={(event) => onChange({ label: event.target.value })}
       />
       <input
-        aria-label="值"
+        aria-label={t.editor.value}
         className="h-12 w-full rounded-2xl border-2 border-black/10 bg-white px-4 font-medium outline-none transition focus:border-black focus:shadow-[3px_3px_0_var(--yellow)]"
-        placeholder="值"
+        placeholder={t.editor.value}
         value={item.value}
         onChange={(event) => onChange({ value: event.target.value })}
       />
       <div className="flex justify-end gap-2">
         <span
-          aria-label={`拖拽排序${itemName}`}
+          aria-label={t.editor.dragSort(itemName)}
           className="grid h-11 w-9 cursor-grab place-items-center rounded-2xl text-black/45 transition hover:bg-black/10 active:cursor-grabbing"
         >
           <GripVertical size={19} />
         </span>
         <InkButton
-          aria-label={`${hidden ? "显示" : "隐藏"}${itemName}`}
+          aria-label={`${hidden ? t.editor.show : t.editor.hide}${itemName}`}
           className="h-11 w-11 rounded-2xl border-2 border-transparent shadow-none hover:border-black/15 hover:bg-white"
           iconOnly
           onClick={onToggle}
@@ -698,7 +718,7 @@ function CustomBasicFieldRow({
           {hidden ? <EyeOff size={18} /> : <Eye size={18} />}
         </InkButton>
         <InkButton
-          aria-label={`删除${itemName}`}
+          aria-label={`${t.editor.delete}${itemName}`}
           className="h-11 w-11 rounded-2xl border-2 border-transparent text-red-500 shadow-none hover:border-red-200 hover:bg-red-50"
           iconOnly
           onClick={onRemove}
@@ -730,11 +750,12 @@ function EntryEditor({
   onRemove: () => void;
   onStyleChange?: (style: { bgColor?: string } | undefined) => void;
 }) {
+  const { t } = useLocale();
   const canToggleVisibility = ["work", "projects", "education"].includes(
     moduleType,
   );
   const hidden = item.visible === false;
-  const entryLabel = item.title.trim() || `条目 ${index + 1}`;
+  const entryLabel = item.title.trim() || t.editor.entry(index + 1);
 
   return (
     <SectionCard
@@ -744,15 +765,17 @@ function EntryEditor({
       <div className="mb-5 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="rounded-full border-2 border-black bg-(--yellow) px-3 py-1 text-xs font-black">
-            条目 {index + 1}
+            {t.editor.entry(index + 1)}
           </span>
           {hidden && (
-            <span className="text-xs font-bold text-black/35">已隐藏</span>
+            <span className="text-xs font-bold text-black/35">
+              {t.editor.hidden}
+            </span>
           )}
         </div>
         <div className="flex gap-2">
           <InkButton
-            aria-label="上移"
+            aria-label={t.editor.moveUp}
             className="h-9 w-9 rounded-xl p-0 shadow-none"
             iconOnly
             onClick={() => onMove(-1)}
@@ -763,7 +786,7 @@ function EntryEditor({
             <ArrowUp size={16} />
           </InkButton>
           <InkButton
-            aria-label="下移"
+            aria-label={t.editor.moveDown}
             className="h-9 w-9 rounded-xl p-0 shadow-none"
             iconOnly
             onClick={() => onMove(1)}
@@ -775,7 +798,7 @@ function EntryEditor({
           </InkButton>
           {canToggleVisibility && (
             <InkButton
-              aria-label={`${hidden ? "显示" : "隐藏"}${entryLabel}`}
+              aria-label={`${hidden ? t.editor.show : t.editor.hide}${entryLabel}`}
               className="h-9 w-9 rounded-xl p-0 shadow-none"
               iconOnly
               onClick={() => onChange({ visible: hidden })}
@@ -787,7 +810,7 @@ function EntryEditor({
             </InkButton>
           )}
           <InkButton
-            aria-label="删除条目"
+            aria-label={t.editor.deleteEntry}
             className="h-9 w-9 rounded-xl p-0 text-red-600 shadow-none"
             iconOnly
             onClick={onRemove}
@@ -801,30 +824,32 @@ function EntryEditor({
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <Field
-          label="名称"
+          label={t.editor.nameField}
           value={item.title}
           onChange={(title) => onChange({ title })}
         />
         <Field
-          label="职位 / 专业"
+          label={t.editor.subtitleField}
           value={item.subtitle}
           onChange={(subtitle) => onChange({ subtitle })}
         />
         <DateInput
-          label="开始时间"
+          label={t.editor.startDate}
           value={item.startDate}
           onChange={(startDate) => onChange({ startDate })}
         />
         <DateInput
-          label="结束时间"
+          label={t.editor.endDate}
           value={item.endDate}
           onChange={(endDate) => onChange({ endDate })}
         />
       </div>
       <div className="mt-4">
-        <span className="mb-2 block text-sm font-bold">描述</span>
+        <span className="mb-2 block text-sm font-bold">
+          {t.editor.description}
+        </span>
         <RichTextEditor
-          label={`条目 ${index + 1} 描述`}
+          label={`${t.editor.entry(index + 1)} ${t.editor.description}`}
           value={item.description}
           onChange={(description) => onChange({ description })}
         />
@@ -833,7 +858,7 @@ function EntryEditor({
         <div className="mt-3">
           <label className="grid gap-1">
             <span className="text-sm font-bold">
-              背景颜色（时间轴色块模板使用）
+              {t.editor.timelineBg}
             </span>
             <div className="flex items-center gap-2">
               <input
@@ -843,13 +868,15 @@ function EntryEditor({
                 onChange={(e) => onStyleChange({ bgColor: e.target.value })}
               />
               {item.entryStyle?.bgColor && (
-                <button
-                  aria-label="清除背景颜色"
+                <InkButton
+                  aria-label={t.editor.clear}
                   className="h-10 rounded-xl border-2 border-black/15 px-3 text-sm font-bold text-red-500 transition hover:border-black"
                   onClick={() => onStyleChange(undefined)}
+                  type="button"
+                  unstyled
                 >
-                  清除
-                </button>
+                  {t.editor.clear}
+                </InkButton>
               )}
             </div>
           </label>

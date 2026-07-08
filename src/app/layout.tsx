@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { AppRuntime } from "@/components/app-runtime";
 import { ToastContainer } from "@/components/anime-ui/toast";
+import { LocaleProvider } from "@/lib/i18n";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "简历工坊",
-  description: "一款活泼、私密、完全本地运行的简历编辑器",
+  title: "简历工坊 / Resume Workshop",
+  description: "一款活泼、私密、完全本地运行的简历编辑器 / A private local resume editor",
   icons: {
     icon: "/icon.svg",
   },
@@ -17,9 +18,11 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <body>
-        {children}
-        <AppRuntime />
-        <ToastContainer />
+        <LocaleProvider>
+          {children}
+          <AppRuntime />
+          <ToastContainer />
+        </LocaleProvider>
       </body>
     </html>
   );

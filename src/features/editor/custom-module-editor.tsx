@@ -5,16 +5,18 @@ import {
   Pencil,
   Plus,
 } from "lucide-react";
-import { SectionCard } from "@/components/anime-ui/ui";
+import { InkButton, SectionCard } from "@/components/anime-ui/ui";
 import { useResumeStore } from "@/stores/resume-store";
 import type { CustomResumeModule } from "@/features/resume-model/resume-model";
 import { CustomEntryCard } from "./custom-entry-card";
+import { useT } from "@/lib/i18n";
 
 /**
  * 自定义模块编辑区：模块名称编辑 + 自定义项目列表。
  * 项目支持折叠/展开、拖拽排序（上下按钮）、显隐切换和删除。
  */
 export function CustomModuleEditor({ module: customModule }: { module: CustomResumeModule }) {
+  const t = useT();
   const renameModule = useResumeStore((state) => state.renameModule);
   const addCustomEntry = useResumeStore((state) => state.addCustomEntry);
   const removeCustomEntry = useResumeStore((state) => state.removeCustomEntry);
@@ -79,21 +81,27 @@ export function CustomModuleEditor({ module: customModule }: { module: CustomRes
                 onBlur={confirmRename}
                 onKeyDown={handleRenameKeyDown}
               />
-              <p className="ml-auto text-xs text-black/35">自定义名称已限制在6位数</p>
+              <p className="ml-auto text-xs text-black/35">
+                {t.customModule.nameLimit}
+              </p>
             </div>
           ) : (
             <div className="flex items-center gap-4">
               <h2 className="flex items-center gap-2 text-2xl font-black">
-                {customModule.title || "未命名模块"}
-                <button
-                  aria-label="重命名模块"
+                {customModule.title || t.customModule.unnamed}
+                <InkButton
+                  aria-label={t.customModule.rename}
                   onClick={startRename}
                   className="grid h-7 w-7 place-items-center rounded-lg hover:bg-black/10"
+                  type="button"
+                  unstyled
                 >
                   <Pencil size={15} />
-                </button>
+                </InkButton>
               </h2>
-              <p className="ml-auto text-xs text-black/35">自定义名称已限制在6位数</p>
+              <p className="ml-auto text-xs text-black/35">
+                {t.customModule.nameLimit}
+              </p>
             </div>
           )}
         </div>
@@ -102,17 +110,21 @@ export function CustomModuleEditor({ module: customModule }: { module: CustomRes
       {/* 自定义项目列表 */}
       {customModule.items.length === 0 ? (
         <div className="rounded-3xl border-2 border-dashed border-black/25 bg-white/60 py-16 text-center">
-          <p className="mb-3 text-lg font-black text-black/40">还没有自定义项目</p>
-          <p className="mb-6 text-sm text-black/30">
-            点击下方按钮添加你的第一个项目
+          <p className="mb-3 text-lg font-black text-black/40">
+            {t.customModule.emptyTitle}
           </p>
-          <button
+          <p className="mb-6 text-sm text-black/30">
+            {t.customModule.emptyCopy}
+          </p>
+          <InkButton
             onClick={() => addCustomEntry(moduleId)}
             className="inline-flex items-center gap-2 rounded-2xl border-2 border-black bg-(--yellow) px-6 py-3 font-black transition hover:-translate-y-0.5"
+            type="button"
+            unstyled
           >
             <Plus size={19} />
-            添加项目
-          </button>
+            {t.customModule.addItem}
+          </InkButton>
         </div>
       ) : (
         <div className="space-y-5">
@@ -135,13 +147,15 @@ export function CustomModuleEditor({ module: customModule }: { module: CustomRes
               />
             );
           })}
-          <button
+          <InkButton
             onClick={() => addCustomEntry(moduleId)}
             className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black bg-(--yellow) py-4 font-black transition hover:-translate-y-0.5"
+            type="button"
+            unstyled
           >
             <Plus size={19} />
-            添加项目
-          </button>
+            {t.customModule.addItem}
+          </InkButton>
         </div>
       )}
     </div>

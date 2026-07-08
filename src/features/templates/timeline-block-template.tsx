@@ -9,7 +9,6 @@ import type {
   ResumeDocument,
   ResumeModule,
 } from "@/features/resume-model/resume-model";
-import { getBasicDisplayItems } from "@/features/resume-model/resume-model";
 import type { ResumePageData } from "./resume-pages";
 import {
   normalizeRichText,
@@ -17,14 +16,22 @@ import {
 } from "@/features/rich-text/rich-text";
 import { BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
+import {
+  getLocalizedBasicDisplayItems,
+  getLocalizedModuleTitle,
+  personalInfoLabels,
+} from "./resume-display";
+import type { AppLocale } from "@/lib/locale";
 
 export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
   resume,
   page,
+  locale = "zh-CN",
   pageRef,
 }: {
   resume: ResumeDocument;
   page: ResumePageData;
+  locale?: AppLocale;
   pageRef?: (node: HTMLDivElement | null) => void;
 }) {
   const cfg = resume.layoutConfig;
@@ -33,7 +40,7 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
   const firstModule = resume.modules[0];
   const basics =
     firstModule?.type === "basics" ? firstModule.basics : undefined;
-  const basicDisplayItems = getBasicDisplayItems(basics);
+  const basicDisplayItems = getLocalizedBasicDisplayItems(basics, locale);
   const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
     serif: '"Songti SC", SimSun, serif',
@@ -114,7 +121,7 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
                 className="mb-2 text-[1em] font-black"
                 style={{ color: cfg.titleColor }}
               >
-                个人信息
+                {personalInfoLabels[locale]}
               </h3>
               <div className="space-y-1 text-[0.857em]">
                 {basicDisplayItems.map((item) => (
@@ -129,6 +136,7 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
           {leftModules.map((mod) => (
             <TimelineLeftSection
               key={mod.id}
+              locale={locale}
               module={mod}
               titleColor={cfg.titleColor}
             />
@@ -145,7 +153,7 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
                   className="mb-5 text-[1em] font-black"
                   style={{ color: cfg.titleColor }}
                 >
-                  {mod.title}
+                  {getLocalizedModuleTitle(mod, locale)}
                 </h3>
                 <div className="relative">
                   {/* 时间轴线条 */}
@@ -225,9 +233,11 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
 function TimelineLeftSection({
   module,
   titleColor,
+  locale,
 }: {
   module: ResumeModule;
   titleColor: string;
+  locale: AppLocale;
 }) {
   return (
     <section className="mb-5 break-inside-avoid overflow-hidden">
@@ -235,7 +245,7 @@ function TimelineLeftSection({
         className="mb-2 text-[0.929em] font-black wrap-break-word"
         style={{ color: titleColor }}
       >
-        {module.title}
+        {getLocalizedModuleTitle(module, locale)}
       </h3>
 
       {module.items.map((item) => {

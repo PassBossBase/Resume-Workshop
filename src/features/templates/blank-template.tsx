@@ -19,7 +19,6 @@ import type {
   ResumeDocument,
   ResumeModule,
 } from "@/features/resume-model/resume-model";
-import { getBasicDisplayItems } from "@/features/resume-model/resume-model";
 import type { ResumePageData } from "./resume-pages";
 import {
   normalizeRichText,
@@ -27,6 +26,11 @@ import {
 } from "@/features/rich-text/rich-text";
 import { BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
+import {
+  getLocalizedBasicDisplayItems,
+  getLocalizedModuleTitle,
+} from "./resume-display";
+import type { AppLocale } from "@/lib/locale";
 
 /** basicDisplayItems key → Lucide 图标映射 */
 const CONTACT_ICON_MAP: Record<string, typeof Briefcase> = {
@@ -48,10 +52,12 @@ function ContactIcon({ itemKey }: { itemKey: string }) {
 export const BlankTemplate = memo(function BlankTemplate({
   resume,
   page,
+  locale = "zh-CN",
   pageRef,
 }: {
   resume: ResumeDocument;
   page: ResumePageData;
+  locale?: AppLocale;
   pageRef?: (node: HTMLDivElement | null) => void;
 }) {
   const cfg = resume.layoutConfig;
@@ -60,7 +66,7 @@ export const BlankTemplate = memo(function BlankTemplate({
   const firstModule = resume.modules[0];
   const basics =
     firstModule?.type === "basics" ? firstModule.basics : undefined;
-  const basicDisplayItems = getBasicDisplayItems(basics);
+  const basicDisplayItems = getLocalizedBasicDisplayItems(basics, locale);
 
   const fontFamilies: Record<string, string> = {
     sans: '"Microsoft YaHei", "PingFang SC", sans-serif',
@@ -84,6 +90,7 @@ export const BlankTemplate = memo(function BlankTemplate({
       {page.showHeader && (
         <header className="mb-6 text-center">
           {basics?.avatar && (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               alt=""
               className="mx-auto mb-3 h-24 w-24 rounded-full object-cover"
@@ -139,6 +146,7 @@ export const BlankTemplate = memo(function BlankTemplate({
               separatorColor={cfg.separatorColor}
               textColor={cfg.textColor}
               titleColor={cfg.titleColor}
+              locale={locale}
             />
           ))}
       </main>
@@ -153,12 +161,14 @@ function BlankSection({
   separatorColor,
   titleColor,
   textColor,
+  locale,
 }: {
   module: ResumeModule;
   accent: string;
   separatorColor: string;
   titleColor: string;
   textColor: string;
+  locale: AppLocale;
 }) {
   const moduleType = module.type;
 
@@ -171,7 +181,7 @@ function BlankSection({
       <div className="mb-3 flex items-center gap-2">
         <i className="h-3.5 w-1 rounded-full" style={{ background: accent }} />
         <h2 className="text-[1.071em] font-black" style={{ color: titleColor }}>
-          {module.title}
+          {getLocalizedModuleTitle(module, locale)}
         </h2>
       </div>
 

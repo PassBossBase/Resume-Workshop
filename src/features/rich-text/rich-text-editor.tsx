@@ -36,6 +36,8 @@ import {
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { FirstLineIndent } from "./first-line-indent";
 import { normalizeRichText, sanitizeRichText } from "./rich-text";
+import { InkButton } from "@/components/anime-ui/ui";
+import { useT } from "@/lib/i18n";
 
 const DEFAULT_TEXT_COLOR = "#171717";
 const LINK_TEXT_COLOR = "#3157d5";
@@ -101,6 +103,7 @@ export function RichTextEditor({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const t = useT();
   const normalizedValue = normalizeRichText(value);
   const editorFrameRef = useRef<HTMLDivElement | null>(null);
   const hoverToolbarRef = useRef<HTMLDivElement | null>(null);
@@ -193,11 +196,11 @@ export function RichTextEditor({
     }) ?? emptyToolbarState;
   const selectedTextLinkHref = guessLinkHref(toolbarState.selectedText);
   const linkPanelTitle = useMemo(() => {
-    if (toolbarState.link) return "编辑超链接";
-    if (selectedTextLinkHref) return "确认文本转链接";
-    if (toolbarState.selectedText) return "为选中文字添加超链接";
-    return "开启超链接输入";
-  }, [selectedTextLinkHref, toolbarState.link, toolbarState.selectedText]);
+    if (toolbarState.link) return t.richText.editLink;
+    if (selectedTextLinkHref) return t.richText.confirmTextLink;
+    if (toolbarState.selectedText) return t.richText.selectedTextLink;
+    return t.richText.startLinkInput;
+  }, [selectedTextLinkHref, t, toolbarState.link, toolbarState.selectedText]);
   const toolbarColor = normalizeColorInputValue(toolbarState.color);
 
   useEffect(() => {
@@ -256,13 +259,13 @@ export function RichTextEditor({
     if (!editor) return;
     const normalizedHref = normalizeLinkHref(href ?? linkValue);
     if (!normalizedHref) {
-      setLinkError("请输入链接地址，不能使用 javascript/data/vbscript 协议。");
+      setLinkError(t.richText.invalidLink);
       return;
     }
 
     const text = linkTextValue.trim();
     if (linkPanelRange && !text) {
-      setLinkError("请输入链接文本。");
+      setLinkError(t.richText.emptyText);
       return;
     }
 
@@ -318,7 +321,7 @@ export function RichTextEditor({
     }
 
     if (!linkPanelRange && !toolbarState.link) {
-      setLinkHint("已开启超链接状态，后续输入会使用该链接。");
+      setLinkHint(t.richText.linkStateHint);
     } else {
       setLinkHint("");
       setLinkPanelOpen(false);
@@ -411,9 +414,9 @@ export function RichTextEditor({
   const copyLink = async (href: string) => {
     try {
       await navigator.clipboard.writeText(href);
-      setLinkHint("链接已复制。");
+      setLinkHint(t.richText.copied);
     } catch {
-      setLinkHint("当前浏览器不允许自动复制，请手动复制链接。");
+      setLinkHint(t.richText.copyFailed);
     }
   };
 
@@ -425,7 +428,7 @@ export function RichTextEditor({
       onMouseMove={handleEditorMouseMove}
     >
       <div
-        aria-label={`${label}工具栏`}
+        aria-label={t.richText.toolbar(label)}
         className="flex flex-wrap items-center gap-1.5 border-b-2 border-black/10 p-2"
         role="toolbar"
       >
@@ -433,19 +436,19 @@ export function RichTextEditor({
           active={toolbarState.bold}
           disabled={!editor}
           icon={Bold}
-          label="加粗"
+          label={t.richText.bold}
           onClick={() => editor?.chain().focus().toggleBold().run()}
         />
         <ToolButton
           active={toolbarState.underline}
           disabled={!editor}
           icon={UnderlineIcon}
-          label="下划线"
+          label={t.richText.underline}
           onClick={() => editor?.chain().focus().toggleUnderline().run()}
         />
         <label
           className="relative grid h-9 w-9 cursor-pointer place-items-center rounded-xl border-2 border-black bg-white"
-          title="字体颜色"
+          title={t.richText.color}
         >
           <span
             className="h-4 w-4 rounded-full border border-black"
@@ -454,7 +457,7 @@ export function RichTextEditor({
             }}
           />
           <input
-            aria-label="字体颜色"
+            aria-label={t.richText.color}
             className="absolute inset-0 cursor-pointer opacity-0"
             type="color"
             value={toolbarColor}
@@ -468,28 +471,28 @@ export function RichTextEditor({
           active={toolbarState.bulletList}
           disabled={!editor}
           icon={List}
-          label="无序列表"
+          label={t.richText.bulletList}
           onClick={() => editor?.chain().focus().toggleBulletList().run()}
         />
         <ToolButton
           active={toolbarState.orderedList}
           disabled={!editor}
           icon={ListOrdered}
-          label="有序列表"
+          label={t.richText.orderedList}
           onClick={() => editor?.chain().focus().toggleOrderedList().run()}
         />
         <ToolButton
           active={toolbarState.indent}
           disabled={!editor}
           icon={IndentIncrease}
-          label="首行缩进 2 字符"
+          label={t.richText.indent}
           onClick={applyIndent}
         />
         <ToolButton
           active={toolbarState.link || linkPanelOpen}
           disabled={!editor}
           icon={Link2}
-          label="插入超链接"
+          label={t.richText.link}
           onClick={openLinkPanel}
         />
         <Divider />
@@ -497,41 +500,41 @@ export function RichTextEditor({
           active={toolbarState.alignLeft}
           disabled={!editor}
           icon={AlignLeft}
-          label="左对齐"
+          label={t.richText.alignLeft}
           onClick={() => editor?.chain().focus().setTextAlign("left").run()}
         />
         <ToolButton
           active={toolbarState.alignCenter}
           disabled={!editor}
           icon={AlignCenter}
-          label="居中对齐"
+          label={t.richText.alignCenter}
           onClick={() => editor?.chain().focus().setTextAlign("center").run()}
         />
         <ToolButton
           active={toolbarState.alignRight}
           disabled={!editor}
           icon={AlignRight}
-          label="右对齐"
+          label={t.richText.alignRight}
           onClick={() => editor?.chain().focus().setTextAlign("right").run()}
         />
         <ToolButton
           active={toolbarState.alignJustify}
           disabled={!editor}
           icon={AlignJustify}
-          label="两端对齐"
+          label={t.richText.alignJustify}
           onClick={() => editor?.chain().focus().setTextAlign("justify").run()}
         />
         <Divider />
         <ToolButton
           disabled={!toolbarState.canUndo}
           icon={Undo2}
-          label="撤销"
+          label={t.richText.undo}
           onClick={() => editor?.chain().focus().undo().run()}
         />
         <ToolButton
           disabled={!toolbarState.canRedo}
           icon={Redo2}
-          label="恢复"
+          label={t.richText.redo}
           onClick={() => editor?.chain().focus().redo().run()}
         />
       </div>
@@ -549,11 +552,11 @@ export function RichTextEditor({
           <div className="grid gap-3">
             <label>
               <span className="mb-1.5 block text-xs font-black text-black/55">
-                文本
+                {t.richText.text}
               </span>
               <input
                 className="h-10 w-full rounded-xl border border-black/15 bg-white px-3 text-sm outline-none focus:border-black"
-                placeholder="链接文本"
+                placeholder={t.richText.textPlaceholder}
                 value={linkTextValue}
                 onChange={(event) => {
                   setLinkTextValue(event.target.value);
@@ -567,12 +570,12 @@ export function RichTextEditor({
             </label>
             <label>
               <span className="mb-1.5 block text-xs font-black text-black/55">
-                链接
+                {t.richText.linkAddress}
               </span>
               <input
                 ref={linkInputRef}
                 className="h-10 w-full rounded-xl border border-black/15 bg-white px-3 text-sm outline-none focus:border-black"
-                placeholder="链接地址"
+                placeholder={t.richText.urlPlaceholder}
                 value={linkValue}
                 onChange={(event) => {
                   setLinkValue(event.target.value);
@@ -588,19 +591,19 @@ export function RichTextEditor({
           <div className="mt-3 flex items-center gap-2">
             <ToolButton
               icon={Check}
-              label="应用链接"
+              label={t.richText.applyLink}
               tone="primary"
               onClick={() => applyLink()}
             />
             <ToolButton
               disabled={!linkPanelRange && !toolbarState.link}
               icon={Link2Off}
-              label="取消超链接"
+              label={t.richText.unlink}
               onClick={() => removeLink()}
             />
             <ToolButton
               icon={X}
-              label="关闭链接面板"
+              label={t.richText.closeLinkPanel}
               onClick={() => {
                 setLinkPanelOpen(false);
                 setLinkError("");
@@ -625,22 +628,22 @@ export function RichTextEditor({
         >
           <ToolButton
             icon={ExternalLink}
-            label="访问链接"
+            label={t.richText.visitLink}
             onClick={() => visitLink(hoveredLink.href)}
           />
           <ToolButton
             icon={Pencil}
-            label="编辑链接"
+            label={t.richText.editLink}
             onClick={() => openHoveredLinkEditor(hoveredLink)}
           />
           <ToolButton
             icon={Copy}
-            label="复制链接"
+            label={t.richText.copyLink}
             onClick={() => void copyLink(hoveredLink.href)}
           />
           <ToolButton
             icon={Link2Off}
-            label="取消超链接"
+            label={t.richText.unlink}
             onClick={() => removeLink(hoveredLink.range)}
           />
         </div>
@@ -783,7 +786,7 @@ function ToolButton({
   onClick: () => void;
 }) {
   return (
-    <button
+    <InkButton
       aria-label={label}
       aria-pressed={active || undefined}
       className={`grid h-9 w-9 place-items-center rounded-xl border-2 border-black transition ${
@@ -796,9 +799,10 @@ function ToolButton({
       type="button"
       onClick={onClick}
       onMouseDown={(event) => event.preventDefault()}
+      unstyled
     >
       <Icon size={16} strokeWidth={2.5} />
-    </button>
+    </InkButton>
   );
 }
 

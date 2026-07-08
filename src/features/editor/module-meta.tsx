@@ -8,6 +8,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { ModuleType, ResumeModule } from "@/features/resume-model/resume-model";
+import type { AppLocale } from "@/lib/locale";
+import { getLocalizedModuleTypeLabel } from "@/features/templates/resume-display";
 
 export interface ModuleMetaEntry {
   label: string;
@@ -25,10 +27,17 @@ export const moduleMeta: Record<ModuleType, ModuleMetaEntry> = {
 };
 
 /** 根据模块实例返回对应的元数据。自定义模块使用自身的 title 作为显示名。 */
-export function getModuleMeta(module: ResumeModule): ModuleMetaEntry & { displayTitle: string } {
+export function getModuleMeta(
+  module: ResumeModule,
+  locale: AppLocale = "zh-CN",
+): ModuleMetaEntry & { displayTitle: string } {
   const meta = moduleMeta[module.type];
   return {
     ...meta,
-    displayTitle: module.type === "custom" ? module.title : meta.label,
+    label: getLocalizedModuleTypeLabel(module.type, locale),
+    displayTitle:
+      module.type === "custom"
+        ? module.title
+        : getLocalizedModuleTypeLabel(module.type, locale),
   };
 }

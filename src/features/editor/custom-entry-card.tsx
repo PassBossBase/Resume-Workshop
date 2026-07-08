@@ -7,10 +7,11 @@ import {
   EyeOff,
   Trash2,
 } from "lucide-react";
-import { SectionCard } from "@/components/anime-ui/ui";
+import { InkButton, SectionCard } from "@/components/anime-ui/ui";
 import type { CustomResumeEntry } from "@/features/resume-model/resume-model";
 import { RichTextEditor } from "@/features/rich-text/rich-text-editor";
 import { DateInput } from "./date-input";
+import { useT } from "@/lib/i18n";
 
 export function CustomEntryCard({
   entry,
@@ -37,17 +38,20 @@ export function CustomEntryCard({
   deletingEntryId: string | null;
   setDeletingEntryId: (id: string | null) => void;
 }) {
+  const t = useT();
   return (
     <SectionCard variant="beige" className="p-5">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <button
-            aria-label={collapsed ? "展开项目" : "折叠项目"}
+          <InkButton
+            aria-label={collapsed ? t.customModule.expand : t.customModule.collapse}
             onClick={onToggleCollapse}
             className="grid h-8 w-8 place-items-center rounded-lg hover:bg-black/10"
+            type="button"
+            unstyled
           >
             {collapsed ? <ChevronRight size={18} /> : <ChevronDown size={18} />}
-          </button>
+          </InkButton>
           <span
             className={`rounded-full border-2 px-3 py-1 text-xs font-black ${
               entry.visible
@@ -55,63 +59,77 @@ export function CustomEntryCard({
                 : "border-black/25 bg-white text-black/35"
             }`}
           >
-            {entry.title || `项目 ${index + 1}`}
+            {entry.title || t.customModule.item(index + 1)}
           </span>
           {!entry.visible && (
-            <span className="text-xs font-bold text-black/35">已隐藏</span>
+            <span className="text-xs font-bold text-black/35">
+              {t.customModule.hidden}
+            </span>
           )}
         </div>
 
         <div className="flex items-center gap-1">
-          <button
-            aria-label="上移"
+          <InkButton
+            aria-label={t.editor.moveUp}
             disabled={index === 0}
             className="grid h-8 w-8 place-items-center rounded-lg hover:bg-black/10 disabled:opacity-25"
             onClick={() => onMove(-1)}
+            type="button"
+            unstyled
           >
             <ArrowUp size={16} />
-          </button>
-          <button
-            aria-label="下移"
+          </InkButton>
+          <InkButton
+            aria-label={t.editor.moveDown}
             disabled={index === total - 1}
             className="grid h-8 w-8 place-items-center rounded-lg hover:bg-black/10 disabled:opacity-25"
             onClick={() => onMove(1)}
+            type="button"
+            unstyled
           >
             <ArrowDown size={16} />
-          </button>
-          <button
-            aria-label={entry.visible ? "隐藏项目" : "显示项目"}
+          </InkButton>
+          <InkButton
+            aria-label={entry.visible ? t.customModule.hide : t.customModule.show}
             onClick={onToggleVisibility}
             className="grid h-8 w-8 place-items-center rounded-lg hover:bg-black/10"
+            type="button"
+            unstyled
           >
             {entry.visible ? <Eye size={16} /> : <EyeOff size={16} />}
-          </button>
+          </InkButton>
           {deletingEntryId === entry.id ? (
             <span className="flex items-center gap-1">
-              <button
+              <InkButton
                 onClick={() => {
                   onRemove();
                   setDeletingEntryId(null);
                 }}
                 className="rounded-lg bg-red-500 px-2 py-1 text-xs font-bold text-white"
+                type="button"
+                unstyled
               >
-                确认
-              </button>
-              <button
+                {t.customModule.confirm}
+              </InkButton>
+              <InkButton
                 onClick={() => setDeletingEntryId(null)}
                 className="rounded-lg border border-black px-2 py-1 text-xs font-bold"
+                type="button"
+                unstyled
               >
-                取消
-              </button>
+                {t.customModule.cancel}
+              </InkButton>
             </span>
           ) : (
-            <button
-              aria-label="删除项目"
+            <InkButton
+              aria-label={t.customModule.delete}
               onClick={() => setDeletingEntryId(entry.id)}
               className="grid h-8 w-8 place-items-center rounded-lg hover:bg-red-100"
+              type="button"
+              unstyled
             >
               <Trash2 size={16} className="text-red-500" />
-            </button>
+            </InkButton>
           )}
         </div>
       </div>
@@ -120,30 +138,32 @@ export function CustomEntryCard({
         <div>
           <div className="grid gap-4 md:grid-cols-2">
             <Field
-              label="标题"
+              label={t.customModule.title}
               value={entry.title}
               onChange={(title) => onChange({ title })}
             />
             <Field
-              label="副标题"
+              label={t.customModule.subtitle}
               value={entry.subtitle}
               onChange={(subtitle) => onChange({ subtitle })}
             />
             <DateInput
-              label="开始时间"
+              label={t.editor.startDate}
               value={entry.startDate}
               onChange={(startDate) => onChange({ startDate })}
             />
             <DateInput
-              label="结束时间"
+              label={t.editor.endDate}
               value={entry.endDate}
               onChange={(endDate) => onChange({ endDate })}
             />
           </div>
           <div className="mt-4">
-            <span className="mb-2 block text-sm font-bold">详细描述</span>
+            <span className="mb-2 block text-sm font-bold">
+              {t.customModule.details}
+            </span>
             <RichTextEditor
-              label={`自定义项目 ${index + 1} 描述`}
+              label={t.customModule.descriptionLabel(index + 1)}
               value={entry.description}
               onChange={(description) => onChange({ description })}
             />

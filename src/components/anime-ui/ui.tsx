@@ -6,6 +6,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import {
   memo,
+  forwardRef,
   type ButtonHTMLAttributes,
   type HTMLAttributes,
   type ReactNode,
@@ -26,7 +27,7 @@ export const StickerCard = memo(function StickerCard({
   );
 });
 
-type InkButtonVariant =
+export type InkButtonVariant =
   | "dark"
   | "paper"
   | "pink"
@@ -46,73 +47,104 @@ type InkButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   loadingLabel?: string;
   iconOnly?: boolean;
   pressable?: boolean;
+  hoverLabel?: ReactNode;
+  hoverLabelClassName?: string;
+  unstyled?: boolean;
 };
 
-export const InkButton = memo(function InkButton({
-  children,
-  className,
-  disabled,
-  iconOnly = false,
-  loading = false,
-  loadingLabel = "处理中",
-  pressable = false,
-  size,
-  variant = "dark",
-  ...props
-}: InkButtonProps) {
-  const resolvedSize = size ?? (iconOnly ? "icon" : "md");
-  const ariaLabel =
-    props["aria-label"] ?? (iconOnly && loading ? loadingLabel : undefined);
-  const variants: Record<InkButtonVariant, string> = {
-    dark: "border-2 border-(--line) bg-(--ink) text-white",
-    paper: "border-2 border-(--line) bg-white text-(--ink)",
-    pink: "border-2 border-(--line) bg-(--pink) text-white",
-    blue: "border-2 border-(--line) bg-(--blue) text-white",
-    yellow: "border-2 border-(--line) bg-(--yellow) text-(--ink)",
-    mint: "border-2 border-(--line) bg-(--mint) text-(--ink)",
-    purple: "border-2 border-(--line) bg-(--purple) text-white",
-    danger: "border-2 border-(--line) bg-red-500 text-white",
-    ghost:
-      "border-0 bg-transparent text-(--ink) shadow-none active:shadow-none",
-  };
-  const sizes: Record<InkButtonSize, string> = {
-    sm: "min-h-9 rounded-xl px-3 text-sm shadow-[2px_2px_0_var(--line)]",
-    md: "min-h-11 rounded-2xl px-4 shadow-[3px_3px_0_var(--line)]",
-    lg: "min-h-13 rounded-[20px] px-5 text-base shadow-[4px_4px_0_var(--line)]",
-    icon: "h-10 w-10 rounded-xl p-0 shadow-[3px_3px_0_var(--line)]",
-  };
+export const InkButton = memo(
+  forwardRef<HTMLButtonElement, InkButtonProps>(function InkButton(
+    {
+      children,
+      className,
+      disabled,
+      hoverLabel,
+      hoverLabelClassName,
+      iconOnly = false,
+      loading = false,
+      loadingLabel = "处理中",
+      pressable = false,
+      size,
+      unstyled = false,
+      variant = "dark",
+      ...props
+    }: InkButtonProps,
+    ref,
+  ) {
+    const resolvedSize = size ?? (iconOnly ? "icon" : "md");
+    const ariaLabel =
+      props["aria-label"] ?? (iconOnly && loading ? loadingLabel : undefined);
+    const showHoverLabel = Boolean(hoverLabel) && !loading;
+    const variants: Record<InkButtonVariant, string> = {
+      dark: "border-2 border-(--line) bg-(--ink) text-white",
+      paper: "border-2 border-(--line) bg-white text-(--ink)",
+      pink: "border-2 border-(--line) bg-(--pink) text-white",
+      blue: "border-2 border-(--line) bg-(--blue) text-white",
+      yellow: "border-2 border-(--line) bg-(--yellow) text-(--ink)",
+      mint: "border-2 border-(--line) bg-(--mint) text-(--ink)",
+      purple: "border-2 border-(--line) bg-(--purple) text-white",
+      danger: "border-2 border-(--line) bg-red-500 text-white",
+      ghost:
+        "border-0 bg-transparent text-(--ink) shadow-none active:shadow-none",
+    };
+    const sizes: Record<InkButtonSize, string> = {
+      sm: "min-h-9 rounded-xl px-3 text-sm",
+      md: "min-h-11 rounded-2xl px-4",
+      lg: "min-h-13 rounded-[20px] px-5 text-base",
+      icon: "h-10 w-10 rounded-xl p-0",
+    };
 
-  return (
-    <button
-      {...props}
-      aria-busy={loading || undefined}
-      aria-label={ariaLabel}
-      className={twMerge(
-        clsx(
-          "inline-flex items-center justify-center gap-2 whitespace-nowrap font-bold disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer transition",
-          sizes[resolvedSize],
-          variants[variant],
-          pressable &&
-            "active:translate-x-0.5 active:translate-y-0.5 active:shadow-none",
-          className,
-        ),
-      )}
-      disabled={disabled || loading}
-    >
-      {loading && (
-        <span
-          aria-hidden="true"
-          className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent"
-        />
-      )}
-      {iconOnly && loading ? (
-        <span className="sr-only">{loadingLabel}</span>
-      ) : (
-        children
-      )}
-    </button>
-  );
-});
+    return (
+      <button
+        {...props}
+        ref={ref}
+        aria-busy={loading || undefined}
+        aria-label={ariaLabel}
+        className={twMerge(
+          clsx(
+            !unstyled &&
+              "inline-flex items-center justify-center gap-2 whitespace-nowrap font-bold disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer transition",
+            !unstyled && sizes[resolvedSize],
+            !unstyled && variants[variant],
+            showHoverLabel && "group/ink-button relative overflow-hidden",
+            pressable &&
+              "active:translate-x-0.5 active:translate-y-0.5 active:shadow-none",
+            className,
+          ),
+        )}
+        disabled={disabled || loading}
+      >
+        {loading && (
+          <span
+            aria-hidden="true"
+            className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent"
+          />
+        )}
+        {iconOnly && loading ? (
+          <span className="sr-only">{loadingLabel}</span>
+        ) : showHoverLabel ? (
+          <>
+            <span className="flex items-center justify-center transition-all duration-200 group-hover/ink-button:scale-75 group-hover/ink-button:opacity-0 group-focus-visible/ink-button:scale-75 group-focus-visible/ink-button:opacity-0">
+              {children}
+            </span>
+            <span
+              className={twMerge(
+                clsx(
+                  "absolute inset-0 flex scale-75 items-center justify-center text-xs font-black opacity-0 transition-all duration-200 group-hover/ink-button:scale-100 group-hover/ink-button:opacity-100 group-focus-visible/ink-button:scale-100 group-focus-visible/ink-button:opacity-100",
+                  hoverLabelClassName,
+                ),
+              )}
+            >
+              {hoverLabel}
+            </span>
+          </>
+        ) : (
+          children
+        )}
+      </button>
+    );
+  }),
+);
 
 export function ColorTag({
   children,
@@ -140,7 +172,15 @@ export function ColorTag({
   );
 }
 
-export function BrandMark({ compact = false }: { compact?: boolean }) {
+export function BrandMark({
+  compact = false,
+  prefix = "简历",
+  suffix = "工坊",
+}: {
+  compact?: boolean;
+  prefix?: string;
+  suffix?: string;
+}) {
   return (
     <div className="flex shrink-0 items-center gap-3 font-black">
       <span className="relative grid h-10 w-10 rotate-[-5deg] place-items-center rounded-[14px] border-2 border-black bg-(--yellow) shadow-[3px_3px_0_black]">
@@ -149,7 +189,8 @@ export function BrandMark({ compact = false }: { compact?: boolean }) {
       </span>
       {!compact && (
         <span className="whitespace-nowrap text-xl tracking-tight">
-          简历<span className="text-(--blue)">工坊</span>
+          {prefix}
+          <span className="text-(--blue)">{suffix}</span>
         </span>
       )}
     </div>
