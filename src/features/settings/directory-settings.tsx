@@ -112,9 +112,6 @@ export function DirectorySettings() {
                 <span className="mt-1 block text-sm font-bold text-black/55">
                   {detailLabel}
                 </span>
-                <small className="text-black/45">
-                  简历文件名使用内部 ID，避免重名覆盖。
-                </small>
               </div>
             </div>
             <div className="flex flex-wrap gap-3">

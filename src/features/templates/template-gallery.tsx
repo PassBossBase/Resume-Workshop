@@ -55,7 +55,7 @@ export function TemplateGallery() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="comic-card-scrollbar flex-1 overflow-y-auto">
         <div
           className="grid gap-7 sm:grid-cols-2 xl:grid-cols-4"
           data-testid="template-grid"

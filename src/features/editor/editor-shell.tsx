@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import * as RadixTabs from "@radix-ui/react-tabs";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BrandMark, InkButton, Modal } from "@/components/anime-ui/ui";
 import { ImportResumeModal } from "@/features/dashboard/import-resume-modal";
@@ -358,9 +359,10 @@ export function EditorShell({ id }: { id: string }) {
     <div className="h-screen overflow-hidden bg-[#ebe7de]">
       <header className="no-print flex h-19.5 items-center justify-between gap-4 border-b-2 border-black bg-(--paper) px-4 md:px-6">
         <div className="flex min-w-0 items-center gap-3 md:gap-5">
-          <button
+          <InkButton
             aria-label="返回"
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border-2 border-black bg-white shadow-[2px_2px_0_black] transition active:translate-y-0.5 active:shadow-none"
+            pressable
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border-2 border-black bg-white"
             onClick={() => {
               if (window.history.length > 1) {
                 router.back();
@@ -369,8 +371,8 @@ export function EditorShell({ id }: { id: string }) {
               }
             }}
           >
-            <ArrowLeft size={20} />
-          </button>
+            <ArrowLeft color="black" size={20} />
+          </InkButton>
           <Link className="hidden md:block xl:hidden" href="/">
             <BrandMark compact />
           </Link>
@@ -512,53 +514,63 @@ export function EditorShell({ id }: { id: string }) {
         </section>
       </div>
 
-      <div className="h-[calc(100vh-78px)] lg:hidden">
-        {mobileTab === "content" && (
-          <div className="h-full overflow-y-auto pb-24">
-            <ModuleTabs
-              modules={resume.modules}
-              activeModuleId={activeModuleId}
-              onChange={setActiveModule}
-            />
-            <EditorContent />
-          </div>
-        )}
-        {mobileTab === "style" && (
-          <div className="h-full overflow-y-auto bg-[#f6f1e7] pb-24">
-            <StylePanel />
-          </div>
-        )}
-        {mobileTab === "preview" && (
-          <div className="h-full overflow-auto pb-24">
-            <ResumePreview
-              registerPage={(index, node) => {
-                pageRefs.current[index] = node;
-                pageRefs.current.length = 1;
-              }}
-            />
-          </div>
-        )}
-        <nav className="fixed bottom-0 left-0 right-0 z-30 grid h-19 grid-cols-3 border-t-2 border-black bg-(--paper)">
-          <MobileTabButton
+      <RadixTabs.Root
+        className="h-[calc(100vh-78px)] lg:hidden"
+        onValueChange={(value) => setMobileTab(value as MobileTab)}
+        value={mobileTab}
+      >
+        <RadixTabs.Content
+          className="h-full overflow-y-auto pb-24 focus-visible:outline-none"
+          value="content"
+        >
+          <ModuleTabs
+            modules={resume.modules}
+            activeModuleId={activeModuleId}
+            onChange={setActiveModule}
+          />
+          <EditorContent />
+        </RadixTabs.Content>
+        <RadixTabs.Content
+          className="h-full overflow-y-auto bg-[#f6f1e7] pb-24 focus-visible:outline-none"
+          value="style"
+        >
+          <StylePanel />
+        </RadixTabs.Content>
+        <RadixTabs.Content
+          className="h-full overflow-auto pb-24 focus-visible:outline-none"
+          value="preview"
+        >
+          <ResumePreview
+            registerPage={(index, node) => {
+              pageRefs.current[index] = node;
+              pageRefs.current.length = 1;
+            }}
+          />
+        </RadixTabs.Content>
+        <RadixTabs.List
+          aria-label="编辑器移动端视图"
+          className="fixed bottom-0 left-0 right-0 z-30 grid h-19 grid-cols-3 border-t-2 border-black bg-(--paper)"
+        >
+          <MobileTabTrigger
             active={mobileTab === "content"}
             icon={FileText}
             label="内容"
-            onClick={() => setMobileTab("content")}
+            value="content"
           />
-          <MobileTabButton
+          <MobileTabTrigger
             active={mobileTab === "style"}
             icon={Palette}
             label="样式"
-            onClick={() => setMobileTab("style")}
+            value="style"
           />
-          <MobileTabButton
+          <MobileTabTrigger
             active={mobileTab === "preview"}
             icon={Eye}
             label="预览"
-            onClick={() => setMobileTab("preview")}
+            value="preview"
           />
-        </nav>
-      </div>
+        </RadixTabs.List>
+      </RadixTabs.Root>
     </div>
   );
 }
@@ -573,48 +585,53 @@ function ModuleTabs({
   onChange: (moduleId: string) => void;
 }) {
   return (
-    <div className="scrollbar-thin flex gap-2 overflow-x-auto border-b-2 border-black/10 bg-(--paper) p-3">
-      {modules.map((module) => {
-        const meta = getModuleMeta(module);
-        const Icon = meta.icon;
-        const active = module.id === activeModuleId;
-        return (
-          <button
-            key={module.id}
-            className={`flex shrink-0 items-center gap-2 rounded-full border-2 border-black px-4 py-2 font-bold ${
-              active ? "bg-black text-white" : "bg-white"
-            }`}
-            onClick={() => onChange(module.id)}
-          >
-            <Icon
-              size={16}
-              style={{ color: active ? meta.color : undefined }}
-            />
-            <span className="max-w-28 truncate">{meta.displayTitle}</span>
-          </button>
-        );
-      })}
-    </div>
+    <RadixTabs.Root onValueChange={onChange} value={activeModuleId}>
+      <RadixTabs.List
+        aria-label="简历模块"
+        className="scrollbar-thin flex gap-2 overflow-x-auto border-b-2 border-black/10 bg-(--paper) p-3"
+      >
+        {modules.map((module) => {
+          const meta = getModuleMeta(module);
+          const Icon = meta.icon;
+          const active = module.id === activeModuleId;
+          return (
+            <RadixTabs.Trigger
+              className={`flex shrink-0 items-center gap-2 rounded-full border-2 border-black px-4 py-2 font-bold ${
+                active ? "bg-black text-white" : "bg-white"
+              }`}
+              key={module.id}
+              value={module.id}
+            >
+              <Icon
+                size={16}
+                style={{ color: active ? meta.color : undefined }}
+              />
+              <span className="max-w-28 truncate">{meta.displayTitle}</span>
+            </RadixTabs.Trigger>
+          );
+        })}
+      </RadixTabs.List>
+    </RadixTabs.Root>
   );
 }
 
-function MobileTabButton({
+function MobileTabTrigger({
   active,
   icon: Icon,
   label,
-  onClick,
+  value,
 }: {
   active: boolean;
   icon: typeof Home;
   label: string;
-  onClick: () => void;
+  value: MobileTab;
 }) {
   return (
-    <button
+    <RadixTabs.Trigger
       className={`relative grid place-items-center text-sm font-bold ${
         active ? "text-black" : "text-black/45"
       }`}
-      onClick={onClick}
+      value={value}
     >
       <span className="flex flex-col items-center gap-1">
         <Icon size={23} strokeWidth={active ? 2.8 : 2} />
@@ -623,7 +640,7 @@ function MobileTabButton({
       {active && (
         <i className="absolute bottom-0 h-1.5 w-16 rounded-t-full bg-(--pink)" />
       )}
-    </button>
+    </RadixTabs.Trigger>
   );
 }
 

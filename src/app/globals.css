@@ -85,6 +85,29 @@ a {
   scrollbar-color: #c9c3b8 transparent;
 }
 
+.comic-card-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--yellow) transparent;
+}
+
+.comic-card-scrollbar::-webkit-scrollbar {
+  width: 14px;
+}
+
+.comic-card-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.comic-card-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--yellow);
+  border: 2px solid var(--line);
+  border-radius: 999px;
+}
+
+.comic-card-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--pink);
+}
+
 .rich-text-content p {
   margin: 0.35em 0;
 }

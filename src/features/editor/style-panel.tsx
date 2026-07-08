@@ -258,7 +258,7 @@ export function StylePanel() {
                   ? `隐藏${meta.displayTitle}`
                   : `显示${meta.displayTitle}`
               }
-              className="h-7 w-7 p-0 cursor-pointer rounded-lg border-0 text-black/55 hover:bg-black/10"
+              className="h-7 w-7 p-0 rounded-lg border-0 text-black/55 hover:bg-black/10"
               iconOnly
               onClick={() => toggleModule(module.id)}
               size="icon"
@@ -270,7 +270,7 @@ export function StylePanel() {
             {isCustom && (
               <InkButton
                 aria-label={`删除${meta.displayTitle}`}
-                className="h-7 w-7 p-0 rounded-lg border-0 cursor-pointer text-red-500 shadow-none hover:bg-black/10"
+                className="h-7 w-7 p-0 rounded-lg border-0 text-red-500 shadow-none hover:bg-black/10"
                 iconOnly
                 onClick={() => handleDeleteClick(module.id)}
                 size="icon"

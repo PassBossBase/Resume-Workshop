@@ -89,7 +89,7 @@ export const InkButton = memo(function InkButton({
       aria-label={ariaLabel}
       className={twMerge(
         clsx(
-          "inline-flex items-center justify-center gap-2 whitespace-nowrap font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+          "inline-flex items-center justify-center gap-2 whitespace-nowrap font-bold disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer transition",
           sizes[resolvedSize],
           variants[variant],
           pressable &&
@@ -309,7 +309,7 @@ export function InkSelect({
       <RadixSelect.Trigger
         aria-label={ariaLabel}
         className={clsx(
-          "flex h-11 w-full items-center justify-between gap-3 rounded-xl border-2 border-black bg-white px-3 text-left font-bold shadow-[2px_2px_0_#d9d1c3] transition hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--blue) disabled:cursor-not-allowed disabled:opacity-50",
+          "flex h-11 w-full items-center justify-between gap-3 rounded-xl border-2 border-black bg-white px-3 text-left font-bold transition hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--blue) disabled:cursor-not-allowed disabled:opacity-50",
           className,
         )}
       >
@@ -320,7 +320,7 @@ export function InkSelect({
       </RadixSelect.Trigger>
       <RadixSelect.Portal>
         <RadixSelect.Content
-          className="z-100 max-h-72 min-w-(--radix-select-trigger-width) overflow-hidden rounded-2xl border-2 border-black bg-white p-1 shadow-[5px_5px_0_black]"
+          className="z-100 max-h-72 min-w-(--radix-select-trigger-width) overflow-hidden rounded-2xl border-2 border-black bg-white p-1"
           collisionPadding={8}
           position="popper"
           sideOffset={6}

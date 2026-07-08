@@ -133,7 +133,7 @@ export function ResumeDashboard({
           </InkButton>
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto">
+      <div className="comic-card-scrollbar flex-1 overflow-y-auto">
         {isLoading ? (
           <div
             aria-label="正在读取简历"
