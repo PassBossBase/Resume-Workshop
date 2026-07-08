@@ -103,6 +103,7 @@ Next.js 16 (App Router) / React 19 / TypeScript / Tailwind CSS 4 / Radix UI Prim
 - `InkButton` 是统一按钮入口，支持尺寸、图标按钮、加载态和 danger/ghost 等语义变体；内部使用 `tailwind-merge`，默认样式允许被后续 `className` 的同类 Tailwind 样式覆盖；base 不默认带边框或位置移动，`ghost` 不设置默认 hover 背景，弹窗关闭、Toast 关闭、仪表盘卡片操作和编辑器条目操作等高频图标按钮已统一走 `size="icon"`。
 - `InkButton` 的 `pressable` 配置用于显式开启点击按压态，应用 `active:translate-x-0.5 active:translate-y-0.5 active:shadow-none`。
 - Radix UI Primitives 只作为交互底座使用，当前用于 Dialog、Popover、Select、Tabs 和 Tooltip 的焦点管理、Escape、外部点击、键盘操作与 Portal 定位，不引入默认视觉样式。
+- 编辑器工作台壳层、样式面板、自定义模块编辑器和仪表盘卡片列表已按职责拆分，保持现有外观、业务入口和交互语义不变。
 
 ## 兼容性
 
