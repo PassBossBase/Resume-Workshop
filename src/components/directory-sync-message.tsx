@@ -6,6 +6,7 @@ import { useDirectorySyncStore } from "@/stores/directory-sync-store";
 import { useToastStore } from "@/stores/toast-store";
 import { useT } from "@/lib/i18n";
 
+/** 展示本地目录同步状态、错误和下一步操作的全局提示。 */
 export function DirectorySyncMessage() {
   const status = useDirectorySyncStore((state) => state.status);
   const reason = useDirectorySyncStore((state) => state.reason);

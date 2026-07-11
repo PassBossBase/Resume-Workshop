@@ -27,7 +27,7 @@ import {
   normalizeRichText,
   sanitizeRichText,
 } from "@/features/rich-text/rich-text";
-import { BasicInfoValue } from "./basic-info-link";
+import { BasicInfoLabel, BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
 import {
   getLocalizedBasicDisplayItems,
@@ -53,6 +53,7 @@ const BASIC_ICONS: Record<string, typeof UserRound> = {
   location: MapPin,
 };
 
+/** 自定义标题背景模板的连续 A4 文档渲染器。 */
 export const SectionBannerTemplate = memo(function SectionBannerTemplate({
   resume,
   page,
@@ -169,6 +170,7 @@ export const SectionBannerTemplate = memo(function SectionBannerTemplate({
   );
 });
 
+/** 标题背景模板头部的图标化基础信息项。 */
 function HeaderInfo({ item }: { item: BasicDisplayItem }) {
   const Icon = BASIC_ICONS[item.key] ?? UserRound;
 
@@ -176,12 +178,14 @@ function HeaderInfo({ item }: { item: BasicDisplayItem }) {
     <span className="flex min-w-0 items-center gap-2">
       <Icon className="shrink-0" size={13} />
       <span className="truncate">
-        {item.label}：<BasicInfoValue item={item} />
+        <BasicInfoLabel item={item} />
+        <BasicInfoValue item={item} />
       </span>
     </span>
   );
 }
 
+/** 自定义标题背景模板内带色块标题的模块区块。 */
 function SectionBannerSection({
   module,
   accent,

@@ -6,6 +6,7 @@ export type SaveStatusState = ReturnType<
   typeof useResumeStore.getState
 >["saveState"];
 
+/** 显示当前简历的保存或目录同步状态。 */
 export function SaveStatus({
   state,
 }: {

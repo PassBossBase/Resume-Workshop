@@ -308,6 +308,10 @@ export function useEditorShellState(id: string) {
     });
   };
 
+  const print = useCallback(() => {
+    window.print();
+  }, []);
+
   const handleImportedResume = async (importedResume: ResumeDocument) => {
     if (!resume) return;
     const replacement: ResumeDocument = {
@@ -334,6 +338,7 @@ export function useEditorShellState(id: string) {
   return {
     activeModuleId,
     download,
+    print,
     handleApplyTemplate,
     handleImportedResume,
     importResumeOpen,

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { ImportResumeModal } from "@/features/dashboard/import-resume-modal";
 import { EditorShellHeader } from "./editor-shell-header";
 import { EditorWorkbench } from "./editor-workbench";
+import { PrintableResume } from "@/features/templates/printable-resume";
 import { TemplateSwitchModal } from "./template-switch-modal";
 import { useEditorShellState } from "./use-editor-shell-state";
 import { useT } from "@/lib/i18n";
@@ -28,51 +29,55 @@ export function EditorShell({ id }: { id: string }) {
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-[#ebe7de]">
-      <EditorShellHeader
-        onBack={() => {
-          if (window.history.length > 1) {
-            router.back();
-          } else {
-            router.push("/");
-          }
-        }}
-        onDownload={editor.download}
-        onImport={() => editor.setImportResumeOpen(true)}
-        onRename={editor.rename}
-        onSwitchTemplate={() => editor.setTemplateModalOpen(true)}
-        saveState={editor.saveState}
-        title={editor.resume.title}
-      />
-
-      {editor.importResumeOpen && (
-        <ImportResumeModal
-          initialTemplateId={editor.resume.templateId}
-          onClose={() => editor.setImportResumeOpen(false)}
-          onImportedResume={editor.handleImportedResume}
-          open={editor.importResumeOpen}
-          submitLabel={t.importResume.replaceSubmit}
+    <>
+      <div className="editor-screen h-screen overflow-hidden bg-[#ebe7de]">
+        <EditorShellHeader
+          onBack={() => {
+            if (window.history.length > 1) {
+              router.back();
+            } else {
+              router.push("/");
+            }
+          }}
+          onDownload={editor.download}
+          onImport={() => editor.setImportResumeOpen(true)}
+          onPrint={editor.print}
+          onRename={editor.rename}
+          onSwitchTemplate={() => editor.setTemplateModalOpen(true)}
+          saveState={editor.saveState}
+          title={editor.resume.title}
         />
-      )}
 
-      {editor.templateModalOpen && (
-        <TemplateSwitchModal
-          currentTemplateId={editor.resume.templateId}
-          onApply={editor.handleApplyTemplate}
-          onClose={() => editor.setTemplateModalOpen(false)}
-          open={editor.templateModalOpen}
+        {editor.importResumeOpen && (
+          <ImportResumeModal
+            initialTemplateId={editor.resume.templateId}
+            onClose={() => editor.setImportResumeOpen(false)}
+            onImportedResume={editor.handleImportedResume}
+            open={editor.importResumeOpen}
+            submitLabel={t.importResume.replaceSubmit}
+          />
+        )}
+
+        {editor.templateModalOpen && (
+          <TemplateSwitchModal
+            currentTemplateId={editor.resume.templateId}
+            onApply={editor.handleApplyTemplate}
+            onClose={() => editor.setTemplateModalOpen(false)}
+            open={editor.templateModalOpen}
+          />
+        )}
+
+        <EditorWorkbench
+          activeModuleId={editor.activeModuleId}
+          mobileTab={editor.mobileTab}
+          onMobileTabChange={editor.setMobileTab}
+          onModuleChange={editor.setActiveModule}
+          registerPage={editor.registerPage}
+          resize={editor.resize}
+          resume={editor.resume}
         />
-      )}
-
-      <EditorWorkbench
-        activeModuleId={editor.activeModuleId}
-        mobileTab={editor.mobileTab}
-        onMobileTabChange={editor.setMobileTab}
-        onModuleChange={editor.setActiveModule}
-        registerPage={editor.registerPage}
-        resize={editor.resize}
-        resume={editor.resume}
-      />
-    </div>
+      </div>
+      <PrintableResume resume={editor.resume} />
+    </>
   );
 }

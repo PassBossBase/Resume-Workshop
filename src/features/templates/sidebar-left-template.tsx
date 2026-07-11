@@ -14,7 +14,7 @@ import {
   normalizeRichText,
   sanitizeRichText,
 } from "@/features/rich-text/rich-text";
-import { BasicInfoValue } from "./basic-info-link";
+import { BasicInfoLabel, BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
 import {
   getLocalizedBasicDisplayItems,
@@ -22,6 +22,7 @@ import {
 } from "./resume-display";
 import type { AppLocale } from "@/lib/locale";
 
+/** 深色侧栏双栏模板的连续 A4 文档渲染器。 */
 export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
   resume,
   page,
@@ -89,7 +90,7 @@ export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
           <div className="mb-5 space-y-2">
             {basicDisplayItems.map((item) => (
               <div className="flex gap-2" key={item.key}>
-                <span className="opacity-70">{item.label}：</span>
+                <BasicInfoLabel className="shrink-0" item={item} />
                 <BasicInfoValue item={item} />
               </div>
             ))}
@@ -147,6 +148,7 @@ export const SidebarLeftTemplate = memo(function SidebarLeftTemplate({
   );
 });
 
+/** 双栏模板左右栏共用的模块标题与条目渲染区块。 */
 function SidebarSection({
   module,
   accent,

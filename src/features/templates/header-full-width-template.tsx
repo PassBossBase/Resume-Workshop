@@ -24,7 +24,7 @@ import {
   normalizeRichText,
   sanitizeRichText,
 } from "@/features/rich-text/rich-text";
-import { BasicInfoValue } from "./basic-info-link";
+import { BasicInfoLabel, BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
 import {
   getLocalizedBasicDisplayItems,
@@ -43,6 +43,7 @@ const ICON_MAP: Record<string, typeof Award> = {
   user: UserRound,
 };
 
+/** 将自定义模块图标键转换为头部通栏模板使用的 Lucide 图标。 */
 function ModuleIcon({
   iconName,
   size = 16,
@@ -126,10 +127,14 @@ export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
             </h1>
           )}
 
-          <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-1.5 text-[0.857em] opacity-90">
+          <div
+            className="mt-4 grid grid-cols-2 gap-x-8 gap-y-1.5 text-[0.857em]"
+            style={{ color: "#ffffff" }}
+          >
             {basicDisplayItems.map((item) => (
               <span key={item.key}>
-                {item.label}：<BasicInfoValue item={item} />
+                <BasicInfoLabel item={item} />
+                <BasicInfoValue item={item} />
               </span>
             ))}
           </div>
@@ -169,6 +174,7 @@ export const HeaderFullWidthTemplate = memo(function HeaderFullWidthTemplate({
 // 模块区块
 // ──────────────────────────────────────
 
+/** 全宽头部模板内渲染一个模块标题与其条目列表。 */
 function HeaderFullWidthSection({
   module,
   accent,

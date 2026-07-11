@@ -12,6 +12,7 @@ import {
   type ReactNode,
 } from "react";
 
+/** 漫画风圆角卡片基础容器。 */
 export const StickerCard = memo(function StickerCard({
   className,
   ...props
@@ -52,6 +53,7 @@ type InkButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   unstyled?: boolean;
 };
 
+/** 统一处理尺寸、配色、按压与加载状态的漫画风按钮。 */
 export const InkButton = memo(
   forwardRef<HTMLButtonElement, InkButtonProps>(function InkButton(
     {
@@ -146,6 +148,7 @@ export const InkButton = memo(
   }),
 );
 
+/** 用于状态、分类和简短标识的彩色胶囊标签。 */
 export function ColorTag({
   children,
   color = "yellow",
@@ -172,6 +175,7 @@ export function ColorTag({
   );
 }
 
+/** 应用品牌标识，可在紧凑导航中隐藏文字。 */
 export function BrandMark({
   compact = false,
   prefix = "简历",
@@ -324,6 +328,7 @@ export interface SelectOption {
   disabled?: boolean;
 }
 
+/** 封装 Radix Select 的项目统一下拉选择器。 */
 export function InkSelect({
   value,
   onValueChange,
@@ -387,6 +392,7 @@ export function InkSelect({
   );
 }
 
+/** 为图标或紧凑控件补充悬浮说明的轻量提示框。 */
 export function InkTooltip({
   content,
   children,

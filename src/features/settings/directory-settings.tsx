@@ -20,6 +20,7 @@ import {
 import { useDirectorySyncStore } from "@/stores/directory-sync-store";
 import { useT } from "@/lib/i18n";
 
+/** 连接、重新授权、迁移和断开本地同步目录的设置页主体。 */
 export function DirectorySettings() {
   const t = useT();
   const [showDisconnect, setShowDisconnect] = useState(false);

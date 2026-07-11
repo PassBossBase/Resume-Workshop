@@ -14,7 +14,7 @@ import {
   normalizeRichText,
   sanitizeRichText,
 } from "@/features/rich-text/rich-text";
-import { BasicInfoValue } from "./basic-info-link";
+import { BasicInfoLabel, BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
 import {
   getLocalizedBasicDisplayItems,
@@ -23,6 +23,7 @@ import {
 } from "./resume-display";
 import type { AppLocale } from "@/lib/locale";
 
+/** 时间轴色块模板的连续 A4 文档渲染器。 */
 export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
   resume,
   page,
@@ -126,7 +127,8 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
               <div className="space-y-1 text-[0.857em]">
                 {basicDisplayItems.map((item) => (
                   <p key={item.key}>
-                    {item.label}：<BasicInfoValue item={item} />
+                    <BasicInfoLabel item={item} />
+                    <BasicInfoValue item={item} />
                   </p>
                 ))}
               </div>
@@ -230,6 +232,7 @@ export const TimelineBlockTemplate = memo(function TimelineBlockTemplate({
   );
 });
 
+/** 时间轴模板左侧信息栏中的轻量模块区块。 */
 function TimelineLeftSection({
   module,
   titleColor,

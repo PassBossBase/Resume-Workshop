@@ -8,6 +8,7 @@ import { TemplateSkeletonPreview } from "./template-skeleton-preview";
  * Lightweight template thumbnail for template-selection surfaces.
  * It avoids mounting full resume template renderers inside cards and modals.
  */
+/** 模板卡片的封面式缩略图包装器，负责裁剪和比例约束。 */
 export function TemplateThumbnail({
   templateId,
   ariaLabel,

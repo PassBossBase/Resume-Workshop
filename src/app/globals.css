@@ -200,12 +200,94 @@ a {
   }
 }
 
+@page {
+  size: A4;
+  margin: 0;
+}
+
 @media print {
+
+  html,
   body {
     background: white;
+    margin: 0;
+  }
+
+  .editor-screen {
+    display: none !important;
+  }
+
+  .resume-print-root {
+    display: block !important;
+    width: 210mm;
+    color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .resume-print-root *,
+  .resume-print-root *::before,
+  .resume-print-root *::after {
+    color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .resume-print-root .resume-page {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    overflow: visible !important;
+  }
+
+  .resume-print-root [data-basic-label="true"] {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif !important;
+    font-synthesis: none;
+    text-rendering: geometricPrecision;
+  }
+
+  .resume-print-root [data-pdf-exclude="true"] {
+    display: none !important;
+  }
+
+  .resume-print-root .overflow-hidden {
+    overflow: visible !important;
+  }
+
+  /* 标题和首行保持在一起，正文可跨页，避免整条经历被提前推到下一页。 */
+  .resume-print-root .resume-page section {
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+
+  .resume-print-root .resume-page article {
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+
+  .resume-print-root .resume-page article > :first-child {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+
+  .resume-print-root .resume-page h1,
+  .resume-print-root .resume-page h2,
+  .resume-print-root .resume-page h3,
+  .resume-print-root .resume-page h4 {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+
+  .resume-print-root .resume-page p,
+  .resume-print-root .resume-page li {
+    orphans: 3;
+    widows: 3;
   }
 
   .no-print {
     display: none !important;
   }
+}
+
+.resume-print-root {
+  display: none;
 }

@@ -5,6 +5,7 @@ import { ResumeContentThumbnail } from "@/features/templates/resume-content-thum
 import type { ResumePageData } from "@/features/templates/resume-pages";
 import { formatLocaleDateTime, useLocale } from "@/lib/i18n";
 
+/** 仪表盘加载简历列表时展示的卡片骨架。 */
 export function ResumeDashboardLoadingGrid() {
   const { t } = useLocale();
   return (
@@ -35,6 +36,7 @@ export function ResumeDashboardLoadingGrid() {
   );
 }
 
+/** 没有本地简历时引导用户创建第一份简历。 */
 export function EmptyResumeState({ onCreate }: { onCreate: () => void }) {
   const { t } = useLocale();
   return (
@@ -58,6 +60,7 @@ export function EmptyResumeState({ onCreate }: { onCreate: () => void }) {
   );
 }
 
+/** 按更新时间展示简历卡片及其编辑、复制、删除入口。 */
 export function ResumeCardGrid({
   onDelete,
   onDuplicate,
@@ -107,7 +110,9 @@ export function ResumeCardGrid({
               {resume.title}
             </h2>
             <p className="mt-1 truncate text-xs font-medium text-white/90">
-              {t.dashboard.updatedAt(formatLocaleDateTime(resume.updatedAt, locale))}
+              {t.dashboard.updatedAt(
+                formatLocaleDateTime(resume.updatedAt, locale),
+              )}
             </p>
           </div>
 

@@ -1,6 +1,7 @@
 import { InkButton } from "@/components/anime-ui/ui";
 import { useT } from "@/lib/i18n";
 
+/** 删除模块或条目前要求用户确认的轻量对话框。 */
 export function DeleteConfirmDialog({
   moduleTitle,
   onConfirm,

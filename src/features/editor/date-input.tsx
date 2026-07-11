@@ -1,5 +1,6 @@
 "use client";
 
+/** 统一处理简历经历日期输入与清空操作。 */
 export function DateInput({
   label,
   value,

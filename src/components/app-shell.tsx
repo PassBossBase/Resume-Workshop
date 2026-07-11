@@ -38,6 +38,7 @@ function getServerSidebarSnapshot() {
   return false;
 }
 
+/** 小屏幕使用的抽屉式主导航。 */
 function MobileNavigation({ pathname }: { pathname: string }) {
   const [open, setOpen] = useState(false);
   const t = useT();
@@ -122,6 +123,7 @@ function MobileNavigation({ pathname }: { pathname: string }) {
   );
 }
 
+/** 常规页面共用的响应式导航与内容壳层；编辑器使用独立全屏壳层。 */
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const t = useT();

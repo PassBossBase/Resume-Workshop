@@ -107,6 +107,7 @@ function hsvToHex(hsv: HsvColor): string {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
+/** 提供预设色、HEX 输入与吸管式选色的主题色控件。 */
 export function ThemeColorPicker({
   value,
   onCommit,

@@ -7,6 +7,7 @@ import { getLocaleLabel } from "@/lib/locale";
 import { useLocale } from "@/lib/i18n";
 import { InkButton, InkButtonVariant } from "./anime-ui/ui";
 
+/** 切换应用界面语言，并支持紧凑图标模式。 */
 export function LanguageToggle({
   className,
   compact = false,

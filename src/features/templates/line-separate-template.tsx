@@ -15,7 +15,7 @@ import {
   normalizeRichText,
   sanitizeRichText,
 } from "@/features/rich-text/rich-text";
-import { BasicInfoValue } from "./basic-info-link";
+import { BasicInfoLabel, BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
 import {
   getLocalizedBasicDisplayItems,
@@ -23,6 +23,7 @@ import {
 } from "./resume-display";
 import type { AppLocale } from "@/lib/locale";
 
+/** 复古分割线模板的连续 A4 文档渲染器。 */
 export const LineSeparateTemplate = memo(function LineSeparateTemplate({
   resume,
   page,
@@ -129,6 +130,7 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
   );
 });
 
+/** 复古分割线模板中按“字段名：值”展示的基础信息行。 */
 function InfoRow({
   item,
 }: {
@@ -136,12 +138,13 @@ function InfoRow({
 }) {
   return (
     <div className="flex gap-2">
-      <span className="font-bold shrink-0">{item.label}：</span>
+      <BasicInfoLabel className="shrink-0" item={item} />
       <BasicInfoValue item={item} />
     </div>
   );
 }
 
+/** 复古分割线模板内使用横线分隔的模块区块。 */
 function LineSeparateSection({
   module,
   accent,

@@ -94,6 +94,7 @@ const emptyToolbarState: ToolbarState = {
   linkHref: "",
 };
 
+/** 基于 Tiptap 的富文本编辑器，提供格式、链接、对齐与缩进工具栏。 */
 export function RichTextEditor({
   label,
   value,
@@ -770,6 +771,7 @@ function normalizeColorInputValue(value: string): string {
   return /^#[0-9a-f]{6}$/i.test(value) ? value : DEFAULT_TEXT_COLOR;
 }
 
+/** 富文本工具栏的可访问图标按钮。 */
 function ToolButton({
   label,
   icon: Icon,
@@ -806,6 +808,7 @@ function ToolButton({
   );
 }
 
+/** 富文本工具栏中用于分隔功能组的竖线。 */
 function Divider() {
   return <i className="mx-0.5 h-7 w-px bg-black/20" />;
 }

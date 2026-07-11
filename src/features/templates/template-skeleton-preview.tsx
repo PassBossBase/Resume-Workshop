@@ -62,6 +62,7 @@ const skeletonConfig: Record<TemplateId, SkeletonConfig> = {
   },
 };
 
+/** 模板骨架预览中复用的占位文本行组。 */
 function Lines({
   count = 3,
   x,
@@ -94,6 +95,7 @@ function Lines({
   );
 }
 
+/** 经典单栏模板的轻量骨架缩略图。 */
 function ClassicSkeleton({ accent, muted }: SkeletonConfig) {
   // 经典单栏模板特征：顶部 accent 横条 + 头像+accent竖条+姓名 + icon 基本信息行 + 模块标题 accent 竖条 + 条目标题/副标题/日期/描述
   return (
@@ -222,6 +224,7 @@ function ClassicSkeleton({ accent, muted }: SkeletonConfig) {
   );
 }
 
+/** 基础模板的轻量骨架缩略图。 */
 function BlankSkeleton({ accent, muted }: SkeletonConfig) {
   // 基础模板特征：居中圆形头像 + 姓名 + 角色 + icon 联系方式行 + 分割线分隔模块
   return (
@@ -276,6 +279,7 @@ function BlankSkeleton({ accent, muted }: SkeletonConfig) {
   );
 }
 
+/** 蓝色头部单栏模板的轻量骨架缩略图。 */
 function HeaderSkeleton({ accent, muted }: SkeletonConfig) {
   // 蓝色全宽头部特征：全宽色块 + 右上角头像 + 2 列信息网格 + icon 标题模块
   return (
@@ -381,6 +385,7 @@ function HeaderSkeleton({ accent, muted }: SkeletonConfig) {
   );
 }
 
+/** 深色侧边栏双栏模板的轻量骨架缩略图。 */
 function SidebarSkeleton({ accent, muted }: SkeletonConfig) {
   // 深色侧边栏双栏特征：左侧深色栏含头像+信息+edu 模块；右侧主体含姓名头部+各模块
   return (
@@ -485,6 +490,7 @@ function SidebarSkeleton({ accent, muted }: SkeletonConfig) {
   );
 }
 
+/** 时间轴色块模板的轻量骨架缩略图。 */
 function TimelineSkeleton({ accent, muted }: SkeletonConfig) {
   const blockColors = ["#4a90e2", "#60b8a8", "#d87890", "#90c978"];
   const timelineLineColor = accent;
@@ -659,6 +665,7 @@ function TimelineSkeleton({ accent, muted }: SkeletonConfig) {
   );
 }
 
+/** 复古分割线模板的轻量骨架缩略图。 */
 function LineSkeleton({ accent, muted }: SkeletonConfig) {
   // 复古分割线特征：姓名左对齐 + 右上方双圆形 icon + 分割线 + 2 列信息网格 + 头像 + 分段线模块
   return (
@@ -740,6 +747,7 @@ function LineSkeleton({ accent, muted }: SkeletonConfig) {
   );
 }
 
+/** 自定义标题背景模板的轻量骨架缩略图。 */
 function BannerSkeleton({ accent, muted }: SkeletonConfig) {
   // 自定义标题背景：顶部主题色信息横幅 + 模块整条标题背景 + 日期右侧
   return (
@@ -907,6 +915,7 @@ function renderSkeleton(config: SkeletonConfig): ReactNode {
   }
 }
 
+/** 根据模板 ID 选择对应骨架结构，用于模板库与创建弹窗。 */
 export function TemplateSkeletonPreview({
   templateId,
   ariaLabel,

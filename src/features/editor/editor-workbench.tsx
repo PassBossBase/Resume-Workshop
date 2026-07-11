@@ -7,6 +7,7 @@ import { StylePanel } from "./style-panel";
 import type { usePanelResize } from "./use-panel-resize";
 import { useT } from "@/lib/i18n";
 
+/** 桌面三栏与移动三标签之间切换的编辑工作台布局。 */
 export function EditorWorkbench({
   activeModuleId,
   mobileTab,

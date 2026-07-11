@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useT } from "@/lib/i18n";
 
+/** 动态加载编辑器壳层时显示的本地化占位界面。 */
 function EditorShellDynamicLoading() {
   const t = useT();
 
@@ -23,6 +24,7 @@ const EditorShell = dynamic(
   },
 );
 
+/** 延迟加载编辑器客户端壳层，降低动态路由首次加载负担。 */
 export function EditorShellLoader({ id }: { id: string }) {
   return <EditorShell id={id} />;
 }

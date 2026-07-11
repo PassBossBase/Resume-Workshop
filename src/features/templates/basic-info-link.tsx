@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import type { BasicDisplayItem } from "@/features/resume-model/resume-model";
 
 const URL_LIKE_PATTERN =
@@ -23,6 +23,29 @@ export function getBasicInfoHref(item: BasicDisplayItem): string | null {
   return null;
 }
 
+/** 固定使用清晰的中文无衬线字体，避免打印 PDF 时字段名被合成为模糊位图。 */
+export function BasicInfoLabel({
+  item,
+  className,
+}: {
+  item: BasicDisplayItem;
+  className?: string;
+}) {
+  const style: CSSProperties = {
+    fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif',
+    fontSynthesis: "none",
+    fontWeight: 600,
+    whiteSpace: "nowrap",
+  };
+
+  return (
+    <span className={className} data-basic-label="true" style={style}>
+      {item.label}：
+    </span>
+  );
+}
+
+/** 将可识别的邮箱、电话和网址渲染为安全的基础信息链接。 */
 export function BasicInfoValue({
   item,
   children,

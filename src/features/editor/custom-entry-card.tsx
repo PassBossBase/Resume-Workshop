@@ -13,6 +13,7 @@ import { RichTextEditor } from "@/features/rich-text/rich-text-editor";
 import { DateInput } from "./date-input";
 import { useT } from "@/lib/i18n";
 
+/** 编辑单条自定义模块内容，并提供排序、显隐和删除操作。 */
 export function CustomEntryCard({
   entry,
   index,
@@ -174,6 +175,7 @@ export function CustomEntryCard({
   );
 }
 
+/** 自定义条目内复用的带标签表单字段。 */
 function Field({
   label,
   value,

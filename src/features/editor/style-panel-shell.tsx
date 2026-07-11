@@ -1,6 +1,7 @@
 import { memo, type ReactNode } from "react";
 import { SectionCard } from "@/components/anime-ui/ui";
 
+/** 样式面板内带标题和说明的分组容器。 */
 export const Panel = memo(function Panel({
   title,
   icon,
@@ -24,6 +25,7 @@ export const Panel = memo(function Panel({
   );
 });
 
+/** 样式面板中统一标签、提示和控件间距的字段包装器。 */
 export const Control = memo(function Control({
   label,
   value,

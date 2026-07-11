@@ -113,6 +113,7 @@ function moveIndexToTarget<T>(
   return next;
 }
 
+/** 编辑工作台中间栏：编辑基础信息、模块条目与富文本内容。 */
 export function EditorContent() {
   const { locale, t } = useLocale();
   const [draggedBasicField, setDraggedBasicField] =
@@ -512,6 +513,7 @@ export function EditorContent() {
   );
 }
 
+/** 固定基础字段的输入、显隐和删除控制行。 */
 function BasicFieldRow({
   fixed = false,
   fieldKey,
@@ -633,6 +635,7 @@ function BasicFieldRow({
   );
 }
 
+/** 支持拖拽排序的自定义基础字段编辑行。 */
 function CustomBasicFieldRow({
   isDragging = false,
   isDropTarget = false,
@@ -733,6 +736,7 @@ function CustomBasicFieldRow({
   );
 }
 
+/** 工作、项目、教育等固定模块单条经历的编辑卡片。 */
 function EntryEditor({
   item,
   index,
@@ -886,6 +890,7 @@ function EntryEditor({
   );
 }
 
+/** 固定经历编辑器中复用的标签化表单字段。 */
 function Field({
   label,
   value,

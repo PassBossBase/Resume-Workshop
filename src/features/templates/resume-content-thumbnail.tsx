@@ -19,6 +19,7 @@ import "./section-banner-template";
  * Real resume content thumbnail for the dashboard resume list.
  * Template selection surfaces use TemplateThumbnail's static skeleton instead.
  */
+/** 用真实简历内容生成可缩放的封面式缩略预览。 */
 export function ResumeContentThumbnail({
   page,
   resume,

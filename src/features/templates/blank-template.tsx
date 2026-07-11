@@ -24,7 +24,7 @@ import {
   normalizeRichText,
   sanitizeRichText,
 } from "@/features/rich-text/rich-text";
-import { BasicInfoValue } from "./basic-info-link";
+import { BasicInfoLabel, BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
 import {
   getLocalizedBasicDisplayItems,
@@ -49,6 +49,7 @@ function ContactIcon({ itemKey }: { itemKey: string }) {
   return <Icon size={13} />;
 }
 
+/** 基础模板的连续 A4 文档渲染器，使用居中头部和分割线组织内容。 */
 export const BlankTemplate = memo(function BlankTemplate({
   resume,
   page,
@@ -126,6 +127,7 @@ export const BlankTemplate = memo(function BlankTemplate({
                     key={item.key}
                   >
                     <ContactIcon itemKey={item.key} />
+                    <BasicInfoLabel item={item} />
                     <BasicInfoValue item={item} />
                   </span>
                 ))}

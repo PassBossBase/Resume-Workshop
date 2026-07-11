@@ -7,6 +7,7 @@ import { useLocale } from "@/lib/i18n";
 
 export type MobileTab = "content" | "style" | "preview";
 
+/** 小屏编辑器的内容、样式、预览三栏切换容器。 */
 export function MobileEditorTabs({
   content,
   onValueChange,
@@ -72,6 +73,7 @@ export function MobileEditorTabs({
   );
 }
 
+/** 根据当前简历模块生成的横向模块切换标签。 */
 export function ModuleTabs({
   modules,
   activeModuleId,
@@ -113,6 +115,7 @@ export function ModuleTabs({
   );
 }
 
+/** 移动端底部导航中的单个视图切换按钮。 */
 function MobileTabTrigger({
   active,
   icon: Icon,

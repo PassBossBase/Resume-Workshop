@@ -33,6 +33,7 @@ import "@/features/templates/section-banner-template";
 
 type ImportStatus = "idle" | "parsing" | "ready" | "saving" | "error";
 
+/** 在本地解析 PDF 或 JSON，并让用户预览后导入/替换简历的弹窗。 */
 export function ImportResumeModal({
   open,
   onClose,

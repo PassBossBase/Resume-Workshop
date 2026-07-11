@@ -10,6 +10,7 @@ import { listTemplates } from "@/features/templates/template-registry";
 import { TemplateSkeletonPreview } from "@/features/templates/template-skeleton-preview";
 import { useLocale } from "@/lib/i18n";
 
+/** 在不改变简历内容的前提下预览并切换内置模板的弹窗。 */
 export function TemplateSwitchModal({
   currentTemplateId,
   open,

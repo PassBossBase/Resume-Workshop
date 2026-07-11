@@ -5,6 +5,7 @@ import type { ResumeModule } from "@/features/resume-model/resume-model";
 import { getModuleMeta } from "./module-meta";
 import { useLocale } from "@/lib/i18n";
 
+/** 样式面板中负责模块排序、显隐与删除的单个模块卡片。 */
 export function StyleModuleCard({
   activeModuleId,
   dragIndex,

@@ -17,7 +17,7 @@ import {
   normalizeRichText,
   sanitizeRichText,
 } from "@/features/rich-text/rich-text";
-import { BasicInfoValue } from "./basic-info-link";
+import { BasicInfoLabel, BasicInfoValue } from "./basic-info-link";
 import { registerTemplate } from "./template-registry";
 import {
   getLocalizedBasicDisplayItems,
@@ -115,6 +115,7 @@ export const ClassicTemplatePage = memo(function ClassicTemplatePage({
   );
 });
 
+/** 经典模板内渲染一个可见模块及其经历条目。 */
 function ResumeSection({
   module,
   accent,
@@ -189,6 +190,7 @@ function ResumeSection({
   );
 }
 
+/** 经典模板头部的带图标基础信息项。 */
 function Info({
   item,
 }: {
@@ -207,7 +209,8 @@ function Info({
   return (
     <span className="inline-flex items-center gap-1.5">
       <Icon size={12} />
-      {item.label}：<BasicInfoValue item={item} />
+      <BasicInfoLabel item={item} />
+      <BasicInfoValue item={item} />
     </span>
   );
 }
