@@ -98,6 +98,7 @@ export function NewResumeModal({
           size="icon"
           type="button"
           variant="paper"
+          pressable
         >
           <X size={20} />
         </InkButton>

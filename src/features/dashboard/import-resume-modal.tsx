@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  AlertCircle,
-  FileText,
-  Upload,
-  X,
-} from "lucide-react";
+import { AlertCircle, FileText, Upload, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ChangeEvent } from "react";
 import { useMemo, useRef, useState } from "react";
@@ -115,9 +110,7 @@ export function ImportResumeModal({
       setStatus("ready");
     } catch (err) {
       setStatus("error");
-      setError(
-        err instanceof Error ? err.message : t.importResume.parseFailed,
-      );
+      setError(err instanceof Error ? err.message : t.importResume.parseFailed);
     }
   };
 
@@ -173,7 +166,9 @@ export function ImportResumeModal({
       }
     } catch (err) {
       setStatus("error");
-      setError(err instanceof Error ? err.message : t.importResume.importFailed);
+      setError(
+        err instanceof Error ? err.message : t.importResume.importFailed,
+      );
     }
   };
 
@@ -243,6 +238,7 @@ export function ImportResumeModal({
           iconOnly
           onClick={close}
           size="icon"
+          pressable
           type="button"
           variant="paper"
         >
@@ -403,6 +399,7 @@ export function ImportResumeModal({
             className="shadow-[3px_3px_0_var(--line)]"
             disabled={status === "parsing" || status === "saving"}
             onClick={close}
+            pressable
             variant="paper"
           >
             {t.importResume.cancel}
@@ -412,6 +409,7 @@ export function ImportResumeModal({
             disabled={!draft || status === "parsing" || status === "saving"}
             onClick={handleImport}
             variant="pink"
+            pressable
           >
             <Upload size={17} />
             {status === "saving"
