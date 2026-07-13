@@ -89,7 +89,7 @@ export function EditorShellHeader({
           title={t.editor.reimportFull}
           variant="blue"
         >
-          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border-2 border-white/80 bg-black/15 transition-transform duration-150 group-hover:-rotate-6">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg  transition-transform duration-150 group-hover:-rotate-6">
             <FileUp aria-hidden="true" size={17} strokeWidth={2.8} />
           </span>
           <span className="hidden xl:inline">{t.editor.reimportFull}</span>
@@ -102,7 +102,7 @@ export function EditorShellHeader({
           title={t.editor.switchTemplateFull}
           variant="pink"
         >
-          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border-2 border-white/80 bg-black/15 transition-transform duration-150 group-hover:rotate-6">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg transition-transform duration-150 group-hover:rotate-6">
             <LayoutTemplate aria-hidden="true" size={17} strokeWidth={2.8} />
           </span>
           <span className="hidden xl:inline">
@@ -135,7 +135,7 @@ export function EditorShellHeader({
             pressable
             variant="yellow"
           >
-            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border-2 border-black bg-white transition-transform duration-150 group-hover:-rotate-6">
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg  transition-transform duration-150 group-hover:-rotate-6">
               <Download aria-hidden="true" size={17} strokeWidth={2.8} />
             </span>
             <span className="hidden tracking-tight sm:inline">
