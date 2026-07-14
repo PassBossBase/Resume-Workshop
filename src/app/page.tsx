@@ -1,6 +1,7 @@
 "use client";
 
 import { AppShell } from "@/components/app-shell";
+import { LanguageToggle } from "@/components/language-toggle";
 import {
   ArrowRight,
   FilePlus2,
@@ -12,7 +13,7 @@ import Link from "next/link";
 import { useT } from "@/lib/i18n";
 
 const actionLinkBase =
-  "inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-2xl border-2 border-(--line) px-4 font-bold shadow-[3px_3px_0_var(--line)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none";
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/40 px-5 font-bold text-white shadow-[0_10px_28px_rgb(1_12_28_/_28%)] backdrop-blur-xl transition-colors hover:bg-white/24 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-white sm:min-w-44";
 
 export default function Home() {
   const t = useT();
@@ -39,55 +40,84 @@ export default function Home() {
 
   return (
     <AppShell>
-      <section className="relative min-h-screen overflow-hidden px-5 py-6 md:px-10 lg:py-8">
-        <div className="pointer-events-none absolute -right-16 top-14 h-48 w-48 rotate-12 rounded-[38px] border-2 border-black bg-(--yellow) opacity-70" />
-        <div className="pointer-events-none absolute bottom-8 left-8 hidden h-26 w-26 rotate-[-10deg] border-2 border-black bg-(--pink) opacity-55 md:block" />
+      <section className="relative isolate  text-white">
+        <video
+          aria-hidden="true"
+          autoPlay
+          className="pointer-events-none absolute inset-0 z-0 h-full w-full object-cover"
+          loop
+          muted
+          playsInline
+          preload="metadata"
+        >
+          <source src="/home-hero.mp4" type="video/mp4" />
+        </video>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-10 "
+        />
 
-        <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-5xl items-center">
-          <div className="relative z-10 w-full">
-            <h1 className="mt-5 max-w-3xl text-5xl leading-[0.98] font-black tracking-tight md:text-7xl">
-              {t.home.title}
-            </h1>
-            <p className="mt-5 max-w-2xl text-base leading-8 font-medium text-black/62 md:text-lg">
-              {t.home.subtitle}
-            </p>
+        <div className="relative z-20 mx-auto flex min-h-dvh max-w-7xl flex-col px-5 py-5 sm:px-8 sm:py-7 lg:px-12 lg:py-8">
+          <header className="flex items-center justify-end">
+            <LanguageToggle
+              className="border-white/40 bg-white/12 text-white backdrop-blur-xl hover:bg-white/24"
+              pressable
+              variant="paper"
+            />
+          </header>
 
-            <div className="mt-7 flex flex-wrap gap-4">
-              <Link
-                className={`${actionLinkBase} bg-(--blue) text-white`}
-                href="/dashboard"
-              >
-                <FilePlus2 aria-hidden="true" size={18} />
-                {t.home.start}
-                <ArrowRight aria-hidden="true" size={18} />
-              </Link>
-              <Link
-                className={`${actionLinkBase} bg-(--purple) text-white`}
-                href="/templates"
-              >
-                <LayoutTemplate aria-hidden="true" size={18} />
-                {t.home.templates}
-              </Link>
-            </div>
+          <div className="flex flex-1">
+            <div className="max-w-3xl">
+              <h1 className="max-w-3xl text-4xl leading-[0.96] font-black tracking-tight text-balance drop-shadow-[0_4px_0_rgb(0_0_0_/_35%)] sm:text-5xl md:text-6xl lg:text-7xl">
+                {t.home.title}
+              </h1>
+              <p className="mt-6 max-w-2xl text-base leading-8 font-medium text-white/86 sm:text-lg sm:leading-8">
+                {t.home.subtitle}
+              </p>
 
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              {featureCards.map(({ title, copy, icon: Icon, color }) => (
-                <article
-                  className="rounded-3xl border-2 border-black bg-(--paper) p-4 shadow-[4px_4px_0_#d9d1c3]"
-                  key={title}
+              <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+                <Link
+                  className={`${actionLinkBase} bg-white/18`}
+                  href="/dashboard"
                 >
-                  <span
-                    className={`grid h-11 w-11 place-items-center rounded-2xl border-2 border-black shadow-[2px_2px_0_black] ${color}`}
-                  >
-                    <Icon aria-hidden="true" size={20} strokeWidth={2.7} />
-                  </span>
-                  <h2 className="mt-3 text-lg font-black">{title}</h2>
-                  <p className="mt-1 text-sm leading-6 font-medium text-black/58">
+                  <FilePlus2 aria-hidden="true" size={19} strokeWidth={2.8} />
+                  {t.home.start}
+                  <ArrowRight aria-hidden="true" size={19} strokeWidth={2.8} />
+                </Link>
+                <Link
+                  className={`${actionLinkBase} bg-white/10`}
+                  href="/templates"
+                >
+                  <LayoutTemplate
+                    aria-hidden="true"
+                    size={19}
+                    strokeWidth={2.8}
+                  />
+                  {t.home.templates}
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-3 pb-1 sm:grid-cols-3 sm:gap-4">
+            {featureCards.map(({ title, copy, icon: Icon, color }) => (
+              <article
+                className="flex items-start gap-3 rounded-3xl border border-white/30 bg-white/12 p-4 text-white shadow-[0_16px_40px_rgb(1_12_28_/_32%)] backdrop-blur-xl"
+                key={title}
+              >
+                <span
+                  className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/35 shadow-[0_6px_16px_rgb(1_12_28_/_30%)] ${color}`}
+                >
+                  <Icon aria-hidden="true" size={20} strokeWidth={2.7} />
+                </span>
+                <div>
+                  <h2 className="text-base font-black">{title}</h2>
+                  <p className="mt-1 text-sm leading-6 font-medium text-white/72">
                     {copy}
                   </p>
-                </article>
-              ))}
-            </div>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>

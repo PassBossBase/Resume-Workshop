@@ -78,7 +78,7 @@ export const translations = {
       syncCopy: "桌面 Chrome 可连接本地文件夹，把简历保存成 JSON。",
       title: "简历工坊",
       subtitle:
-        "纯本地简历编辑器。选模板、填内容、调样式 、看 A4 预览，再导出一份免费无水印的 PDF。",
+        "纯本地简历编辑器。选模板、填内容、调样式、A4预览，导出一份免费无水印的 PDF。",
       start: "制作简历",
       templates: "模板列表",
     },
@@ -172,7 +172,8 @@ export const translations = {
         work: number,
         projects: number,
         education: number,
-      ) => `${skills} 技能 / ${work} 工作 / ${projects} 项目 / ${education} 教育`,
+      ) =>
+        `${skills} 技能 / ${work} 工作 / ${projects} 项目 / ${education} 教育`,
       templateTitle: "2. 选择目标模板",
       noPreview: "暂无预览",
       footer: "第一版会尽量识别字段，导入后仍建议人工检查。",
@@ -317,7 +318,8 @@ export const translations = {
     settings: {
       badge: "PRIVATE BY DEFAULT",
       title: "通用设置",
-      subtitle: "桌面 Chrome 可以把本地目录作为权威数据源；手机始终使用浏览器缓存。",
+      subtitle:
+        "桌面 Chrome 可以把本地目录作为权威数据源；手机始终使用浏览器缓存。",
       directoryTitle: "同步目录",
       directoryCopy: "选择一个文件夹保存和备份简历。",
       status: {
@@ -446,11 +448,13 @@ export const translations = {
     },
     home: {
       localTitle: "Local First",
-      localCopy: "Saved on this device by default. No account, cloud sync, or backend API.",
+      localCopy:
+        "Saved on this device by default. No account, cloud sync, or backend API.",
       templateTitle: "Template Start",
       templateCopy: "Pick a built-in template and start editing instantly.",
       syncTitle: "Folder Sync",
-      syncCopy: "Desktop Chrome can connect a local folder and save resumes as JSON.",
+      syncCopy:
+        "Desktop Chrome can connect a local folder and save resumes as JSON.",
       title: "Resume Workshop",
       subtitle:
         "A private local resume editor. Choose a template, edit content, tune styles, preview A4, and export a free PDF without watermarks.",
@@ -460,12 +464,14 @@ export const translations = {
     dashboard: {
       badge: "LOCAL RESUME STUDIO",
       title: "My Resumes",
-      subtitle: "Turn your experience into a clear, professional resume that feels like yours.",
+      subtitle:
+        "Turn your experience into a clear, professional resume that feels like yours.",
       import: "Import Resume",
       create: "New Resume",
       loading: "Reading resumes",
       emptyTitle: "Start with your first resume",
-      emptyCopy: "Content is saved in the browser. Desktop Chrome can also connect a local folder.",
+      emptyCopy:
+        "Content is saved in the browser. Desktop Chrome can also connect a local folder.",
       emptyAction: "Create first resume",
       updatedAt: (value: string) => `Updated ${value}`,
       duplicateAction: "Copy",
@@ -475,7 +481,8 @@ export const translations = {
       deleteAria: (title: string) => `Delete ${title}`,
       copyTitle: (title: string) => `${title} · Copy`,
       copiedToast: (title: string) => `"${title}" copied`,
-      copyUnsyncedToast: "Folder not synced. The copy was saved to browser cache.",
+      copyUnsyncedToast:
+        "Folder not synced. The copy was saved to browser cache.",
       deleteTitle: "Delete this resume?",
       closeDelete: "Close delete confirmation",
       deleteBody: (title: string) =>
@@ -484,14 +491,16 @@ export const translations = {
       confirmDelete: "Delete",
       deleting: "Deleting...",
       deletedToast: (title: string) => `"${title}" deleted`,
-      deleteUnsyncedToast: "The folder file was not deleted. Please check it later.",
+      deleteUnsyncedToast:
+        "The folder file was not deleted. Please check it later.",
       deleteFailedToast: "Delete failed. Please try again.",
       defaultNewTitle: (count: number) => `My Resume ${count}`,
     },
     templates: {
       badge: "TEMPLATE CLUB",
       title: "Resume Templates",
-      subtitle: "Choose a template as your starting point and create a resume quickly.",
+      subtitle:
+        "Choose a template as your starting point and create a resume quickly.",
       useAria: (name: string) => `Create a resume with the ${name} template`,
       previewAria: (name: string) => `${name} template skeleton preview`,
       names: {
@@ -506,11 +515,16 @@ export const translations = {
       descriptions: {
         blank: "Simple horizontal dividers and a clean blank starting point",
         classic: "Clear and steady, suitable for most job applications",
-        single_column_header_full_width: "A full-width blue header with a single-column body",
-        two_column_sidebar_left: "Dark left sidebar with a focused main content area",
-        single_column_timeline_block: "Left info rail with timeline blocks for work and projects",
-        single_column_line_separate: "Top title area with crisp sectional dividers",
-        single_column_section_banner: "Dark information banner with bold section bars",
+        single_column_header_full_width:
+          "A full-width blue header with a single-column body",
+        two_column_sidebar_left:
+          "Dark left sidebar with a focused main content area",
+        single_column_timeline_block:
+          "Left info rail with timeline blocks for work and projects",
+        single_column_line_separate:
+          "Top title area with crisp sectional dividers",
+        single_column_section_banner:
+          "Dark information banner with bold section bars",
       },
     },
     newResume: {
@@ -518,7 +532,8 @@ export const translations = {
       title: "Create Resume",
       close: "Close template picker",
       basic: "Blank Resume",
-      basicDescription: "Start from a blank resume and freely fill content and modules",
+      basicDescription:
+        "Start from a blank resume and freely fill content and modules",
       footer: "Click any card to create a resume",
     },
     importResume: {
@@ -532,7 +547,8 @@ export const translations = {
       uploadTitle: "1. Upload file",
       release: "Release to import",
       choose: "Choose or drop a resume file",
-      supports: "PDF and JSON are supported. Scanned files are not supported yet.",
+      supports:
+        "PDF and JSON are supported. Scanned files are not supported yet.",
       resultTitle: "Parsed result",
       idle: "The file is parsed locally in your browser and is not uploaded to a server.",
       parsing: "Reading file content...",
@@ -547,10 +563,12 @@ export const translations = {
         work: number,
         projects: number,
         education: number,
-      ) => `${skills} skills / ${work} work / ${projects} projects / ${education} education`,
+      ) =>
+        `${skills} skills / ${work} work / ${projects} projects / ${education} education`,
       templateTitle: "2. Choose target template",
       noPreview: "No preview",
-      footer: "The first version will infer fields as best it can. Please review after importing.",
+      footer:
+        "The first version will infer fields as best it can. Please review after importing.",
       cancel: "Cancel",
       saving: "Generating...",
     },
@@ -566,9 +584,11 @@ export const translations = {
       exportPdfShort: "Export",
       exportMenuAria: "Choose a PDF export method",
       visualPdfTitle: "Visual PDF",
-      visualPdfDescription: "Most faithful layout, with links and full re-import data.",
+      visualPdfDescription:
+        "Most faithful layout, with links and full re-import data.",
       printPdfTitle: "Print / Text PDF",
-      printPdfDescription: "Searchable and selectable text. Use A4 when printing.",
+      printPdfDescription:
+        "Searchable and selectable text. Use A4 when printing.",
       expandStyle: "Expand style panel",
       expandContent: "Expand editor panel",
       mobileViews: "Editor mobile views",
@@ -589,7 +609,8 @@ export const translations = {
       customFields: "Custom fields",
       addInfoItem: "Add info item",
       skillsContent: "Skills content",
-      skillsHint: "Use lists, colors, links, and paragraph alignment to organize your skills.",
+      skillsHint:
+        "Use lists, colors, links, and paragraph alignment to organize your skills.",
       addModuleItem: (title: string) => `Add ${title}`,
       entry: (index: number) => `Entry ${index}`,
       hidden: "Hidden",
@@ -622,9 +643,12 @@ export const translations = {
       saveUnsynced: "Unsynced",
       dragStylePanel: "Drag to resize style panel",
       dragEditorPanel: "Drag to resize editor panel",
-      oldFileDeleteFailed: "The old resume file could not be deleted automatically. Please clean it up manually.",
-      directoryConflict: "The folder file was modified externally. This resume is not synced.",
-      directorySaveFailed: "Folder sync failed. This resume has been saved to browser cache.",
+      oldFileDeleteFailed:
+        "The old resume file could not be deleted automatically. Please clean it up manually.",
+      directoryConflict:
+        "The folder file was modified externally. This resume is not synced.",
+      directorySaveFailed:
+        "Folder sync failed. This resume has been saved to browser cache.",
       pdfNoPage: "No resume page is available for export",
       pdfCanvasFailed: "Could not create the PDF page canvas",
       fallbackFileName: "resume",
@@ -692,7 +716,8 @@ export const translations = {
     settings: {
       badge: "PRIVATE BY DEFAULT",
       title: "Settings",
-      subtitle: "Desktop Chrome can use a local folder as the source of truth. Mobile always uses browser cache.",
+      subtitle:
+        "Desktop Chrome can use a local folder as the source of truth. Mobile always uses browser cache.",
       directoryTitle: "Sync Folder",
       directoryCopy: "Choose a folder to save and back up resumes.",
       status: {
@@ -704,10 +729,13 @@ export const translations = {
         unbound: "No sync folder connected",
         permission: "Folder authorization is required",
         mobile: "Folder sync is not supported on mobile",
-        unsupported: "This browser does not support folder sync. Use desktop Chrome.",
+        unsupported:
+          "This browser does not support folder sync. Use desktop Chrome.",
         error: "Folder sync failed. Please choose the folder again.",
-        conflict: "The folder file was modified externally. Resolve the conflict before syncing.",
-        disconnected: "Folder disconnected. Resumes will continue saving to browser cache.",
+        conflict:
+          "The folder file was modified externally. Resolve the conflict before syncing.",
+        disconnected:
+          "Folder disconnected. Resumes will continue saving to browser cache.",
         unknown: "Choose a folder to save and back up resumes",
       },
       connected: (name: string) => `Connected: ${name}`,
@@ -731,16 +759,24 @@ export const translations = {
     directoryMessage: {
       title: "Local folder not synced",
       reason: {
-        unbound: "No local sync folder is connected. This resume is saved only in browser cache.",
-        permission: "The local sync folder needs authorization again. This resume is saved only in browser cache.",
-        error: "Writing to the local folder failed. This resume is saved only in browser cache.",
-        conflict: "The local folder file was modified externally. This resume is currently unsynced.",
-        disconnected: "Folder sync is disconnected. This resume is saved only in browser cache.",
-        unknown: "The local folder is not synced. This resume is saved only in browser cache.",
+        unbound:
+          "No local sync folder is connected. This resume is saved only in browser cache.",
+        permission:
+          "The local sync folder needs authorization again. This resume is saved only in browser cache.",
+        error:
+          "Writing to the local folder failed. This resume is saved only in browser cache.",
+        conflict:
+          "The local folder file was modified externally. This resume is currently unsynced.",
+        disconnected:
+          "Folder sync is disconnected. This resume is saved only in browser cache.",
+        unknown:
+          "The local folder is not synced. This resume is saved only in browser cache.",
         mobile: "Folder sync is not supported on mobile.",
-        unsupported: "This browser does not support folder sync. Use desktop Chrome.",
+        unsupported:
+          "This browser does not support folder sync. Use desktop Chrome.",
       },
-      syncedToast: (count: number) => `${count} resumes synced to the local folder`,
+      syncedToast: (count: number) =>
+        `${count} resumes synced to the local folder`,
       failedToast: "Folder sync did not finish. Please try again later.",
       syncing: "Syncing...",
       sync: "Sync",
@@ -772,13 +808,15 @@ export const translations = {
       applyLink: "Apply link",
       unlink: "Remove link",
       closeLinkPanel: "Close link panel",
-      invalidLink: "Enter a link address. javascript/data/vbscript protocols are not allowed.",
+      invalidLink:
+        "Enter a link address. javascript/data/vbscript protocols are not allowed.",
       emptyText: "Enter link text.",
       linkStateHint: "Link mode is on. New text will use this link.",
       visitLink: "Open link",
       copyLink: "Copy link",
       copied: "Link copied.",
-      copyFailed: "This browser blocked automatic copying. Please copy the link manually.",
+      copyFailed:
+        "This browser blocked automatic copying. Please copy the link manually.",
     },
     resumeDisplay: {
       personalInfo: "Personal Info",
