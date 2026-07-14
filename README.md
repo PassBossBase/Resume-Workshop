@@ -1,13 +1,13 @@
 # 简历工坊
 
-一款使用 Next.js 构建的纯本地简历编辑器。应用界面采用活力彩色动漫风，导出的简历保持专业、克制。
+一款使用 Next.js 构建的纯本地简历编辑器。应用界面采用沉浸式场景背景、蓝绿玻璃面板与轻量细边框的现代工作台风格；导出的简历保持专业、清晰、克制。
 
 # 截图
 
-![首页](./public//1.jpg)
-![简历页面](./public//2.jpg)
-![简历编辑页面](./public//3.jpg)
-![模板页面](./public//4.jpg)
+![首页](./public//1.png)
+![简历页面](./public//2.png)
+![模板页面](./public//3.png)
+![简历编辑页面](./public//4.png)
 
 ## 功能
 
@@ -118,9 +118,9 @@ Next.js 16 (App Router) / React 19 / TypeScript / Tailwind CSS 4 / Radix UI Prim
 
 ## UI 组件策略
 
-- `anime-ui` 同时提供漫画纸张与蓝绿玻璃工作区两套基础视觉：`StickerCard` 的 `comic` 变体保留黑色描边，`scenic` 变体使用半透明细边框、阴影与模糊背景。
+- `anime-ui` 以蓝绿玻璃工作区为当前主视觉：`StickerCard` 的 `scenic` 变体使用半透明细边框、柔和阴影与模糊背景；`comic` 变体仅保留给少量兼容场景，不作为新界面的默认风格。
 - `InkButton` 是统一按钮入口，支持尺寸、图标按钮、加载态、hover 图标转文字、`unstyled` 无默认视觉模式，以及 `danger`、`ghost`、`glass` 等语义变体；内部使用 `tailwind-merge`，默认样式允许被后续 `className` 的同类 Tailwind 样式覆盖；base 不默认带边框、阴影或位置移动，`ghost` 不设置默认 hover 背景，弹窗关闭、Toast 关闭、仪表盘卡片操作和编辑器条目操作等高频图标按钮已统一走 `size="icon"`。
-- 需要漫画硬阴影的 `InkButton` 调用点应显式添加对应 `shadow-[...]` 样式，不依赖组件尺寸默认值。
+- 需要强调层级的 `InkButton` 调用点应显式添加对应的玻璃、阴影或按压样式，不依赖组件尺寸默认值。
 - `InkButton` 的 `pressable` 配置用于显式开启点击按压态，应用 `active:translate-x-0.5 active:translate-y-0.5 active:shadow-none`。
 - `InkButton` 的 `unstyled` 配置用于迁移已有原生按钮：只复用按钮组件能力，不注入默认尺寸、颜色、阴影或字体样式；`hoverLabel` 用于 icon-only 状态下 hover/focus 时将图标切换为文字。
 - Radix UI Primitives 只作为交互底座使用，当前用于 Dialog、Popover、Select、Tabs 和 Tooltip 的焦点管理、Escape、外部点击、键盘操作与 Portal 定位，不引入默认视觉样式。
