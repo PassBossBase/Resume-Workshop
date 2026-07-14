@@ -87,7 +87,7 @@ export const translations = {
       title: "我的简历",
       subtitle: "把经历整理成一份清晰、专业又属于你的简历。",
       import: "导入简历",
-      create: "新建简历",
+      create: "选择模板创建",
       loading: "正在读取简历",
       emptyTitle: "从第一份简历开始",
       emptyCopy: "内容自动保存在浏览器。桌面 Chrome 还可以连接本地文件夹。",
@@ -176,7 +176,7 @@ export const translations = {
         `${skills} 技能 / ${work} 工作 / ${projects} 项目 / ${education} 教育`,
       templateTitle: "2. 选择目标模板",
       noPreview: "暂无预览",
-      footer: "第一版会尽量识别字段，导入后仍建议人工检查。",
+      footer: "导入后仍建议人工检查。",
       cancel: "取消",
       saving: "正在生成...",
     },
@@ -467,7 +467,7 @@ export const translations = {
       subtitle:
         "Turn your experience into a clear, professional resume that feels like yours.",
       import: "Import Resume",
-      create: "New Resume",
+      create: "Choose a Template",
       loading: "Reading resumes",
       emptyTitle: "Start with your first resume",
       emptyCopy:

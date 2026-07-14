@@ -14,8 +14,8 @@ export const Panel = memo(function Panel({
   action?: ReactNode;
 }) {
   return (
-    <SectionCard className="p-4">
-      <h3 className="mb-4 flex items-center gap-2 text-lg font-black">
+    <SectionCard className="editor-rail-section p-4">
+      <h3 className="mb-3 flex items-center gap-2 text-base font-black">
         {icon}
         {title}
         {action && <span className="ml-auto">{action}</span>}
@@ -41,7 +41,7 @@ export const Control = memo(function Control({
         {label}
         <b>{value}</b>
       </span>
-      <span className="block [&_input]:w-full [&_input]:accent-black">
+      <span className="block [&_input]:w-full [&_input]:accent-cyan-200">
         {children}
       </span>
     </label>

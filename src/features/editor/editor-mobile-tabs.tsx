@@ -35,7 +35,7 @@ export function MobileEditorTabs({
         {content}
       </RadixTabs.Content>
       <RadixTabs.Content
-        className="h-full overflow-y-auto bg-[#f6f1e7] pb-24 focus-visible:outline-none"
+        className="editor-glass-panel h-full overflow-y-auto pb-24 focus-visible:outline-none"
         value="style"
       >
         {style}
@@ -48,7 +48,7 @@ export function MobileEditorTabs({
       </RadixTabs.Content>
       <RadixTabs.List
         aria-label={t.editor.mobileViews}
-        className="fixed bottom-0 left-0 right-0 z-30 grid h-19 grid-cols-3 border-t-2 border-black bg-(--paper)"
+        className="editor-mobile-nav fixed bottom-0 left-0 right-0 z-30 grid h-19 grid-cols-3 border-t text-white"
       >
         <MobileTabTrigger
           active={value === "content"}
@@ -88,7 +88,7 @@ export function ModuleTabs({
     <RadixTabs.Root onValueChange={onChange} value={activeModuleId}>
       <RadixTabs.List
         aria-label={t.editor.modules}
-        className="scrollbar-thin flex gap-2 overflow-x-auto border-b-2 border-black/10 bg-(--paper) p-3"
+        className="scrollbar-thin flex gap-2 overflow-x-auto border-b border-white/20 bg-white/8 p-3 text-white"
       >
         {modules.map((module) => {
           const meta = getModuleMeta(module, locale);
@@ -96,8 +96,8 @@ export function ModuleTabs({
           const active = module.id === activeModuleId;
           return (
             <RadixTabs.Trigger
-              className={`flex shrink-0 items-center gap-2 rounded-full border-2 border-black px-4 py-2 font-bold ${
-                active ? "bg-black text-white" : "bg-white"
+              className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 font-bold ${
+                active ? "border-white/48 bg-white/24 text-white" : "border-white/20 bg-white/8 text-white/78"
               }`}
               key={module.id}
               value={module.id}
@@ -130,7 +130,7 @@ function MobileTabTrigger({
   return (
     <RadixTabs.Trigger
       className={`relative grid place-items-center text-sm font-bold ${
-        active ? "text-black" : "text-black/45"
+        active ? "text-white" : "text-white/58"
       }`}
       value={value}
     >
@@ -139,7 +139,7 @@ function MobileTabTrigger({
         {label}
       </span>
       {active && (
-        <i className="absolute bottom-0 h-1.5 w-16 rounded-t-full bg-(--pink)" />
+        <i className="absolute bottom-0 h-1.5 w-16 rounded-t-full bg-cyan-100" />
       )}
     </RadixTabs.Trigger>
   );

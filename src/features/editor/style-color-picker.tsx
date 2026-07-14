@@ -111,9 +111,15 @@ function hsvToHex(hsv: HsvColor): string {
 export function ThemeColorPicker({
   value,
   onCommit,
+  ariaLabel = "自定义主题色",
+  className,
+  showValueAsBackground = false,
 }: {
   value: string;
   onCommit: (color: string) => void;
+  ariaLabel?: string;
+  className?: string;
+  showValueAsBackground?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(normalizeHex(value) ?? "#3f57e8");
@@ -133,9 +139,12 @@ export function ThemeColorPicker({
 
   const commitAndClose = useCallback(() => {
     const validInput = normalizeHex(inputValue);
-    onCommit(validInput ?? draft);
+    const next = validInput ?? draft;
+    if (next !== normalizeHex(value)) {
+      onCommit(next);
+    }
     setOpen(false);
-  }, [draft, inputValue, onCommit]);
+  }, [draft, inputValue, onCommit, value]);
 
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
@@ -179,10 +188,14 @@ export function ThemeColorPicker({
     <Popover.Root open={open} onOpenChange={handleOpenChange}>
       <Popover.Trigger asChild>
         <InkButton
-          title="自定义主题色"
-          aria-label="自定义主题色"
-          className="grid h-9 w-9 cursor-pointer place-items-center rounded-full border-2 border-black bg-white transition hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--blue)"
-          style={{ color: value }}
+          title={ariaLabel}
+          aria-label={ariaLabel}
+          className={`grid h-9 w-9 cursor-pointer place-items-center rounded-full border-2 border-black bg-white transition hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-(--blue) ${className ?? ""}`}
+          style={
+            showValueAsBackground
+              ? { backgroundColor: value, color: "white" }
+              : { color: value }
+          }
           type="button"
           unstyled
         >

@@ -44,19 +44,20 @@ export function TemplateSwitchModal({
 
   return (
     <Modal
+      appearance="glass"
       ariaLabelledby="switch-template-title"
       className="flex flex-col"
       onClose={onClose}
       open={open}
       size="md"
     >
-      <div className="comic-dots border-b-2 border-black bg-[#fff7cc] px-6 py-5">
+      <div className="glass-modal-header border-b px-6 py-5">
         <div className="flex items-start gap-4">
-          <span className="grid h-14 w-14 shrink-0 rotate-[-4deg] place-items-center rounded-2xl border-2 border-black bg-(--yellow) shadow-[3px_3px_0_black]">
+          <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/40 bg-cyan-100/16 text-cyan-50">
             <LayoutTemplate size={28} strokeWidth={2.5} />
           </span>
           <div className="min-w-0 pt-1">
-            <span className="text-xs font-black tracking-[0.18em] text-(--blue)">
+            <span className="text-xs font-black tracking-[0.18em] text-cyan-100">
               {t.templateSwitch.badge}
             </span>
             <h2 className="mt-1 text-2xl font-black" id="switch-template-title">
@@ -66,20 +67,20 @@ export function TemplateSwitchModal({
         </div>
         <InkButton
           aria-label={t.templateSwitch.close}
-          className="absolute right-4 top-4 shadow-[3px_3px_0_var(--line)] hover:bg-(--yellow)"
+          className="absolute right-4 top-4"
           iconOnly
           onClick={onClose}
           size="icon"
           type="button"
-          variant="paper"
+          variant="glass"
         >
           <X size={20} />
         </InkButton>
       </div>
 
-      <div className="bg-(--canvas) p-4 sm:p-5">
+      <div className="glass-modal-body p-4 sm:p-5">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)]">
-          <section className="rounded-3xl border-2 border-black bg-(--paper) p-4 shadow-[4px_4px_0_#d9d1c3]">
+          <section className="glass-modal-card rounded-3xl border p-4">
             <h3 className="mb-3 text-lg font-black">
               {t.templateSwitch.choose}
             </h3>
@@ -90,8 +91,8 @@ export function TemplateSwitchModal({
                   <InkButton
                     className={`rounded-2xl border-2 px-3 py-2.5 text-left transition ${
                       active
-                        ? "border-black bg-(--yellow) shadow-[3px_3px_0_black]"
-                        : "border-black/20 bg-white hover:border-black"
+                        ? "border-white/52 bg-white/24"
+                        : "border-white/18 bg-white/8 hover:bg-white/16"
                     }`}
                     key={entry.id}
                     onClick={() => setSelectedTemplateId(entry.id)}
@@ -105,28 +106,28 @@ export function TemplateSwitchModal({
                 );
               })}
               {availableTemplateEntries.length === 0 && (
-                <p className="rounded-2xl border-2 border-dashed border-black/20 bg-white px-3 py-4 text-sm font-bold text-black/45">
+                <p className="rounded-2xl border border-dashed border-white/25 bg-white/8 px-3 py-4 text-sm font-bold text-white/65">
                   {t.templateSwitch.noOther}
                 </p>
               )}
             </div>
           </section>
 
-          <section className="rounded-3xl border-2 border-black bg-(--paper) p-4 shadow-[4px_4px_0_#d9d1c3]">
+          <section className="glass-modal-card rounded-3xl border p-4">
             <h3 className="mb-3 text-lg font-black">
               {t.templateSwitch.preview}
             </h3>
-            <div className="grid h-[356px] place-items-center overflow-hidden rounded-2xl border-2 border-black bg-[#e7ebf1] p-3">
+            <div className="grid h-[356px] place-items-center overflow-hidden rounded-2xl border border-white/22 bg-[#dce9ed]/85 p-3">
               {selectedEntry ? (
                 <TemplateSkeletonPreview
                   ariaLabel={t.templates.previewAria(
                     t.templates.names[selectedEntry.id],
                   )}
-                  className="h-[324px] w-[229px] shadow-[4px_4px_0_black]"
+                  className="h-[324px] w-[229px] shadow-[0_16px_32px_rgb(3_42_56_/_26%)]"
                   templateId={selectedEntry.id}
                 />
               ) : (
-                <div className="grid min-h-72 place-items-center text-sm font-bold text-black/45">
+                <div className="grid min-h-72 place-items-center text-sm font-bold text-slate-600/70">
                   {t.templateSwitch.noPreview}
                 </div>
               )}
@@ -135,22 +136,22 @@ export function TemplateSwitchModal({
         </div>
       </div>
 
-      <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t-2 border-black bg-(--paper) px-5 py-4">
-        <p className="text-sm font-medium text-black/45">
+      <footer className="glass-modal-footer flex shrink-0 flex-wrap items-center justify-between gap-3 border-t px-5 py-4">
+        <p className="text-sm font-medium text-white/62">
           {t.templateSwitch.note}
         </p>
         <div className="flex gap-3">
           <InkButton
-            className="shadow-[3px_3px_0_var(--line)]"
+            className="rounded-2xl"
             onClick={onClose}
-            variant="paper"
+            variant="glass"
           >
             {t.templateSwitch.cancel}
           </InkButton>
           <InkButton
-            className="shadow-[3px_3px_0_var(--line)]"
+            className="rounded-2xl bg-white/24 hover:bg-white/32"
             onClick={apply}
-            variant="pink"
+            variant="glass"
           >
             <LayoutTemplate size={17} />
             {t.templateSwitch.apply}

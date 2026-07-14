@@ -48,14 +48,14 @@ export function StyleModuleCard({
     <div
       key={module.id}
       draggable={!isBasics}
-      className={`group flex items-center gap-2 rounded-2xl border-2 p-2 transition ${
+      className={`editor-module-card group flex items-center gap-2 p-2 transition ${
         isDragging
           ? "opacity-50"
           : isDropTarget
-            ? "border-black border-dashed bg-(--yellow)/30"
+            ? "editor-module-card-drop"
             : active
-              ? "border-black bg-(--yellow) "
-              : "border-black/15 bg-white"
+              ? "editor-module-card-active"
+              : "editor-module-card-idle"
       }`}
       onDragStart={() => onDragStart(index)}
       onDragOver={(event) => onDragOver(event, index)}
@@ -92,7 +92,7 @@ export function StyleModuleCard({
                 ? t.stylePanel.hideAria(meta.displayTitle)
                 : t.stylePanel.showAria(meta.displayTitle)
             }
-            className="h-7 w-7 p-0 rounded-lg border-0 text-black/55 hover:bg-black/10"
+            className="h-7 w-7 rounded-lg border-0 p-0 text-current/70 hover:bg-white/10"
             iconOnly
             onClick={() => onToggle(module.id)}
             size="icon"
@@ -104,7 +104,7 @@ export function StyleModuleCard({
           {isCustom && (
             <InkButton
               aria-label={t.stylePanel.deleteAria(meta.displayTitle)}
-              className="h-7 w-7 p-0 rounded-lg border-0 text-red-500 shadow-none hover:bg-black/10"
+              className="editor-module-delete h-7 w-7 rounded-lg border-0 p-0 shadow-none"
               iconOnly
               onClick={() => onDeleteClick(module.id)}
               size="icon"

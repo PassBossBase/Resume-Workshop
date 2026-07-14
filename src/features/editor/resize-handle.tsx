@@ -27,14 +27,14 @@ export function ResizeHandle({
       aria-label={label}
       aria-orientation="vertical"
       tabIndex={-1}
-      className="group w-1.5 shrink-0 cursor-col-resize flex justify-center transition-colors duration-150 hover:bg-(--ink)/8 active:bg-(--ink)/12"
+      className="editor-resize-handle group flex w-1.5 shrink-0 cursor-col-resize justify-center transition-colors duration-150"
       onMouseDown={(e) => {
         e.preventDefault();
         onMouseDown(e.clientX);
       }}
       onDoubleClick={onDoubleClick}
     >
-      <span className="block w-0.5 h-full rounded-full transition-colors duration-150 group-hover:bg-(--ink)/25" />
+      <span className="editor-resize-handle-line block h-full w-0.5 rounded-full transition-colors duration-150" />
     </div>
   );
 }
@@ -56,17 +56,17 @@ export function PanelRestoreButton({
 
   return (
     <div
-      className={`h-full w-11 shrink-0 flex flex-col items-center pt-5 bg-[#f6f1e7] ${
-        side === "left" ? "border-r-2" : "border-l-2"
-      } border-black/10`}
+      className={`editor-glass-panel h-full w-11 shrink-0 flex flex-col items-center pt-5 ${
+        side === "left" ? "border-r" : "border-l"
+      }`}
     >
       <InkButton
         onClick={onClick}
         aria-label={label}
         title={label}
-        className="grid h-9 w-9 place-items-center rounded-xl border-2 border-black bg-white shadow-[2px_2px_0_black] transition hover:-translate-y-0.5 hover:shadow-[3px_3px_0_black]"
+        className="grid h-9 w-9 place-items-center rounded-xl"
         type="button"
-        unstyled
+        variant="glass"
       >
         <Icon size={16} />
       </InkButton>

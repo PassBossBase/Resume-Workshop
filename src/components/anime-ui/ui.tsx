@@ -12,15 +12,21 @@ import {
   type ReactNode,
 } from "react";
 
-/** 漫画风圆角卡片基础容器。 */
+type StickerCardVariant = "comic" | "scenic";
+
+/** 支持漫画纸张与玻璃工作区两种语气的圆角卡片容器。 */
 export const StickerCard = memo(function StickerCard({
   className,
+  variant = "comic",
   ...props
-}: HTMLAttributes<HTMLDivElement>) {
+}: HTMLAttributes<HTMLDivElement> & { variant?: StickerCardVariant }) {
   return (
     <div
       className={clsx(
-        "rounded-[26px] border-2 border-(--line) bg-(--paper) transition-shadow",
+        variant === "scenic"
+          ? "rounded-[26px] border border-white/34 bg-[#063846]/62 shadow-[0_16px_42px_rgb(4_41_55/28%)] backdrop-blur-xl"
+          : "rounded-[26px] border-2 border-(--line) bg-(--paper)",
+        "transition-shadow",
         className,
       )}
       {...props}
@@ -37,7 +43,8 @@ export type InkButtonVariant =
   | "mint"
   | "purple"
   | "danger"
-  | "ghost";
+  | "ghost"
+  | "glass";
 
 type InkButtonSize = "sm" | "md" | "lg" | "icon";
 
@@ -88,6 +95,8 @@ export const InkButton = memo(
       danger: "border-2 border-(--line) bg-red-500 text-white",
       ghost:
         "border-0 bg-transparent text-(--ink) shadow-none active:shadow-none",
+      glass:
+        "border border-white/45 bg-white/16 text-white shadow-[0_10px_26px_rgb(4_42_61_/_22%)] backdrop-blur-xl hover:bg-white/24 focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-white active:scale-[0.98]",
     };
     const sizes: Record<InkButtonSize, string> = {
       sm: "min-h-9 rounded-xl px-3 text-sm",
@@ -260,6 +269,7 @@ export function PageHeading({
 
 /** 通用模态框：遮罩层 + 弹窗卡片，支持点击遮罩关闭和 aria 属性 */
 export function Modal({
+  appearance = "comic",
   open,
   onClose,
   size = "sm",
@@ -268,6 +278,7 @@ export function Modal({
   ariaLabelledby,
   children,
 }: {
+  appearance?: "comic" | "glass";
   open: boolean;
   onClose: () => void;
   size?: "sm" | "md" | "lg";
@@ -296,14 +307,19 @@ export function Modal({
         <Dialog.Overlay
           className={clsx(
             "fixed inset-0 z-100 grid place-items-center p-4",
-            config.backdrop,
+            appearance === "glass"
+              ? "bg-[#022f44]/72 backdrop-blur-md"
+              : config.backdrop,
           )}
         >
           <Dialog.Content
             aria-describedby={undefined}
             aria-labelledby={ariaLabelledby}
             className={clsx(
-              "animate-pop relative w-full overflow-hidden rounded-[28px] border-2 border-black bg-(--paper)",
+              "animate-pop relative w-full overflow-hidden rounded-[28px]",
+              appearance === "glass"
+                ? "glass-modal border border-white/32 bg-[#063c4d]/86 text-white shadow-[0_24px_70px_rgb(2_33_46_/_42%)] backdrop-blur-2xl"
+                : "border-2 border-black bg-(--paper)",
               config.maxWidth,
               className,
             )}

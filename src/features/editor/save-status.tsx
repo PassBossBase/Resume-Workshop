@@ -19,10 +19,10 @@ export function SaveStatus({
   };
   return (
     <span
-      className={`hidden items-center gap-1.5 rounded-full px-3 py-1 text-xs font-black sm:inline-flex ${
+      className={`hidden items-center gap-1.5 rounded-full border border-white/22 px-3 py-1 text-xs font-black sm:inline-flex ${
         state === "synced"
-          ? "bg-emerald-100 text-emerald-700"
-          : "bg-red-100 text-red-700"
+          ? "bg-emerald-200/16 text-emerald-100"
+          : "bg-rose-200/16 text-rose-100"
       }`}
     >
       {state === "synced" ? (

@@ -209,6 +209,7 @@ export function ImportResumeModal({
 
   return (
     <Modal
+      appearance="glass"
       ariaLabelledby="import-resume-title"
       className="flex max-h-[94vh] flex-col"
       disabled={status === "parsing" || status === "saving"}
@@ -216,13 +217,13 @@ export function ImportResumeModal({
       open={open}
       size="lg"
     >
-      <div className="comic-dots border-b-2 border-black bg-[#e9fff5] px-6 py-5">
+      <div className="glass-modal-header border-b px-6 py-5">
         <div className="flex items-start gap-4">
-          <span className="grid h-14 w-14 shrink-0 rotate-[-4deg] place-items-center rounded-2xl border-2 border-black bg-(--blue) text-white shadow-[3px_3px_0_black]">
+          <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/40 bg-cyan-100/16 text-cyan-50">
             <Upload size={28} strokeWidth={2.5} />
           </span>
           <div className="min-w-0 pt-1">
-            <span className="text-xs font-black tracking-[0.18em] text-(--blue)">
+            <span className="text-xs font-black tracking-[0.18em] text-cyan-100">
               PDF IMPORT
             </span>
 
@@ -234,29 +235,28 @@ export function ImportResumeModal({
         </div>
         <InkButton
           aria-label={t.importResume.close}
-          className="absolute right-4 top-4 shadow-[3px_3px_0_var(--line)] hover:bg-(--yellow)"
+          className="absolute right-4 top-4"
           disabled={status === "parsing" || status === "saving"}
           iconOnly
           onClick={close}
           size="icon"
-          pressable
           type="button"
-          variant="paper"
+          variant="glass"
         >
           <X size={20} />
         </InkButton>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-auto bg-(--canvas) p-4 sm:p-6 lg:p-7">
+      <div className="glass-modal-body min-h-0 flex-1 overflow-auto p-4 sm:p-6 lg:p-7">
         <div className="grid gap-5 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.42fr)]">
-          <section className="rounded-3xl border-2 border-black bg-(--paper) p-5 shadow-[4px_4px_0_#d9d1c3]">
+          <section className="glass-modal-card rounded-3xl border p-5">
             <h3 className="text-lg font-black">{t.importResume.uploadTitle}</h3>
             <label
               className={[
-                "mt-4 flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-black p-5 text-center transition",
+                "mt-4 flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/30 p-5 text-center transition",
                 isDragOver
-                  ? "border-solid bg-[#fff7cc]"
-                  : "bg-white hover:bg-[#fff7cc]",
+                  ? "border-solid bg-white/24"
+                  : "bg-white/8 hover:bg-white/16",
               ].join(" ")}
               onDragOver={handleDragOver}
               onDragEnter={handleDragEnter}
@@ -271,7 +271,7 @@ export function ImportResumeModal({
                     ? t.importResume.release
                     : t.importResume.choose}
               </span>
-              <span className="mt-2 text-sm font-medium text-black/50">
+              <span className="mt-2 text-sm font-medium text-white/65">
                 {t.importResume.supports}
               </span>
               <input
@@ -284,10 +284,10 @@ export function ImportResumeModal({
               />
             </label>
 
-            <div className="mt-5 rounded-2xl border-2 border-black bg-white p-4">
+            <div className="mt-5 rounded-2xl border border-white/22 bg-white/9 p-4">
               <h4 className="font-black">{t.importResume.resultTitle}</h4>
               {status === "idle" ? (
-                <p className="mt-2 text-sm leading-6 text-black/55">
+                <p className="mt-2 text-sm leading-6 text-white/65">
                   {t.importResume.idle}
                 </p>
               ) : status === "parsing" ? (
@@ -302,7 +302,7 @@ export function ImportResumeModal({
               ) : (
                 <div className="mt-3 space-y-2 text-sm">
                   {glyphWarning ? (
-                    <div className="mb-3 flex gap-2 rounded-xl border-2 border-black bg-[#fff0e6] p-3 text-sm leading-6 text-black/70">
+                    <div className="mb-3 flex gap-2 rounded-xl border border-rose-100/30 bg-rose-200/12 p-3 text-sm leading-6 text-rose-50/85">
                       <AlertCircle
                         className="mt-0.5 shrink-0 text-red-600"
                         size={17}
@@ -315,7 +315,7 @@ export function ImportResumeModal({
                       className="flex justify-between gap-3 border-b border-black/10 pb-2 last:border-0 last:pb-0"
                       key={label}
                     >
-                      <span className="font-bold text-black/45">{label}</span>
+                      <span className="font-bold text-white/60">{label}</span>
                       <span className="text-right font-bold">{value}</span>
                     </div>
                   ))}
@@ -324,7 +324,7 @@ export function ImportResumeModal({
             </div>
 
             {secondaryWarnings.length ? (
-              <div className="mt-4 rounded-2xl border-2 border-black bg-[#fff0e6] p-4 text-sm leading-6 text-black/65">
+              <div className="mt-4 rounded-2xl border border-rose-100/30 bg-rose-200/12 p-4 text-sm leading-6 text-rose-50/85">
                 {secondaryWarnings.map((warning) => (
                   <p key={warning}>- {warning}</p>
                 ))}
@@ -332,8 +332,8 @@ export function ImportResumeModal({
             ) : null}
           </section>
 
-          <section className="self-start overflow-hidden rounded-3xl border-2 border-black bg-[#dff4ff] shadow-[4px_4px_0_#1f2937] lg:sticky lg:top-0">
-            <div className="border-b-2 border-black bg-white p-5">
+          <section className="glass-modal-card self-start overflow-hidden rounded-3xl border lg:sticky lg:top-0">
+            <div className="border-b border-white/20 bg-white/9 p-5">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div>
@@ -350,10 +350,10 @@ export function ImportResumeModal({
                   return (
                     <InkButton
                       className={[
-                        "group flex items-center justify-between gap-3 rounded-2xl border-2 border-black px-3 py-2.5 text-left transition active:translate-y-0.5",
+                        "group flex items-center justify-between gap-3 rounded-2xl border px-3 py-2.5 text-left transition",
                         selected
-                          ? "bg-(--yellow) shadow-[3px_3px_0_black]"
-                          : "bg-white hover:-translate-y-0.5 hover:bg-[#fff7cc] hover:shadow-[2px_2px_0_black]",
+                          ? "border-white/52 bg-white/24"
+                          : "border-white/18 bg-white/8 hover:bg-white/16",
                       ].join(" ")}
                       key={entry.id}
                       onClick={() => setSelectedTemplateId(entry.id)}
@@ -370,14 +370,14 @@ export function ImportResumeModal({
                 })}
               </div>
             </div>
-            <div className="bg-[#cfe7f4] p-4 sm:p-5">
-              <div className="grid min-h-[420px] place-items-center rounded-2xl border-2 border-black bg-[#eef6fb] p-3 sm:p-5">
+            <div className="bg-[#dce9ed]/82 p-4 sm:p-5">
+              <div className="grid min-h-[420px] place-items-center rounded-2xl border border-white/28 bg-[#eef6fb] p-3 sm:p-5">
                 {selectedTemplateEntry ? (
                   <TemplateSkeletonPreview
                     ariaLabel={t.templates.previewAria(
                       t.templates.names[selectedTemplateEntry.id],
                     )}
-                    className="h-[380px] w-[269px] max-h-full shadow-[4px_4px_0_black]"
+                    className="h-[380px] w-[269px] max-h-full shadow-[0_16px_32px_rgb(3_42_56_/_26%)]"
                     templateId={selectedTemplateEntry.id}
                   />
                 ) : (
@@ -391,26 +391,24 @@ export function ImportResumeModal({
         </div>
       </div>
 
-      <footer className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t-2 border-black bg-(--paper) px-5 py-4">
-        <p className="text-sm font-medium text-black/45">
+      <footer className="glass-modal-footer flex shrink-0 flex-wrap items-center justify-between gap-3 border-t px-5 py-4">
+        <p className="text-sm font-medium text-white/62">
           {t.importResume.footer}
         </p>
         <div className="flex gap-3">
           <InkButton
-            className="shadow-[3px_3px_0_var(--line)]"
+            className="rounded-2xl"
             disabled={status === "parsing" || status === "saving"}
             onClick={close}
-            pressable
-            variant="paper"
+            variant="glass"
           >
             {t.importResume.cancel}
           </InkButton>
           <InkButton
-            className="shadow-[3px_3px_0_var(--line)]"
+            className="rounded-2xl bg-white/24 hover:bg-white/32"
             disabled={!draft || status === "parsing" || status === "saving"}
             onClick={handleImport}
-            variant="pink"
-            pressable
+            variant="glass"
           >
             <Upload size={17} />
             {status === "saving"

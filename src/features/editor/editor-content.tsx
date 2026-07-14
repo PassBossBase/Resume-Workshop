@@ -27,6 +27,7 @@ import { InkButton, InkSelect, SectionCard } from "@/components/anime-ui/ui";
 import { DateInput } from "./date-input";
 import { getModuleMeta } from "./module-meta";
 import { CustomModuleEditor } from "./custom-module-editor";
+import { ThemeColorPicker } from "./style-color-picker";
 import { useResumeStore } from "@/stores/resume-store";
 import { useLocale } from "@/lib/i18n";
 
@@ -163,9 +164,9 @@ export function EditorContent() {
   }
 
   return (
-    <div className="min-h-full bg-(--paper) p-5 md:p-7 xl:p-9">
+    <div className="editor-form-sheet min-h-full p-5 md:p-7 xl:p-9">
       <SectionCard
-        className="mb-8 flex items-center gap-3 px-5 py-4"
+        className="editor-form-heading mb-7 flex items-center gap-3 px-5 py-4"
         variant="white"
       >
         <span
@@ -188,6 +189,7 @@ export function EditorContent() {
             <span className="text-sm font-bold">{t.editor.sectionIcon}</span>
             <InkSelect
               ariaLabel={t.editor.sectionIconAria}
+              className="editor-form-select"
               options={sectionIconOptions}
               value={activeSection.sectionIcon ?? noSectionIconValue}
               onValueChange={(value) =>
@@ -209,9 +211,9 @@ export function EditorContent() {
           );
           return (
             <div className="space-y-7">
-              <section>
+              <section className="editor-form-section">
                 <h3 className="mb-3 text-lg font-black">{t.editor.avatar}</h3>
-                <label className="flex cursor-pointer items-center gap-4 rounded-3xl border-2 border-dashed border-black bg-[#f7f4ec] p-4">
+                <label className="editor-avatar-dropzone flex cursor-pointer items-center gap-4 p-4">
                   <span className="grid h-20 w-20 place-items-center overflow-hidden rounded-2xl border-2 border-black bg-(--yellow)">
                     {basics.avatar ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -249,7 +251,7 @@ export function EditorContent() {
                   <div className="mt-4">
                     <InkButton
                       aria-label={t.editor.removeAvatar}
-                      className="inline-flex h-10 items-center gap-2 rounded-2xl border-2 border-black bg-white px-4 text-sm font-black shadow-[3px_3px_0_#111] transition hover:-translate-y-0.5"
+                      className="editor-form-secondary-button inline-flex h-10 items-center gap-2 px-4 text-sm font-black"
                       type="button"
                       onClick={() => updateBasic("avatar", "")}
                       unstyled
@@ -260,7 +262,7 @@ export function EditorContent() {
                   </div>
                 )}
               </section>
-              <section>
+              <section className="editor-form-section">
                 <h3 className="mb-4 text-lg font-black">
                   {t.editor.basicFields}
                 </h3>
@@ -336,7 +338,7 @@ export function EditorContent() {
                       />
                     ))}
                   {basics.removedFields.length > 0 && (
-                    <div className="rounded-3xl border-2 border-dashed border-black/15 bg-white/50 p-4">
+                    <div className="editor-form-note p-4">
                       <p className="mb-3 text-sm font-bold text-black/55">
                         {t.editor.addBasicField}
                       </p>
@@ -347,7 +349,7 @@ export function EditorContent() {
                             // const Icon = optionalFieldIcons[key];
                             return (
                               <InkButton
-                                className="inline-flex h-10 items-center gap-2 rounded-2xl border-2 border-black/15 bg-white px-3 text-sm font-bold transition hover:border-black hover:shadow-[3px_3px_0_var(--yellow)]"
+                                className="editor-form-chip inline-flex h-10 items-center gap-2 px-3 text-sm font-bold"
                                 key={key}
                                 onClick={() => {
                                   updateBasicsField({
@@ -374,7 +376,7 @@ export function EditorContent() {
                   )}
                 </div>
               </section>
-              <section>
+              <section className="editor-form-section">
                 <h3 className="mb-4 text-lg font-black">
                   {t.editor.customFields}
                 </h3>
@@ -436,7 +438,7 @@ export function EditorContent() {
                     />
                   ))}
                   <InkButton
-                    className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black/25 bg-(--yellow)/50 py-3 font-bold transition hover:border-black hover:bg-(--yellow)"
+                    className="editor-form-add-button flex w-full items-center justify-center gap-2 py-3 font-bold"
                     onClick={() => {
                       const next = [
                         ...basics.infoItems,
@@ -456,7 +458,7 @@ export function EditorContent() {
           );
         })()
       ) : activeSection.type === "skills" ? (
-        <SectionCard variant="beige" className="p-5">
+        <SectionCard variant="beige" className="editor-form-card p-5">
           <div className="mb-4">
             <h3 className="text-lg font-black">{t.editor.skillsContent}</h3>
             <p className="mt-1 text-sm text-black/50">
@@ -484,6 +486,7 @@ export function EditorContent() {
               index={index}
               item={item}
               moduleType={activeSection.type}
+              total={activeSection.items.length}
               onChange={(patch) =>
                 updateEntry(activeSection.id, item.id, patch)
               }
@@ -499,7 +502,7 @@ export function EditorContent() {
             />
           ))}
           <InkButton
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black bg-(--yellow) py-4 font-black transition hover:-translate-y-0.5"
+            className="editor-form-add-button flex w-full items-center justify-center gap-2 py-4 font-black"
             onClick={() => addEntry(activeSection.id)}
             type="button"
             unstyled
@@ -553,14 +556,14 @@ function BasicFieldRow({
   return (
     <div
       className={[
-        "grid items-center rounded-2xl border-2 p-2 transition",
+        "editor-basic-field-row grid items-center p-2 transition",
         fixed
           ? "grid-cols-[92px_minmax(0,1fr)] border-transparent md:grid-cols-[100px_minmax(0,1fr)]"
           : "grid-cols-[92px_minmax(0,1fr)_136px] md:grid-cols-[100px_minmax(0,1fr)_136px]",
         isDragging
           ? "opacity-50"
           : isDropTarget
-            ? "border-black border-dashed bg-(--yellow)/30"
+            ? "editor-basic-field-row-drop"
             : fixed
               ? ""
               : "border-transparent",
@@ -588,7 +591,7 @@ function BasicFieldRow({
       ) : (
         <input
           aria-label={label}
-          className="h-12 w-full rounded-2xl border-2 border-black/15 bg-white px-4 font-medium outline-none transition focus:border-black focus:shadow-[3px_3px_0_var(--yellow)]"
+          className="editor-form-input h-12 w-full px-4 font-medium outline-none transition"
           value={value}
           onChange={(event) => onChange(event.target.value)}
         />
@@ -668,12 +671,12 @@ function CustomBasicFieldRow({
   return (
     <div
       className={[
-        "grid items-center gap-3 rounded-3xl pr-3  transition md:grid-cols-[96px_minmax(0,1fr)_96px]",
+        "editor-basic-field-row grid items-center gap-3 pr-3 transition md:grid-cols-[96px_minmax(0,1fr)_96px]",
         isDragging
           ? "opacity-50"
           : isDropTarget
-            ? "border-black border-dashed bg-(--yellow)/30"
-            : "border-black/10",
+            ? "editor-basic-field-row-drop"
+            : "",
         hidden ? "opacity-55" : "",
       ].join(" ")}
       data-drag-row
@@ -690,14 +693,14 @@ function CustomBasicFieldRow({
     >
       <input
         aria-label={t.editor.label}
-        className="h-12 w-full rounded-2xl border-2 border-black/10 bg-white px-4 font-medium outline-none transition focus:border-black focus:shadow-[3px_3px_0_var(--yellow)]"
+        className="editor-form-input h-12 w-full px-4 font-medium outline-none transition"
         placeholder={t.editor.label}
         value={item.label}
         onChange={(event) => onChange({ label: event.target.value })}
       />
       <input
         aria-label={t.editor.value}
-        className="h-12 w-full rounded-2xl border-2 border-black/10 bg-white px-4 font-medium outline-none transition focus:border-black focus:shadow-[3px_3px_0_var(--yellow)]"
+        className="editor-form-input h-12 w-full px-4 font-medium outline-none transition"
         placeholder={t.editor.value}
         value={item.value}
         onChange={(event) => onChange({ value: event.target.value })}
@@ -741,6 +744,7 @@ function EntryEditor({
   item,
   index,
   moduleType,
+  total,
   onChange,
   onMove,
   onRemove,
@@ -749,6 +753,7 @@ function EntryEditor({
   item: ResumeEntry;
   index: number;
   moduleType: string;
+  total: number;
   onChange: (patch: Partial<ResumeEntry>) => void;
   onMove: (direction: -1 | 1) => void;
   onRemove: () => void;
@@ -764,7 +769,7 @@ function EntryEditor({
   return (
     <SectionCard
       variant="beige"
-      className={["p-5", hidden ? "opacity-55" : ""].join(" ")}
+      className={["editor-entry-card p-5", hidden ? "opacity-55" : ""].join(" ")}
     >
       <div className="mb-5 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -778,28 +783,32 @@ function EntryEditor({
           )}
         </div>
         <div className="flex gap-2">
-          <InkButton
-            aria-label={t.editor.moveUp}
-            className="h-9 w-9 rounded-xl p-0 shadow-none"
-            iconOnly
-            onClick={() => onMove(-1)}
-            size="icon"
-            type="button"
-            variant="paper"
-          >
-            <ArrowUp size={16} />
-          </InkButton>
-          <InkButton
-            aria-label={t.editor.moveDown}
-            className="h-9 w-9 rounded-xl p-0 shadow-none"
-            iconOnly
-            onClick={() => onMove(1)}
-            size="icon"
-            type="button"
-            variant="paper"
-          >
-            <ArrowDown size={16} />
-          </InkButton>
+          {index > 0 && (
+            <InkButton
+              aria-label={t.editor.moveUp}
+              className="h-9 w-9 rounded-xl p-0 shadow-none"
+              iconOnly
+              onClick={() => onMove(-1)}
+              size="icon"
+              type="button"
+              variant="paper"
+            >
+              <ArrowUp size={16} />
+            </InkButton>
+          )}
+          {index < total - 1 && (
+            <InkButton
+              aria-label={t.editor.moveDown}
+              className="h-9 w-9 rounded-xl p-0 shadow-none"
+              iconOnly
+              onClick={() => onMove(1)}
+              size="icon"
+              type="button"
+              variant="paper"
+            >
+              <ArrowDown size={16} />
+            </InkButton>
+          )}
           {canToggleVisibility && (
             <InkButton
               aria-label={`${hidden ? t.editor.show : t.editor.hide}${entryLabel}`}
@@ -865,11 +874,12 @@ function EntryEditor({
               {t.editor.timelineBg}
             </span>
             <div className="flex items-center gap-2">
-              <input
-                className="h-10 w-20 rounded-xl border-2 border-black/15 px-2 outline-none"
-                type="color"
+              <ThemeColorPicker
+                ariaLabel={t.editor.timelineBg}
+                className="editor-entry-color-picker h-10 w-20 rounded-xl"
+                showValueAsBackground
                 value={item.entryStyle?.bgColor ?? "#4a90e2"}
-                onChange={(e) => onStyleChange({ bgColor: e.target.value })}
+                onCommit={(bgColor) => onStyleChange({ bgColor })}
               />
               {item.entryStyle?.bgColor && (
                 <InkButton
@@ -904,7 +914,7 @@ function Field({
     <label>
       <span className="mb-2 block text-sm font-bold">{label}</span>
       <input
-        className="h-12 w-full rounded-2xl border-2 border-black/15 px-4 outline-none focus:border-black"
+        className="editor-form-input h-12 w-full px-4 outline-none"
         value={value}
         onChange={(event) => onChange(event.target.value)}
       />

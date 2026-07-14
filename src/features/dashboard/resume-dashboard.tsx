@@ -12,7 +12,6 @@ import {
   InkButton,
   Modal,
   PageContainer,
-  PageHeading,
 } from "@/components/anime-ui/ui";
 import { ImportResumeModal } from "@/features/dashboard/import-resume-modal";
 import { NewResumeModal } from "@/features/dashboard/new-resume-modal";
@@ -107,38 +106,32 @@ export function ResumeDashboard({
   );
 
   return (
-    <PageContainer className="flex h-full flex-col overflow-hidden gap-4">
+    <PageContainer className="flex h-full flex-col gap-7 overflow-hidden text-white">
       <div className="flex flex-wrap items-end justify-between gap-5 shrink-0">
         <div>
-          <PageHeading
-            badge="LOCAL RESUME STUDIO"
-            badgeColor="bg-(--yellow)"
-            badgeRotation="rotate-[-2deg]"
-            title={t.dashboard.title}
-            subtitle={t.dashboard.subtitle}
-          />
+          <p className="text-sm font-bold tracking-[0.18em] text-white/72">RESUME WORKSHOP</p>
+          <h1 className="mt-3 text-4xl font-black tracking-tight text-white md:text-6xl">{t.dashboard.title}</h1>
+          <p className="mt-3 max-w-xl text-base font-medium leading-7 text-white/78">{t.dashboard.subtitle}</p>
         </div>
         <div className="flex gap-4">
           <InkButton
-            className="shadow-[3px_3px_0_var(--line)]"
+            className="rounded-2xl"
             onClick={() => setImportResume(true)}
-            pressable
-            variant="blue"
+            variant="glass"
           >
             <Upload size={17} />
             {t.dashboard.import}
           </InkButton>
           <InkButton
-            className="shadow-[3px_3px_0_var(--line)]"
+            className="rounded-2xl bg-white/24 hover:bg-white/32"
             onClick={() => setNewResumeOpen(true)}
-            pressable
-            variant="pink"
+            variant="glass"
           >
             {t.dashboard.create}
           </InkButton>
         </div>
       </div>
-      <div className="comic-card-scrollbar flex-1 overflow-y-auto">
+      <div className="scenic-scrollbar flex-1 overflow-y-auto pb-2">
         {isLoading ? (
           <ResumeDashboardLoadingGrid />
         ) : resumes.length === 0 ? (
@@ -155,19 +148,20 @@ export function ResumeDashboard({
       </div>
 
       <Modal
+        appearance="glass"
         ariaLabelledby="delete-resume-title"
         disabled={isDeleting}
         onClose={() => setPendingDelete(undefined)}
         open={Boolean(pendingDelete)}
         size="sm"
       >
-        <div className="comic-dots border-b-2 border-black bg-[#fff0e6] px-6 py-5">
+        <div className="glass-modal-header border-b px-6 py-5">
           <div className="flex items-start gap-4">
-            <span className="grid h-14 w-14 shrink-0 rotate-[-4deg] place-items-center rounded-2xl border-2 border-black bg-(--pink) text-white">
+            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-rose-100/45 bg-rose-300/22 text-rose-50">
               <AlertTriangle size={28} strokeWidth={2.5} />
             </span>
             <div className="min-w-0 pt-1">
-              <span className="text-xs font-black tracking-[0.18em] text-red-600">
+              <span className="text-xs font-black tracking-[0.18em] text-rose-200">
                 DANGER ZONE
               </span>
               <h2 className="mt-1 text-2xl font-black" id="delete-resume-title">
@@ -177,40 +171,37 @@ export function ResumeDashboard({
           </div>
           <InkButton
             aria-label={t.dashboard.closeDelete}
-            className="absolute right-4 top-4 shadow-[3px_3px_0_var(--line)] hover:bg-(--yellow)"
+            className="absolute right-4 top-4"
             disabled={isDeleting}
             iconOnly
             onClick={() => setPendingDelete(undefined)}
             size="icon"
             type="button"
-            pressable
-            variant="paper"
+            variant="glass"
           >
             <X size={20} />
           </InkButton>
         </div>
 
-        <div className="p-6">
-          <p className="leading-7 text-black/60">
+        <div className="glass-modal-body p-6">
+          <p className="glass-modal-muted leading-7">
             {pendingDelete ? t.dashboard.deleteBody(pendingDelete.title) : ""}
           </p>
           <div className="mt-6 grid grid-cols-2 gap-3">
             <InkButton
-              className="shadow-[3px_3px_0_var(--line)]"
+              className="rounded-2xl"
               disabled={isDeleting}
               onClick={() => setPendingDelete(undefined)}
-              variant="paper"
-              pressable
+              variant="glass"
             >
               {t.dashboard.cancel}
             </InkButton>
             <InkButton
               aria-label={t.dashboard.confirmDelete}
-              className="bg-red-500 text-white shadow-[3px_3px_0_var(--line)]"
+              className="border-rose-100/45 bg-rose-400/34 text-white hover:bg-rose-400/46"
               disabled={isDeleting}
               onClick={confirmRemove}
-              variant="pink"
-              pressable
+              variant="glass"
             >
               <Trash2 size={17} />
               {isDeleting ? t.dashboard.deleting : t.dashboard.confirmDelete}
@@ -222,7 +213,6 @@ export function ResumeDashboard({
       <NewResumeModal
         open={newResumeOpen}
         onClose={() => setNewResumeOpen(false)}
-        defaultTitle={t.dashboard.defaultNewTitle(resumes.length + 1)}
       />
       <ImportResumeModal
         open={importResume}

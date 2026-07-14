@@ -66,7 +66,7 @@ export const ResumePreview = memo(function ResumePreview({
   const pageCount = Math.max(1, Math.ceil(documentHeight / 1123));
 
   return (
-    <div className="min-h-full overflow-auto bg-[#dfe5ec] p-3 sm:p-5 md:p-10">
+    <div className="editor-preview-surface min-h-full overflow-auto p-3 sm:p-5 md:p-10">
       <div className="flex min-w-fit justify-center">
         <div
           className="relative shrink-0"

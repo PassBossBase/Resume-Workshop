@@ -96,7 +96,7 @@ export function StylePanel() {
   };
 
   return (
-    <div className="space-y-5 p-5">
+    <div className="editor-tool-rail space-y-4 p-4">
       <Panel title={t.stylePanel.layout} icon={<GripVertical size={18} />}>
         <div className="space-y-3">
           {resume.modules.map((module, index) => (
@@ -121,7 +121,7 @@ export function StylePanel() {
           {/* 添加自定义模块按钮 */}
           <InkButton
             onClick={addCustomModule}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black/25 bg-white/50 py-3 text-sm font-bold text-black/50 transition hover:border-black hover:text-black hover:bg-(--yellow)/10"
+            className="editor-rail-add-button flex w-full items-center justify-center gap-2 py-3 text-sm font-bold"
             type="button"
             unstyled
           >
@@ -131,34 +131,36 @@ export function StylePanel() {
         </div>
       </Panel>
 
-      <Panel
-        title={t.stylePanel.themeColor}
-        icon={<Palette size={18} />}
-        action={
-          <ThemeColorPicker
-            value={resume.styles.accent}
-            onCommit={(color) => updateStyle("accent", color)}
-          />
-        }
-      >
-        <div className="flex flex-wrap gap-3">
-          {colors.map((color) => (
-            <InkButton
-              aria-label={`${t.stylePanel.themeColor} ${color}`}
-              key={color}
-              className={`h-9 w-9 cursor-pointer rounded-full border-2 border-black transition hover:scale-110 ${
-                resume.styles.accent === color
-                  ? "ring-4 ring-(--yellow) ring-offset-2"
-                  : ""
-              }`}
-              style={{ background: color }}
-              onClick={() => updateStyle("accent", color)}
-              type="button"
-              unstyled
+      {resume.templateId !== "single_column_timeline_block" && (
+        <Panel
+          title={t.stylePanel.themeColor}
+          icon={<Palette size={18} />}
+          action={
+            <ThemeColorPicker
+              value={resume.styles.accent}
+              onCommit={(color) => updateStyle("accent", color)}
             />
-          ))}
-        </div>
-      </Panel>
+          }
+        >
+          <div className="flex flex-wrap gap-3">
+            {colors.map((color) => (
+              <InkButton
+                aria-label={`${t.stylePanel.themeColor} ${color}`}
+                key={color}
+                  className={`editor-rail-swatch h-9 w-9 cursor-pointer rounded-full transition hover:scale-110 ${
+                  resume.styles.accent === color
+                    ? "ring-4 ring-(--yellow) ring-offset-2"
+                    : ""
+                }`}
+                style={{ background: color }}
+                onClick={() => updateStyle("accent", color)}
+                type="button"
+                unstyled
+              />
+            ))}
+          </div>
+        </Panel>
+      )}
 
       {sectionBannerConfig && (
         <Panel
@@ -178,7 +180,7 @@ export function StylePanel() {
               <InkButton
                 aria-label={`${t.stylePanel.titleTextColor} ${color}`}
                 key={color}
-                className={`h-9 w-9 cursor-pointer rounded-full border-2 border-black transition hover:scale-110 ${
+              className={`editor-rail-swatch h-9 w-9 cursor-pointer rounded-full transition hover:scale-110 ${
                   sectionBannerConfig.headingTextColor === color
                     ? "ring-4 ring-(--yellow) ring-offset-2"
                     : ""
@@ -243,6 +245,7 @@ export function StylePanel() {
           <span className="mb-2 block text-sm font-bold">{t.stylePanel.fontStyle}</span>
           <InkSelect
             ariaLabel={t.stylePanel.fontStyleAria}
+            className="editor-rail-select"
             options={fontFamilyOptions}
             value={resume.styles.fontFamily}
             onValueChange={(value) => updateStyle("fontFamily", value)}

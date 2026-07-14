@@ -17,8 +17,9 @@ export function ResumeDashboardLoadingGrid() {
       {[0, 1, 2].map((item) => (
         <StickerCard
           aria-hidden="true"
-          className="relative h-84 overflow-hidden border-0  shadow-none hover:shadow-none"
+          className="relative h-84 overflow-hidden"
           key={item}
+          variant="scenic"
         >
           <div className="h-full animate-pulse bg-white/90" />
           <div className="absolute top-3 right-3 z-10 flex gap-2">
@@ -40,19 +41,16 @@ export function ResumeDashboardLoadingGrid() {
 export function EmptyResumeState({ onCreate }: { onCreate: () => void }) {
   const { t } = useLocale();
   return (
-    <StickerCard className="relative overflow-hidden p-10 text-center md:p-16">
-      <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full border-2 border-black bg-(--blue) opacity-90" />
-      <div className="absolute -bottom-8 -left-8 h-28 w-28 rotate-12 border-2 border-black bg-(--yellow)" />
-      <FilePlus2 className="mx-auto mb-5" size={54} />
+    <StickerCard className="relative overflow-hidden p-10 text-center text-white md:p-16" variant="scenic">
+      <FilePlus2 className="mx-auto mb-5 text-cyan-100" size={54} />
       <h2 className="text-3xl font-black">{t.dashboard.emptyTitle}</h2>
-      <p className="mx-auto mt-3 max-w-md leading-7 text-black/60">
+      <p className="mx-auto mt-3 max-w-md leading-7 text-white/72">
         {t.dashboard.emptyCopy}
       </p>
       <InkButton
-        className="mt-7 shadow-[3px_3px_0_var(--line)]"
+        className="mt-7"
         onClick={onCreate}
-        variant="yellow"
-        pressable
+        variant="glass"
       >
         {t.dashboard.emptyAction}
       </InkButton>
@@ -80,7 +78,7 @@ export function ResumeCardGrid({
       {resumes.map((resume, index) => (
         <StickerCard
           key={resume.id}
-          className="group/card relative h-84 animate-pop cursor-pointer overflow-hidden border-0  text-white shadow-none hover:shadow-none focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-(--blue)"
+          className="group/card relative h-84 animate-pop cursor-pointer overflow-hidden text-white focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-white"
           style={{ animationDelay: `${index * 60}ms` }}
           role="button"
           tabIndex={0}
@@ -92,6 +90,7 @@ export function ResumeCardGrid({
               onOpen(resume.id);
             }
           }}
+          variant="scenic"
         >
           <ResumeContentThumbnail
             ariaLabel={
@@ -105,7 +104,7 @@ export function ResumeCardGrid({
             resume={resume}
           />
 
-          <div className="pointer-events-none absolute bottom-0 left-0 right-0 translate-y-10 bg-[rgba(59,59,203,0.92)] px-5 py-3 opacity-0 transition-all duration-500 ease-out group-hover/card:translate-y-0 group-hover/card:opacity-100 group-focus-visible/card:translate-y-0 group-focus-visible/card:opacity-100">
+          <div className="pointer-events-none absolute bottom-0 left-0 right-0 translate-y-10 border-t border-white/25 bg-[#063c4d]/76 px-5 py-3 opacity-0 backdrop-blur-xl transition-all duration-500 ease-out group-hover/card:translate-y-0 group-hover/card:opacity-100 group-focus-visible/card:translate-y-0 group-focus-visible/card:opacity-100">
             <h2 className="truncate text-[16px] font-black text-white">
               {resume.title}
             </h2>
@@ -123,7 +122,7 @@ export function ResumeCardGrid({
             <InkButton
               type="button"
               aria-label={t.dashboard.duplicateAria(resume.title)}
-              className="rounded-full shadow-none hover:bg-(--yellow) focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="rounded-full bg-white/88 text-[#064458] hover:bg-white"
               hoverLabel={t.dashboard.duplicateAction}
               iconOnly
               onClick={(e) => {
@@ -131,7 +130,7 @@ export function ResumeCardGrid({
                 onDuplicate(resume);
               }}
               size="icon"
-              variant="paper"
+              variant="glass"
             >
               <Copy size={16} />
             </InkButton>
@@ -139,7 +138,7 @@ export function ResumeCardGrid({
             <InkButton
               type="button"
               aria-label={t.dashboard.deleteAria(resume.title)}
-              className="rounded-full text-red-600 shadow-none hover:bg-[#ffe1e1] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="rounded-full bg-white/88 text-[#a61f35] hover:bg-white"
               hoverLabel={t.dashboard.deleteAction}
               iconOnly
               onClick={(e) => {
@@ -147,7 +146,7 @@ export function ResumeCardGrid({
                 onDelete(resume);
               }}
               size="icon"
-              variant="paper"
+              variant="glass"
             >
               <Trash2 size={16} />
             </InkButton>

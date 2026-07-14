@@ -108,6 +108,526 @@ a {
   background: var(--pink);
 }
 
+/* 仅用于仪表盘、模板库和设置页：与首页公园场景共用的静态玻璃工作区。 */
+.scenic-workspace {
+  min-height: 100dvh;
+  background-color: #0d6791;
+  background-image: url("/workspace-background.png");
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.scenic-workspace .scenic-panel {
+  border: 1px solid rgb(255 255 255 / 34%);
+  background: rgb(6 56 70 / 62%);
+  box-shadow: 0 16px 42px rgb(4 41 55 / 28%);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+.scenic-workspace .scenic-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 56%) transparent;
+}
+
+.scenic-workspace .scenic-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scenic-workspace .scenic-scrollbar::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 52%);
+  background-clip: padding-box;
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .scenic-workspace .scenic-panel {
+    background: rgb(8 67 84 / 94%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scenic-workspace {
+    background-attachment: scroll;
+  }
+
+  .editor-loading-skeleton::after,
+  .editor-loading-spinner {
+    animation: none;
+  }
+}
+
+/* 编辑工作台：静态场景承托玻璃工具面，白底简历文档保持独立。 */
+.editor-workspace {
+  background-color: #0d6791;
+  background-image: url("/workspace-background.png");
+  background-position: center;
+  background-size: cover;
+}
+
+.editor-workspace .editor-glass-panel,
+.editor-workspace .editor-mobile-nav {
+  border-color: rgb(255 255 255 / 27%);
+  background: rgb(5 55 69 / 66%);
+  box-shadow: 0 16px 42px rgb(3 36 49 / 22%);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+/* 动态壳层加载：先呈现同一套工作台空间，避免冷启动时出现孤立提示。 */
+.editor-loading-screen {
+  display: grid;
+  place-items: center;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.editor-loading-screen::before {
+  position: absolute;
+  z-index: -1;
+  width: min(72rem, 90vw);
+  height: min(44rem, 72vh);
+  border-radius: 999px;
+  background: rgb(149 231 225 / 20%);
+  filter: blur(68px);
+  content: "";
+}
+
+.editor-loading-frame {
+  border-color: rgb(255 255 255 / 32%);
+  background: rgb(3 48 63 / 72%);
+  box-shadow: 0 28px 72px rgb(1 28 40 / 42%), inset 0 1px rgb(255 255 255 / 18%);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+.editor-loading-header,
+.editor-loading-rail,
+.editor-loading-form {
+  border-color: rgb(255 255 255 / 14%);
+}
+
+.editor-loading-header {
+  background: linear-gradient(90deg, rgb(7 79 102 / 88%), rgb(7 63 78 / 66%));
+}
+
+.editor-loading-brand-mark {
+  border: 1px solid rgb(255 255 255 / 35%);
+  background: linear-gradient(145deg, #5ce2d4, #2f92d1);
+  box-shadow: 0 8px 20px rgb(1 36 54 / 30%), inset 0 1px rgb(255 255 255 / 45%);
+}
+
+.editor-loading-workbench {
+  background: rgb(2 44 59 / 56%);
+}
+
+.editor-loading-rail {
+  background: rgb(2 43 58 / 84%);
+}
+
+.editor-loading-rail-item,
+.editor-loading-form-card {
+  border: 1px solid rgb(255 255 255 / 20%);
+  background: rgb(255 255 255 / 12%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 9%);
+}
+
+.editor-loading-form {
+  background: rgb(229 249 247 / 94%);
+}
+
+.editor-loading-form .editor-loading-skeleton {
+  --loading-base: rgb(18 92 105 / 19%);
+  --loading-shine: rgb(255 255 255 / 70%);
+}
+
+.editor-loading-rail .editor-loading-skeleton {
+  --loading-base: rgb(190 246 245 / 28%);
+  --loading-shine: rgb(232 255 254 / 52%);
+}
+
+.editor-loading-preview {
+  background: rgb(0 31 44 / 62%);
+}
+
+.editor-loading-paper {
+  min-height: 31rem;
+  border-radius: 0.3rem;
+  box-shadow: 0 18px 42px rgb(0 20 31 / 35%);
+}
+
+.editor-loading-paper-accent {
+  background: #2b8be2;
+}
+
+.editor-loading-paper-line {
+  background: rgb(24 101 158 / 24%);
+}
+
+.editor-loading-skeleton {
+  --loading-base: rgb(255 255 255 / 15%);
+  --loading-shine: rgb(255 255 255 / 35%);
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: var(--loading-base);
+  box-shadow: inset 0 1px rgb(255 255 255 / 12%);
+}
+
+.editor-loading-skeleton::after {
+  position: absolute;
+  inset: 0;
+  transform: translateX(-115%);
+  background: linear-gradient(90deg, transparent, var(--loading-shine), transparent);
+  animation: editor-loading-shimmer 1.6s ease-in-out infinite;
+  content: "";
+}
+
+.editor-loading-spinner {
+  animation: editor-loading-spin 1s linear infinite;
+}
+
+@keyframes editor-loading-shimmer {
+  to {
+    transform: translateX(115%);
+  }
+}
+
+@keyframes editor-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.editor-workspace .editor-tool-scroll,
+.editor-workspace .editor-form-scroll {
+  border-right: 1px solid rgb(255 255 255 / 18%);
+}
+
+.editor-workspace .editor-tool-rail {
+  min-height: 100%;
+  color: rgb(240 251 252);
+  background: rgb(5 55 69 / 72%);
+  box-shadow: inset -1px 0 rgb(255 255 255 / 8%);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.editor-workspace .editor-rail-section {
+  border: 1px solid rgb(255 255 255 / 18%);
+  background: rgb(255 255 255 / 9%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 8%);
+}
+
+.editor-workspace .editor-module-card {
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 0.85rem;
+  color: rgb(238 250 252);
+  background: rgb(255 255 255 / 6%);
+}
+
+.editor-workspace .editor-module-card-active {
+  border-color: rgb(178 245 237 / 72%);
+  color: #123b46;
+  background: rgb(186 241 234 / 92%);
+  box-shadow: 0 8px 18px rgb(2 35 46 / 18%);
+}
+
+.editor-workspace .editor-module-delete {
+  color: rgb(255 204 210);
+}
+
+.editor-workspace .editor-module-card-active .editor-module-delete {
+  color: #b4233a;
+}
+
+.editor-workspace .editor-module-card-drop {
+  border-color: rgb(252 236 159 / 78%);
+  border-style: dashed;
+  background: rgb(255 222 105 / 22%);
+}
+
+.editor-workspace .editor-module-card [class*="text-black"] {
+  color: currentColor;
+}
+
+.editor-workspace .editor-module-card > button span:first-child {
+  border: 1px solid rgb(255 255 255 / 32%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 25%);
+}
+
+.editor-workspace .editor-rail-add-button {
+  border: 1px dashed rgb(255 255 255 / 42%);
+  border-radius: 0.85rem;
+  color: rgb(233 249 251 / 86%);
+  background: transparent;
+}
+
+.editor-workspace .editor-rail-add-button:hover {
+  border-color: rgb(186 241 234 / 88%);
+  color: white;
+  background: rgb(255 255 255 / 9%);
+}
+
+.editor-workspace .editor-rail-swatch {
+  border: 2px solid rgb(255 255 255 / 62%);
+  box-shadow: 0 0 0 1px rgb(4 46 59 / 54%);
+}
+
+.editor-workspace .editor-rail-select {
+  border: 1px solid rgb(255 255 255 / 28%);
+  color: #143b46;
+  background: rgb(246 253 252 / 92%);
+}
+
+.editor-workspace .editor-rail-select:hover {
+  background: white;
+}
+
+.editor-workspace .editor-form-sheet {
+  min-height: 100%;
+  color: #153a45;
+  background: rgb(240 250 249 / 94%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 76%);
+}
+
+.editor-workspace .editor-form-heading,
+.editor-workspace .editor-form-card,
+.editor-workspace .editor-entry-card {
+  border: 1px solid rgb(28 92 104 / 16%);
+  background: rgb(255 255 255 / 78%);
+  box-shadow: 0 10px 24px rgb(7 63 76 / 7%);
+}
+
+.editor-workspace .editor-form-section {
+  border-top: 1px solid rgb(28 92 104 / 13%);
+  padding-top: 1.5rem;
+}
+
+.editor-workspace .editor-form-section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.editor-workspace .editor-form-heading {
+  border-radius: 1rem;
+  background: rgb(227 246 243 / 86%);
+}
+
+.editor-workspace .editor-form-sheet .editor-form-heading [class*="border-black"] {
+  border-color: rgb(16 92 105 / 28%);
+}
+
+.editor-workspace .editor-form-sheet .editor-entry-card [class*="border-black"],
+.editor-workspace .editor-form-sheet .editor-form-card [class*="border-black"] {
+  border-color: rgb(22 84 96 / 18%);
+}
+
+.editor-workspace .editor-form-input,
+.editor-workspace .editor-form-sheet textarea,
+.editor-workspace .editor-form-sheet .rich-text-content {
+  border: 1px solid rgb(18 85 98 / 18%);
+  border-radius: 0.75rem;
+  color: #143b46;
+  background: rgb(255 255 255 / 94%);
+  box-shadow: inset 0 1px 2px rgb(3 56 69 / 5%);
+}
+
+.editor-workspace .editor-form-select {
+  border: 1px solid rgb(18 85 98 / 18%);
+  color: #143b46;
+  background: rgb(255 255 255 / 94%);
+}
+
+.editor-workspace .editor-form-input:focus,
+.editor-workspace .editor-form-sheet textarea:focus-within,
+.editor-workspace .editor-form-sheet .rich-text-content:focus-within {
+  border-color: rgb(14 130 145 / 68%);
+  box-shadow: 0 0 0 3px rgb(99 211 216 / 22%);
+}
+
+.editor-workspace .editor-form-empty-state {
+  border: 1px dashed rgb(21 102 115 / 34%);
+  border-radius: 1rem;
+  background: rgb(225 245 242 / 62%);
+}
+
+.editor-workspace .editor-avatar-dropzone {
+  border: 1px dashed rgb(16 111 124 / 38%);
+  border-radius: 1rem;
+  background: rgb(225 245 242 / 62%);
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.editor-workspace .editor-avatar-dropzone:hover {
+  border-color: rgb(12 126 141 / 68%);
+  background: rgb(216 241 237 / 84%);
+}
+
+.editor-workspace .editor-avatar-dropzone [class*="border-black"] {
+  border-color: rgb(16 92 105 / 28%);
+}
+
+.editor-workspace .editor-form-note {
+  border: 1px dashed rgb(21 102 115 / 28%);
+  border-radius: 0.85rem;
+  background: rgb(225 245 242 / 48%);
+}
+
+.editor-workspace .editor-basic-field-row {
+  border: 1px solid transparent;
+  border-radius: 0.85rem;
+}
+
+.editor-workspace .editor-basic-field-row:hover {
+  background: rgb(20 111 123 / 4%);
+}
+
+.editor-workspace .editor-basic-field-row-drop {
+  border-color: rgb(14 130 145 / 58%);
+  border-style: dashed;
+  background: rgb(164 229 224 / 32%);
+}
+
+.editor-workspace .editor-form-add-button {
+  border: 1px dashed rgb(16 111 124 / 42%);
+  border-radius: 0.9rem;
+  color: #124854;
+  background: rgb(190 238 231 / 78%);
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.editor-workspace .editor-form-add-button:hover {
+  border-color: rgb(12 126 141 / 74%);
+  background: rgb(177 231 224 / 94%);
+  transform: translateY(-1px);
+}
+
+.editor-workspace .editor-form-secondary-button,
+.editor-workspace .editor-form-chip {
+  border: 1px solid rgb(16 92 105 / 22%);
+  border-radius: 0.75rem;
+  color: #154550;
+  background: rgb(255 255 255 / 82%);
+  box-shadow: none;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.editor-workspace .editor-form-secondary-button:hover,
+.editor-workspace .editor-form-chip:hover {
+  border-color: rgb(14 130 145 / 56%);
+  background: white;
+}
+
+.editor-workspace .editor-preview-stage {
+  background: rgb(3 44 60 / 44%);
+  box-shadow: inset 1px 0 rgb(255 255 255 / 10%);
+}
+
+.editor-workspace .editor-resize-handle {
+  background: rgb(3 44 60 / 44%);
+  box-shadow: inset 1px 0 rgb(255 255 255 / 8%), inset -1px 0 rgb(3 23 33 / 14%);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.editor-workspace .editor-resize-handle:hover,
+.editor-workspace .editor-resize-handle:active {
+  background: rgb(6 68 84 / 66%);
+}
+
+.editor-workspace .editor-resize-handle-line {
+  background: rgb(180 238 239 / 38%);
+}
+
+.editor-workspace .editor-resize-handle:hover .editor-resize-handle-line {
+  background: rgb(192 247 247 / 78%);
+}
+
+.editor-workspace .editor-preview-surface {
+  background: transparent;
+}
+
+.editor-workspace .editor-entry-color-picker {
+  border-color: rgb(18 85 98 / 34%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 34%);
+}
+
+.editor-export-menu {
+  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: 1rem;
+  padding: 0.5rem;
+  color: white;
+  background: rgb(5 54 69 / 96%);
+  box-shadow: 0 22px 48px rgb(2 34 46 / 36%), inset 0 1px rgb(255 255 255 / 12%);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+.editor-export-option {
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 0.85rem;
+  color: white;
+  background: rgb(255 255 255 / 6%);
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.editor-export-option:hover,
+.editor-export-option:focus-visible {
+  border-color: rgb(255 255 255 / 34%);
+  background: rgb(255 255 255 / 13%);
+  outline: none;
+}
+
+.editor-export-option:focus-visible {
+  box-shadow: 0 0 0 3px rgb(186 230 253 / 42%);
+}
+
+.editor-export-option-icon {
+  border: 1px solid rgb(255 255 255 / 26%);
+}
+
+.editor-export-option-icon-visual {
+  color: #073f51;
+  background: rgb(185 242 232 / 94%);
+}
+
+.editor-export-option-icon-print {
+  color: #fff8da;
+  background: rgb(230 172 70 / 42%);
+}
+
+.glass-modal .glass-modal-header,
+.glass-modal .glass-modal-footer {
+  border-color: rgb(255 255 255 / 20%);
+  background: rgb(255 255 255 / 9%);
+}
+
+.glass-modal .glass-modal-body {
+  background: rgb(2 43 57 / 42%);
+}
+
+.glass-modal .glass-modal-card {
+  border-color: rgb(255 255 255 / 22%);
+  background: rgb(255 255 255 / 10%);
+  box-shadow: none;
+}
+
+.glass-modal .glass-modal-muted {
+  color: rgb(235 250 252 / 70%);
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .editor-workspace .editor-glass-panel,
+  .editor-workspace .editor-mobile-nav,
+  .glass-modal {
+    background: rgb(5 61 77 / 96%);
+  }
+}
+
 .rich-text-content p {
   margin: 0.35em 0;
 }

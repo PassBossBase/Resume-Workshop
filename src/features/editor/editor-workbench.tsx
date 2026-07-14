@@ -43,7 +43,7 @@ export function EditorWorkbench({
               side="left"
             />
           ) : (
-            <aside className="scrollbar-thin h-full overflow-y-auto bg-[#f6f1e7]">
+            <aside className="editor-tool-scroll scrollbar-thin h-full overflow-y-auto">
               <StylePanel />
             </aside>
           )}
@@ -71,7 +71,7 @@ export function EditorWorkbench({
               side="left"
             />
           ) : (
-            <section className="scrollbar-thin h-full overflow-y-auto">
+            <section className="editor-form-scroll scrollbar-thin h-full overflow-y-auto">
               <EditorContent />
             </section>
           )}
@@ -85,7 +85,7 @@ export function EditorWorkbench({
           />
         )}
 
-        <section className="min-w-0 flex-1 overflow-auto">
+        <section className="editor-preview-stage min-w-0 flex-1 overflow-auto">
           <ResumePreview registerPage={registerPage} />
         </section>
       </div>

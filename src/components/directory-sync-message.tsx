@@ -44,7 +44,7 @@ export function DirectorySyncMessage() {
   return (
     <div
       aria-live="polite"
-      className="no-print fixed right-4 bottom-4 left-4 z-90 mx-auto max-w-3xl rounded-3xl border border-white/40 bg-white/12 p-4 text-white shadow-[0_20px_48px_rgb(1_12_28/34%)] backdrop-blur-xl md:right-6 md:bottom-6 md:left-auto md:w-100"
+      className="no-print fixed right-4 bottom-4 left-4 z-90 mx-auto max-w-3xl rounded-3xl border border-white/28 bg-[#063c4d]/94 p-4 text-white shadow-[0_20px_48px_rgb(1_12_28/46%)] backdrop-blur-xl md:right-6 md:bottom-6 md:left-auto md:w-100"
       role="status"
     >
       <div className="flex items-start gap-3">
@@ -55,7 +55,7 @@ export function DirectorySyncMessage() {
           <strong className="block text-sm font-black text-white">
             {t.directoryMessage.title}
           </strong>
-          <p className="mt-1 text-sm leading-6 font-medium text-white/74">
+          <p className="mt-1 text-sm leading-6 font-medium text-white/82">
             {t.directoryMessage.reason[reason]}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">

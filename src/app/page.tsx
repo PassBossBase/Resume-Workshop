@@ -13,7 +13,7 @@ import Link from "next/link";
 import { useT } from "@/lib/i18n";
 
 const actionLinkBase =
-  "inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/40 px-5 font-bold text-white shadow-[0_10px_28px_rgb(1_12_28_/_28%)] backdrop-blur-xl transition-colors hover:bg-white/24 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-white sm:min-w-44";
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/40 px-5 font-bold text-white backdrop-blur-xl transition-colors hover:bg-white/24 hover:shadow-[0_10px_28px_rgb(1_12_28_/_28%)] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-white sm:min-w-44";
 
 export default function Home() {
   const t = useT();

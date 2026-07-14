@@ -41,7 +41,7 @@ export function CustomEntryCard({
 }) {
   const t = useT();
   return (
-    <SectionCard variant="beige" className="p-5">
+    <SectionCard variant="beige" className="editor-entry-card p-5">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <InkButton
@@ -70,26 +70,28 @@ export function CustomEntryCard({
         </div>
 
         <div className="flex items-center gap-1">
-          <InkButton
-            aria-label={t.editor.moveUp}
-            disabled={index === 0}
-            className="grid h-8 w-8 place-items-center rounded-lg hover:bg-black/10 disabled:opacity-25"
-            onClick={() => onMove(-1)}
-            type="button"
-            unstyled
-          >
-            <ArrowUp size={16} />
-          </InkButton>
-          <InkButton
-            aria-label={t.editor.moveDown}
-            disabled={index === total - 1}
-            className="grid h-8 w-8 place-items-center rounded-lg hover:bg-black/10 disabled:opacity-25"
-            onClick={() => onMove(1)}
-            type="button"
-            unstyled
-          >
-            <ArrowDown size={16} />
-          </InkButton>
+          {index > 0 && (
+            <InkButton
+              aria-label={t.editor.moveUp}
+              className="grid h-8 w-8 place-items-center rounded-lg hover:bg-black/10"
+              onClick={() => onMove(-1)}
+              type="button"
+              unstyled
+            >
+              <ArrowUp size={16} />
+            </InkButton>
+          )}
+          {index < total - 1 && (
+            <InkButton
+              aria-label={t.editor.moveDown}
+              className="grid h-8 w-8 place-items-center rounded-lg hover:bg-black/10"
+              onClick={() => onMove(1)}
+              type="button"
+              unstyled
+            >
+              <ArrowDown size={16} />
+            </InkButton>
+          )}
           <InkButton
             aria-label={entry.visible ? t.customModule.hide : t.customModule.show}
             onClick={onToggleVisibility}
@@ -189,7 +191,7 @@ function Field({
     <label>
       <span className="mb-2 block text-sm font-bold">{label}</span>
       <input
-        className="h-12 w-full rounded-2xl border-2 border-black/15 px-4 outline-none focus:border-black"
+        className="editor-form-input h-12 w-full px-4 outline-none"
         value={value}
         onChange={(event) => onChange(event.target.value)}
       />

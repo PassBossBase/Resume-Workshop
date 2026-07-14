@@ -6,6 +6,7 @@ import { EditorShellHeader } from "./editor-shell-header";
 import { EditorWorkbench } from "./editor-workbench";
 import { PrintableResume } from "@/features/templates/printable-resume";
 import { TemplateSwitchModal } from "./template-switch-modal";
+import { EditorWorkspaceLoading } from "./editor-workspace-loading";
 import { useEditorShellState } from "./use-editor-shell-state";
 import { useT } from "@/lib/i18n";
 
@@ -19,18 +20,12 @@ export function EditorShell({ id }: { id: string }) {
   const t = useT();
 
   if (!editor.ready || !editor.resume) {
-    return (
-      <div className="grid min-h-screen place-items-center bg-(--yellow)">
-        <div className="animate-bounce rounded-[28px] border-2 border-black bg-white px-7 py-5 text-xl font-black shadow-[5px_5px_0_black]">
-          {t.editor.opening}
-        </div>
-      </div>
-    );
+    return <EditorWorkspaceLoading />;
   }
 
   return (
     <>
-      <div className="editor-screen h-screen overflow-hidden bg-[#ebe7de]">
+      <div className="editor-screen editor-workspace h-screen overflow-hidden">
         <EditorShellHeader
           onBack={() => {
             if (window.history.length > 1) {

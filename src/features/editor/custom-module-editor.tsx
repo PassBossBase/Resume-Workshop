@@ -63,9 +63,9 @@ export function CustomModuleEditor({ module: customModule }: { module: CustomRes
   };
 
   return (
-    <div className="min-h-full bg-(--paper) p-5 md:p-7 xl:p-9">
+    <div className="editor-form-sheet min-h-full p-5 md:p-7 xl:p-9">
       {/* 模块名称区域 */}
-      <SectionCard className="mb-8 flex items-center gap-3 px-5 py-4" variant="white">
+      <SectionCard className="editor-form-heading mb-7 flex items-center gap-3 px-5 py-4" variant="white">
         <span className="grid h-11 w-11 place-items-center rounded-2xl border-2 border-black bg-[#6366f1]">
           <Pencil color="white" size={21} strokeWidth={2.7} />
         </span>
@@ -74,7 +74,7 @@ export function CustomModuleEditor({ module: customModule }: { module: CustomRes
             <div className="flex items-center gap-4">
               <input
                 autoFocus
-                className="h-10 w-36 rounded-xl border-2 border-black px-3 text-xl font-black outline-none"
+                className="editor-form-input h-10 w-36 px-3 text-xl font-black outline-none"
                 maxLength={6}
                 value={draftName}
                 onChange={(e) => setDraftName(e.target.value)}
@@ -109,7 +109,7 @@ export function CustomModuleEditor({ module: customModule }: { module: CustomRes
 
       {/* 自定义项目列表 */}
       {customModule.items.length === 0 ? (
-        <div className="rounded-3xl border-2 border-dashed border-black/25 bg-white/60 py-16 text-center">
+        <div className="editor-form-empty-state py-16 text-center">
           <p className="mb-3 text-lg font-black text-black/40">
             {t.customModule.emptyTitle}
           </p>
@@ -118,7 +118,7 @@ export function CustomModuleEditor({ module: customModule }: { module: CustomRes
           </p>
           <InkButton
             onClick={() => addCustomEntry(moduleId)}
-            className="inline-flex items-center gap-2 rounded-2xl border-2 border-black bg-(--yellow) px-6 py-3 font-black transition hover:-translate-y-0.5"
+            className="editor-form-add-button inline-flex items-center gap-2 px-6 py-3 font-black"
             type="button"
             unstyled
           >
@@ -149,7 +149,7 @@ export function CustomModuleEditor({ module: customModule }: { module: CustomRes
           })}
           <InkButton
             onClick={() => addCustomEntry(moduleId)}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-black bg-(--yellow) py-4 font-black transition hover:-translate-y-0.5"
+            className="editor-form-add-button flex w-full items-center justify-center gap-2 py-4 font-black"
             type="button"
             unstyled
           >

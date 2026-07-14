@@ -62,7 +62,7 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
     >
       {/* ======== 顶部标题横条 ======== */}
       {page.showHeader && (
-        <header className="mb-5">
+        <header className="mb-0">
           <div className="flex items-center justify-between">
             <div>
               {basics?.name && (
@@ -93,17 +93,15 @@ export const LineSeparateTemplate = memo(function LineSeparateTemplate({
 
       {/* ======== 基础信息网格 + 头像 ======== */}
       {page.showHeader && basics && (
-        <div className="relative mb-6 py-4">
-          <div className="grid grid-cols-2 gap-x-10 gap-y-2 text-[0.929em]">
-            {basicDisplayItems.map((item) => (
-              <InfoRow item={item} key={item.key} />
-            ))}
-          </div>
+        <div className="relative grid min-h-[128px] content-center grid-cols-2 gap-x-10 gap-y-2 text-[0.929em]">
+          {basicDisplayItems.map((item) => (
+            <InfoRow item={item} key={item.key} />
+          ))}
           {basics.avatar && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               alt=""
-              className="absolute right-0 top-0 h-[112px] w-[88px] object-cover"
+              className="absolute right-0 top-1/2 h-[112px] w-[88px] -translate-y-1/2 object-cover"
               src={basics.avatar}
             />
           )}

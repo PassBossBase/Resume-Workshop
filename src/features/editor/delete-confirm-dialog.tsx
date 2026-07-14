@@ -13,26 +13,26 @@ export function DeleteConfirmDialog({
 }) {
   const t = useT();
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="w-80 rounded-2xl border-2 border-black bg-white p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#022f44]/72 p-4 backdrop-blur-md">
+      <div className="w-80 rounded-2xl border border-white/32 bg-[#063c4d]/92 p-6 text-white shadow-[0_24px_70px_rgb(2_33_46_/_42%)] backdrop-blur-2xl">
         <h3 className="mb-3 text-lg font-black">{t.customModule.deleteTitle}</h3>
-        <p className="mb-5 text-sm text-black/70">
+        <p className="mb-5 text-sm text-white/72">
           {t.customModule.deleteBody(moduleTitle)}
         </p>
         <div className="flex gap-3">
           <InkButton
             onClick={onCancel}
-            className="flex-1 rounded-xl border-2 border-black px-4 py-2 font-bold transition hover:bg-gray-100"
+            className="flex-1 rounded-xl"
             type="button"
-            unstyled
+            variant="glass"
           >
             {t.customModule.cancel}
           </InkButton>
           <InkButton
             onClick={onConfirm}
-            className="flex-1 rounded-xl border-2 border-black bg-red-500 px-4 py-2 font-bold text-white transition hover:bg-red-600"
+            className="flex-1 rounded-xl border-rose-100/45 bg-rose-400/34 text-white hover:bg-rose-400/46"
             type="button"
-            unstyled
+            variant="glass"
           >
             {t.editor.delete}
           </InkButton>
