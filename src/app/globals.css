@@ -153,8 +153,7 @@ a {
     background-attachment: scroll;
   }
 
-  .editor-loading-skeleton::after,
-  .editor-loading-spinner {
+  .editor-loading-skeleton::after {
     animation: none;
   }
 }
@@ -176,32 +175,12 @@ a {
   backdrop-filter: blur(18px);
 }
 
-/* 动态壳层加载：先呈现同一套工作台空间，避免冷启动时出现孤立提示。 */
+/* 动态壳层加载：复用工作台的同一框架，只在内容区显示占位。 */
 .editor-loading-screen {
-  display: grid;
-  place-items: center;
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-}
-
-.editor-loading-screen::before {
-  position: absolute;
-  z-index: -1;
-  width: min(72rem, 90vw);
-  height: min(44rem, 72vh);
-  border-radius: 999px;
-  background: rgb(149 231 225 / 20%);
-  filter: blur(68px);
-  content: "";
 }
 
 .editor-loading-frame {
-  border-color: rgb(255 255 255 / 32%);
-  background: rgb(3 48 63 / 72%);
-  box-shadow: 0 28px 72px rgb(1 28 40 / 42%), inset 0 1px rgb(255 255 255 / 18%);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
+  background: rgb(3 48 63 / 18%);
 }
 
 .editor-loading-header,
@@ -211,17 +190,7 @@ a {
 }
 
 .editor-loading-header {
-  background: linear-gradient(90deg, rgb(7 79 102 / 88%), rgb(7 63 78 / 66%));
-}
-
-.editor-loading-brand-mark {
-  border: 1px solid rgb(255 255 255 / 35%);
-  background: linear-gradient(145deg, #5ce2d4, #2f92d1);
-  box-shadow: 0 8px 20px rgb(1 36 54 / 30%), inset 0 1px rgb(255 255 255 / 45%);
-}
-
-.editor-loading-workbench {
-  background: rgb(2 44 59 / 56%);
+  background: linear-gradient(90deg, rgb(7 79 102 / 74%), rgb(7 63 78 / 60%));
 }
 
 .editor-loading-rail {
@@ -239,6 +208,23 @@ a {
   background: rgb(229 249 247 / 94%);
 }
 
+.editor-loading-resize-handle {
+  position: relative;
+  width: 6px;
+  flex: 0 0 6px;
+  background: rgb(3 45 59 / 42%);
+}
+
+.editor-loading-resize-handle::after {
+  position: absolute;
+  inset-block: 0;
+  left: 2px;
+  width: 2px;
+  border-radius: 999px;
+  background: rgb(178 245 237 / 34%);
+  content: "";
+}
+
 .editor-loading-form .editor-loading-skeleton {
   --loading-base: rgb(18 92 105 / 19%);
   --loading-shine: rgb(255 255 255 / 70%);
@@ -249,14 +235,27 @@ a {
   --loading-shine: rgb(232 255 254 / 52%);
 }
 
-.editor-loading-preview {
-  background: rgb(0 31 44 / 62%);
+.editor-loading-document-frame {
+  width: 460.52px;
+  height: 651.34px;
 }
 
 .editor-loading-paper {
-  min-height: 31rem;
-  border-radius: 0.3rem;
-  box-shadow: 0 18px 42px rgb(0 20 31 / 35%);
+  border-radius: 0;
+}
+
+@media (min-width: 1536px) {
+  .editor-loading-document-frame {
+    width: 619.32px;
+    height: 875.94px;
+  }
+}
+
+@media (min-width: 1750px) {
+  .editor-loading-document-frame {
+    width: 794px;
+    height: 1123px;
+  }
 }
 
 .editor-loading-paper-accent {
@@ -286,19 +285,9 @@ a {
   content: "";
 }
 
-.editor-loading-spinner {
-  animation: editor-loading-spin 1s linear infinite;
-}
-
 @keyframes editor-loading-shimmer {
   to {
     transform: translateX(115%);
-  }
-}
-
-@keyframes editor-loading-spin {
-  to {
-    transform: rotate(360deg);
   }
 }
 
