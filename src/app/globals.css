@@ -112,7 +112,7 @@ a {
 .scenic-workspace {
   min-height: 100dvh;
   background-color: #0d6791;
-  background-image: url("/workspace-background.png");
+  background-image: url("/workspace-background.webp");
   background-position: center;
   background-size: cover;
   background-attachment: fixed;
@@ -161,7 +161,7 @@ a {
 /* 编辑工作台：静态场景承托玻璃工具面，白底简历文档保持独立。 */
 .editor-workspace {
   background-color: #0d6791;
-  background-image: url("/workspace-background.png");
+  background-image: url("/workspace-background.webp");
   background-position: center;
   background-size: cover;
 }

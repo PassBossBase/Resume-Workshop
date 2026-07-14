@@ -40,7 +40,7 @@ export default function Home() {
 
   return (
     <AppShell>
-      <section className="relative isolate  text-white">
+      <section className="relative isolate text-white">
         <video
           aria-hidden="true"
           autoPlay
@@ -48,6 +48,7 @@ export default function Home() {
           loop
           muted
           playsInline
+          poster="/workspace-background.webp"
           preload="metadata"
         >
           <source src="/home-hero.mp4" type="video/mp4" />
