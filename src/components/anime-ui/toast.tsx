@@ -10,19 +10,13 @@ const iconMap: Record<ToastType, typeof CheckCircle2> = {
   info: Info,
 };
 
-const colorMap: Record<ToastType, string> = {
-  success: "border-green-500 bg-green-50 text-green-800",
-  error: "border-red-400 bg-red-50 text-red-700",
-  info: "border-blue-400 bg-blue-50 text-blue-700",
+const iconSurfaceMap: Record<ToastType, string> = {
+  success: "bg-[#7ee6d5]/20 text-[#b9f2e8]",
+  error: "bg-[#ff8a80]/20 text-[#ffd0cb]",
+  info: "bg-[#8cc7ff]/20 text-[#c7e8ff]",
 };
 
-const iconColorMap: Record<ToastType, string> = {
-  success: "text-green-600",
-  error: "text-red-500",
-  info: "text-blue-600",
-};
-
-/** 全局 toast 通知容器，固定于视口顶部居中 */
+/** 全局玻璃通知容器，固定于视口顶部居中。 */
 export function ToastContainer() {
   const toasts = useToastStore((s) => s.toasts);
   const removeToast = useToastStore((s) => s.removeToast);
@@ -40,19 +34,21 @@ export function ToastContainer() {
         return (
           <div
             key={toast.id}
-            className={`pointer-events-auto flex items-center gap-3 rounded-2xl border-2 px-4 py-3 font-bold shadow-[4px_4px_0_black] animate-pop whitespace-nowrap ${colorMap[toast.type]}`}
+            className="pointer-events-auto flex max-w-[calc(100vw-2rem)] items-center gap-3 rounded-[18px] border border-white/40 bg-[#063c4d]/88 px-3 py-3 text-white shadow-[0_18px_45px_rgb(2_35_48_/_42%)] ring-1 ring-inset ring-white/10 backdrop-blur-2xl animate-pop"
             role="status"
           >
-            <Icon
+            <span
               aria-hidden="true"
-              className={`shrink-0 ${iconColorMap[toast.type]}`}
-              size={20}
-              strokeWidth={2.5}
-            />
-            <span className="text-sm">{toast.message}</span>
+              className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/16 ${iconSurfaceMap[toast.type]}`}
+            >
+              <Icon size={20} strokeWidth={2.25} />
+            </span>
+            <span className="min-w-0 text-sm font-semibold leading-5 text-white/94">
+              {toast.message}
+            </span>
             <InkButton
               aria-label="关闭提示"
-              className="ml-1 h-7 w-7 shrink-0 rounded-lg border-0 shadow-none hover:bg-black/10"
+              className="ml-1 h-8 w-8 shrink-0 rounded-full border border-white/14 bg-white/8 p-0 text-white/76 shadow-none hover:bg-white/16 hover:text-white focus-visible:outline-white"
               iconOnly
               onClick={() => removeToast(toast.id)}
               size="icon"
