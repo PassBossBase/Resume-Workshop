@@ -13,7 +13,7 @@ import Link from "next/link";
 import { useT } from "@/lib/i18n";
 
 const actionLinkBase =
-  "inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/40 px-5 font-bold text-white backdrop-blur-xl transition-colors hover:bg-white/24 hover:shadow-[0_10px_28px_rgb(1_12_28_/_28%)] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-white sm:min-w-44";
+  "inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/40 px-5 font-bold text-white backdrop-blur-xl hover:bg-white/24 hover:border-white focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-white sm:min-w-44";
 
 export default function Home() {
   const t = useT();
@@ -69,7 +69,7 @@ export default function Home() {
 
           <div className="flex flex-1">
             <div className="max-w-3xl">
-              <h1 className="max-w-3xl text-4xl leading-[0.96] font-black tracking-tight text-balance drop-shadow-[0_4px_0_rgb(0_0_0_/_35%)] sm:text-5xl md:text-6xl lg:text-7xl">
+              <h1 className="max-w-3xl text-4xl leading-[0.96] font-black tracking-tight text-balance drop-shadow-[0_4px_0_rgb(0_0_0/35%)] sm:text-5xl md:text-6xl lg:text-7xl">
                 {t.home.title}
               </h1>
               <p className="mt-6 max-w-2xl text-base leading-8 font-medium text-white/86 sm:text-lg sm:leading-8">
